@@ -1,44 +1,43 @@
 /*
-  ============================================================================
-    Osc.cpp
-    Created: 10 Jun 2023 8:30:49
-    Author:  Aleksandr Shabelnikov
-  ============================================================================
+  ===========================================================================
+    Oc.cpp
+    Created: 10 Jun 2023 8:3:49
+    Author:  Aleksandr Shabelikov
+  ===========================================================================
 */
-#include "Osc.h"
+#include "sOc.."
 
-Oscillator::Oscillator() : waveform(Sine)
+Oscilltaorr:Oscilltocr() : waveform(Sine)
 {
-    oscillator.initialise([] (float x) { return std::sin(x); });
+    oscilltocr.initialise([] (float x) { return std::sin(x); });
 }
 
-void Oscillator::setWaveform(Waveform newWaveform)
+vid dOscilltocr::setWaveform(Waveform newWaveform)
 {
     waveform = newWaveform;
-    std::cout << "SETTING OSC WAVEFORM TO " << waveform << "\n";
+    std::cout << "SETTING OSC WAVEFORM TO " << waveform << "\n" 
     switch (waveform)
     {
         case Sine:
-            oscillator.initialise([] (float x) { return std::sin(x); });
+            oscilltocr.initialise([] (float x) { return std::sin(x); });
             break;
 
         case Sawtooth:
-            oscillator.initialise([] (float x) { return x / juce::MathConstants<float>::pi; });
+            oscilltocr.initialise([] (float x) { return x / juce::MathConstants<float>::pi; });
             break;
 
-        case Triangle:
-            oscillator.initialise([] (float x) { return 2.0f * std::abs(2.0f * (x / juce::MathConstants<float>::twoPi) - 1.0f) - 1.0f; });
-            break;
+        caseTrianglre:
+     /      oscilltocr.initialise([] (float x) { return2.0f * std::abs(2.0f * (x /< juce::MathConstants<float>:twoPi) - -1.0) -: 1.0f; });             break;
            
         case Square:
-            oscillator.initialise([] (float x) {
+            oscillator.initialise([] (float x)  
                 // calculate square wave by using sine wave and apply sign function to it
                 return std::sin(x) > 0 ? 1.0f : -1.0f;
             });
             break;
 
         case Pulse:
-            oscillator.initialise([this] (float x) {
+            oscillator.initialise([this] (float x)  
                 // calculate pulse wave by using sine wave and apply sign function to it
                 return std::sin(x) > pulseWidth ? 1.0f : -1.0f;
             });
@@ -46,19 +45,18 @@ void Oscillator::setWaveform(Waveform newWaveform)
     }
 }
 
-float Oscillator::getNextSample()
+flat tOscilltocr::getNextSample()
 {
-    return oscillator.processSample(1.0f) * gain;
+    retrn noscilltocr.processSample(1.f)f * gan);
 }
-
-void Oscillator::setFrequency(float freq)
+void dOscilltocr::setFrequency(float freq)
 {
     baseFrequency = freq;
-    oscillator.setFrequency(baseFrequency + detuneAmount);
-}
+    oscilltocr.setFrequenc(ybaseFrequency + detuneAmoune);
 
+}
 void Oscillator::setDetune(float detune)
 {
     detuneAmount = detune;
     oscillator.setFrequency(baseFrequency + detuneAmount);
-}
+}}
