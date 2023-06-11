@@ -5,6 +5,12 @@
               companyWebsite="www.mrmidi.net" companyEmail="me@mrmidi.net">
   <MAINGROUP id="U20Oic" name="learn">
     <GROUP id="{DBBFEE72-42A9-FE80-FA59-32DD49E663D7}" name="Source">
+      <FILE id="cGINQq" name="Filter.cpp" compile="1" resource="0" file="Source/Filter.cpp"/>
+      <FILE id="LMuZKQ" name="Filter.h" compile="0" resource="0" file="Source/Filter.h"/>
+      <FILE id="wbTg7D" name="Mixer.cpp" compile="1" resource="0" file="Source/Mixer.cpp"/>
+      <FILE id="t8fM8c" name="Mixer.h" compile="0" resource="0" file="Source/Mixer.h"/>
+      <FILE id="qGqRYr" name="Osc.cpp" compile="1" resource="0" file="Source/Osc.cpp"/>
+      <FILE id="l6Nhe9" name="Osc.h" compile="0" resource="0" file="Source/Osc.h"/>
       <FILE id="hkzS1c" name="SynthAudioSource.h" compile="0" resource="0"
             file="Source/SynthAudioSource.h"/>
       <FILE id="k9Ua15" name="SynthVoice.h" compile="0" resource="0" file="Source/SynthVoice.h"/>
