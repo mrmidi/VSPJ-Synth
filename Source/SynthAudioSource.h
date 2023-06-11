@@ -21,6 +21,8 @@ public:
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override;
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
+    
+    void setCurrentSampleRate(float sampleRate) { currentSampleRate = sampleRate; }
 
 
     int getActiveVoiceCount() {
@@ -72,15 +74,45 @@ public:
       return dynamic_cast<SynthVoice*>(synth.getVoice(0))->getWaveform(oscIndex);
     }
 
+    void setCutoffFreq(float cutoff) {
+        filter.setCutoffFreq(cutoff);
+    }
+
+    void setResonance(float resonance) {
+        filter.setResonance(resonance);
+    }
+
     juce::MidiMessageCollector* getMidiCollector()
     {
         return &midiCollector;
     }
 
+//    float getCutoffFreq() const {
+//        return cutoffFreq;
+//    }
+//
+//    float getResonance() const {
+//        return resonance;
+//    }
+
+//    void setCutoff(float cutoff) {
+//        cutoffFreq = cutoff;
+//    }
+//
+//    void setRes(float res) {
+//        resonance = res;
+//    }
+
 private:
+    float currentSampleRate;
     juce::MidiKeyboardState& keyboardState;
     juce::Synthesiser synth;
     juce::MidiKeyboardComponent::Orientation keyboardOrientation;
     juce::MidiMessageCollector midiCollector;
     Filter filter;
+    juce::ADSR adsr;
+    juce::ADSR::Parameters adsrParams;
+    float cutoffFreq;
+    float resonance;
+    
 };

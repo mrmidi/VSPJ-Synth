@@ -12,6 +12,12 @@ SynthAudioSource::SynthAudioSource(juce::MidiKeyboardState& keyState, juce::Midi
         synth.addVoice(new SynthVoice());
 
     synth.addSound(new SynthSound());
+    adsrParams.attack = 0.1;
+    adsrParams.decay = 0.2;
+    adsrParams.sustain = 0.8;
+    adsrParams.release = 0.3;
+
+    adsr.setParameters(adsrParams);
 }
 
 
@@ -20,6 +26,13 @@ void SynthAudioSource::prepareToPlay(int samplesPerBlockExpected, double sampleR
     synth.setCurrentPlaybackSampleRate(sampleRate);
     printf("\nsetting audio sample rate to %f\n", sampleRate);
     midiCollector.reset(sampleRate);
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlockExpected;
+    spec.numChannels = 2; // You need to provide the number of channels
+
+    filter.prepare(spec, sampleRate);
+    
 }
 
 void SynthAudioSource::releaseResources() {}
@@ -29,7 +42,7 @@ void SynthAudioSource::getNextAudioBlock(const juce::AudioSourceChannelInfo& buf
     bufferToFill.clearActiveBufferRegion();
 
     juce::MidiBuffer incomingMidi;
-    midiCollector.removeNextBlockOfMessages (incomingMidi, bufferToFill.numSamples); 
+    midiCollector.removeNextBlockOfMessages (incomingMidi, bufferToFill.numSamples);
 
     keyboardState.processNextMidiBuffer (incomingMidi, bufferToFill.startSample,
                                              bufferToFill.numSamples, true);
@@ -46,8 +59,41 @@ void SynthAudioSource::getNextAudioBlock(const juce::AudioSourceChannelInfo& buf
     synth.renderNextBlock (*bufferToFill.buffer, incomingMidi,
                            bufferToFill.startSample, bufferToFill.numSamples);
     
+    // Process the block with your filter
+    //juce::dsp::AudioBlock<float> block(bufferToFill.buffer->getArrayOfWritePointers(), bufferToFill.buffer->getNumChannels(), bufferToFill.numSamples);
+
+        // Process the block with your filter
+    juce::dsp::AudioBlock<float> block(bufferToFill.buffer->getArrayOfWritePointers(), bufferToFill.buffer->getNumChannels(), bufferToFill.numSamples);
+    juce::dsp::ProcessContextReplacing<float> context(block);
+    filter.process(context);
+    // Set the cutoff frequency for each sample.
+//    for (int sample = 0; sample < bufferToFill.numSamples; ++sample)
+//    {
+//        float envValue = adsr.getNextSample();
+//        float cutoffFreq = getCutoffFreq() + 2000.0f * envValue;
+//        float resonance = getResonance() * envValue;
+//        // get cutoff frequency from slider
+//        filter.setState(*juce::dsp::IIR::Coefficients<float>::makeLowPass(currentSampleRate, cutoffFreq, resonance));
+//        juce::dsp::ProcessContextReplacing<float> context(block);
+//        filter.process(context);
+//    }
+//    for (int sample = 0; sample < bufferToFill.numSamples; ++sample)
+//    {
+//        float envValue = adsr.getNextSample();
+//        float cutoffFreq = filterCutoff.getValue() * envValue;
+//
+//        // Set the cutoff frequency for each sample.
+//        filter.state = *juce::dsp::IIR::Coefficients<float>::makeLowPass(lastSampleRate, cutoffFreq);
+//
+//        juce::dsp::ProcessContextReplacing<float> context(block.getSubBlock(sample, 1));
+//        filter.process(context);
+//    }
+//
+
+
+    //filter.process(context);
    
-    float volume = 0.9f / VOICES; // Adjust volume per number of active voices
+    float volume = 1.0f / VOICES; // Adjust volume per number of active voices
 
     for (int channel = 0; channel < bufferToFill.buffer->getNumChannels(); ++channel)
     {
@@ -58,8 +104,8 @@ void SynthAudioSource::getNextAudioBlock(const juce::AudioSourceChannelInfo& buf
             channelData[sample] *= volume;
         }
     }
-    
 }
+
 
 
 
@@ -71,7 +117,7 @@ MainComponent::MainComponent()
 {
     // Make sure you set the size of the component after
     // you add any child components.
-    setSize (800, 400);
+    setSize (1000, 400);
 
     // Some platforms require permissions to open input channels so request that here
     if (juce::RuntimePermissions::isRequired (juce::RuntimePermissions::recordAudio)
@@ -93,15 +139,6 @@ MainComponent::MainComponent()
     // init GUI
     initGUI();
     
-    // Setup volumeSlider properties
-//    volumeSlider.setSliderStyle(juce::Slider::LinearHorizontal);
-//    volumeSlider.setRange(0.0, 1.0, 0.01);
-//    volumeSlider.setValue(0.1); // start at max volume
-//    volumeSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
-//    addAndMakeVisible(&volumeSlider); // Add the slider to the component
-
-    // Setup volumeLabel properties
-    //volumeLabel.setText("Volume", juce::dontSendNotification);
     gainLabel.setText("Volume: 0 dB", juce::dontSendNotification);
 //    volumeLabel.setText("Volume: 0 dB", juce::dontSendNotification);
     addAndMakeVisible(&gainLabel); // Add the label to the component
@@ -154,6 +191,9 @@ MainComponent::MainComponent()
     phaseDelta = (float)(2.0 * juce::MathConstants<double>::pi * frequency / currentSampleRate);
     
     synthAudioSource.prepareToPlay(512, 44100);
+    synthAudioSource.setCurrentSampleRate(44100);
+    
+    
 
     
 }
@@ -169,14 +209,15 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 {
 
     currentSampleRate = sampleRate;
+    
     synth.setCurrentPlaybackSampleRate(sampleRate);
     synthAudioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    synthAudioSource.setCurrentSampleRate(sampleRate);
     
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
-
     synthAudioSource.getNextAudioBlock(bufferToFill);
     // int voices = getActiveVoiceCount();
     // divide output to the number of voices
@@ -299,6 +340,38 @@ void MainComponent::initGUI() {
     // set default waveform
     waveformSelector2.setSelectedId(1);
 
+    // setup filterGroup properties
+    filterGroup.setColour(juce::GroupComponent::textColourId, juce::Colours::white);
+    addAndMakeVisible(filterGroup);
+    filterGroup.setText("Filter");
+    // add listeners
+    filterCutoff.addListener(this);
+    filterResonance.addListener(this);
+    // filter cutoff
+    filterCutoff.setSliderStyle(juce::Slider::LinearHorizontal);
+    filterCutoff.setRange(20.0, 20000.0, 0.01);
+    filterCutoff.setValue(6000);
+    filterCutoff.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+    filterGroup.addAndMakeVisible(filterCutoff);
+    filterGroup.addAndMakeVisible(filterCutoffLabel);
+    filterCutoffLabel.setText("Cutoff", juce::dontSendNotification);
+    filterCutoffLabel.attachToComponent(&filterCutoff, true);
+    // filter resonance
+    filterResonance.setSliderStyle(juce::Slider::LinearHorizontal);
+    filterResonance.setRange(1.0, 5.0, 0.01);
+    filterResonance.setValue(3.0);
+    filterResonance.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+    filterGroup.addAndMakeVisible(filterResonance);
+    filterGroup.addAndMakeVisible(filterResonanceLabel);
+    filterResonanceLabel.setText("Resonance", juce::dontSendNotification);
+    filterResonanceLabel.attachToComponent(&filterResonance, true);
+
+
+    // add keyboard component
+    addAndMakeVisible(keyboardComponent);
+
+
+
 
 }
 
@@ -388,6 +461,20 @@ void MainComponent::resized()
     pulseWidthSlider2.setBounds(40, 120, 150, 20);
     pulseWidthLabel2.setBounds(40, 120, 150, 20);
 
+    // FILTER GROUP
+    filterGroup.setBounds(430, 10, 200, 160);
+    // add filter controls to filterGroup
+    //     juce::Slider filterCutoff;
+    //     juce::Slider filterResonance;
+    //     juce::Label filterCutoffLabel;
+    //     juce::Label filterResonanceLabel;
+    filterCutoff.setBounds(40, 30, 150, 20);
+    filterResonance.setBounds(40, 60, 150, 20);
+    filterCutoffLabel.setBounds(40, 10, 150, 20);
+    filterResonanceLabel.setBounds(40, 40, 150, 20);
+
+    
+
 
 
  
@@ -406,11 +493,12 @@ void MainComponent::resized()
 //    gainLabel.setBounds (500, 10, getWidth() - 20, 20);
     
     // set the height for the midiMessagesBox
+    // set the height for the midiMessagesBox
     auto messageArea = area.removeFromRight(200);
     midiMessagesBox.setBounds(messageArea);
     
-    // rest of the area goes to keyboardComponent
-    //keyboardComponent.setBounds(area);
+    // put keyboard to bottom of screen
+    keyboardComponent.setBounds(10, 300, getWidth() - 20, getHeight() - 310);
 }
 
 
@@ -454,6 +542,19 @@ void MainComponent::sliderValueChanged(juce::Slider* slider) {
         std::cout << slider->getValue() << std::endl;
         synthAudioSource.setPulseWidth(2, slider->getValue());
     }
+    // Filter Cutoff Slider
+    if (slider == &filterCutoff) {
+        std::cout << "Filter Cutoff Slider" << std::endl;
+        std::cout << slider->getValue() << std::endl;
+        synthAudioSource.setCutoffFreq(slider->getValue());
+    }
+    // Filter Resonance Slider
+    if (slider == &filterResonance) {
+        std::cout << "Filter Resonance Slider" << std::endl;
+        std::cout << slider->getValue() << std::endl;
+        synthAudioSource.setResonance(slider->getValue());
+    }
+    
 }
 
 void MainComponent::comboBoxChanged(juce::ComboBox* comboBox) {

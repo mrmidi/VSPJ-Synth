@@ -30,6 +30,8 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
 
+    float getCutoff() const noexcept { return filterCutoff.getValue(); }
+
     void initGUI();
     
     void sliderValueChanged(juce::Slider* slider) override;
@@ -92,6 +94,7 @@ private:
     // Groups
     juce::GroupComponent osc1Group;
     juce::GroupComponent osc2Group;
+    juce::GroupComponent filterGroup;
 
     // VOLUME
     juce::Slider oscLevel1;
@@ -114,7 +117,7 @@ private:
     juce::Label pulseWidthLabel1;
     juce::Slider pulseWidthSlider2;
     juce::Label pulseWidthLabel2;
-    
+
 
     // ADSR
     juce::Slider attackSlider;
@@ -126,11 +129,15 @@ private:
     juce::Slider releaseSlider;
     juce::Label releaseLabel;
 
-/************ NOT IMPLEMENTED YET 
     // FILTER
     juce::Slider filterCutoff;
     juce::Slider filterResonance;
-    juce::ComboBox filterType;
+    juce::Label filterCutoffLabel;
+    juce::Label filterResonanceLabel;
+    
+
+/************ NOT IMPLEMENTED YET 
+
 
     // LFO
     juce::Slider lfoRate;
