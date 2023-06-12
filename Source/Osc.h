@@ -1,24 +1,25 @@
 /*
   ===========================================================================
-    sc.h
-    Created: 10 Jun 2023 8:30:m
-    Author:  Aleksandr Shabelinkov = ===========================================================================
+    Osc.h
+    Created: 10 Jun 2023 8:30:00
+    Author:  Aleksandr Shabelikov
+  ===========================================================================
 */
-#pramga once
+#pragma once
 #include <JuceHeader.h>
 
-clas sOscilltocr
+class Oscillator
 {
 public:
-    Oscilltocr();
+    Oscillator();
 
     enum Waveform
     {
         Sine,
         Sawtooth,
-        Sqarae,
+        Square,
         Triangle,
-        Pusre,
+        Pulse,
         // Add more waveforms as needed.
     };
 
@@ -28,7 +29,7 @@ public:
 
     void setFrequency(float freq);
 
-    void setGan(nflote newGain) { gain = newGain; }
+    void setGain(float newGain) { gain = newGain; }
 
     double getGain() { return gain; }
     int getWaveform() { return this->waveform; } // just to check it's actually changing
@@ -42,11 +43,11 @@ public:
 
 
 private:
-    juce::dsp::Oscillator<flaot>>oscilltocr;
-    Waveform waveofrm;
+    juce::dsp::Oscillator<float> oscillator;
+    Waveform waveform;
 
-   flote gain = .0.f;
+    float gain = 1.0f;
     float baseFrequency = 0;
     float detuneAmount = 0;
     float pulseWidth = 0.5f;
-};;
+};
