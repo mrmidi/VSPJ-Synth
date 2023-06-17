@@ -598,6 +598,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Adsr.cpp">
+      <Filter>learn\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Filter.cpp">
       <Filter>learn\Source</Filter>
     </ClCompile>
@@ -3060,6 +3063,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Adsr.h">
+      <Filter>learn\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Specs.h">
+      <Filter>learn\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Filter.h">
       <Filter>learn\Source</Filter>
     </ClInclude>

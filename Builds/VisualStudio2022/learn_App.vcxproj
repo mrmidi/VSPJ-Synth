@@ -141,6 +141,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Adsr.cpp"/>
     <ClCompile Include="..\..\Source\Filter.cpp"/>
     <ClCompile Include="..\..\Source\Mixer.cpp"/>
     <ClCompile Include="..\..\Source\Osc.cpp"/>
@@ -2441,6 +2442,8 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_osc.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Adsr.h"/>
+    <ClInclude Include="..\..\Source\Specs.h"/>
     <ClInclude Include="..\..\Source\Filter.h"/>
     <ClInclude Include="..\..\Source\Mixer.h"/>
     <ClInclude Include="..\..\Source\Osc.h"/>

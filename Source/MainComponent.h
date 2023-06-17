@@ -95,6 +95,9 @@ private:
     juce::GroupComponent osc1Group;
     juce::GroupComponent osc2Group;
     juce::GroupComponent filterGroup;
+    juce::GroupComponent filterAdsrGroup;
+    juce::GroupComponent adsrGroup1;
+    juce::GroupComponent adsrGroup2;
 
     // VOLUME
     juce::Slider oscLevel1;
@@ -119,21 +122,46 @@ private:
     juce::Label pulseWidthLabel2;
 
 
-    // ADSR
-    juce::Slider attackSlider;
-    juce::Label attackLabel;
-    juce::Slider decaySlider;
-    juce::Label decayLabel;
-    juce::Slider sustainSlider;
-    juce::Label sustainLabel;
-    juce::Slider releaseSlider;
-    juce::Label releaseLabel;
+    // ADSR osc1
+    juce::Slider attackSlider1;
+    juce::Label attackLabel1;
+    juce::Slider decaySlider1;
+    juce::Label decayLabel1;
+    juce::Slider sustainSlider1;
+    juce::Label sustainLabel1;
+    juce::Slider releaseSlider1;
+    juce::Label releaseLabel1;
+
+    // ADSR osc2
+    juce::Slider attackSlider2;
+    juce::Label attackLabel2;
+    juce::Slider decaySlider2;
+    juce::Label decayLabel2;
+    juce::Slider sustainSlider2;
+    juce::Label sustainLabel2;
+    juce::Slider releaseSlider2;
+    juce::Label releaseLabel2;
 
     // FILTER
     juce::Slider filterCutoff;
     juce::Slider filterResonance;
     juce::Label filterCutoffLabel;
     juce::Label filterResonanceLabel;
+    juce::ComboBox filterType;
+    juce::Label filterTypeLabel;
+    juce::Slider filterEnvAmount;
+    juce::Label filterEnvAmountLabel;
+
+    // ADSR filter
+    juce::Slider filterAttack;
+    juce::Label filterAttackLabel;
+    juce::Slider filterDecay;
+    juce::Label filterDecayLabel;
+    juce::Slider filterSustain;
+    juce::Label filterSustainLabel;
+    juce::Slider filterRelease;
+    juce::Label filterReleaseLabel;
+
     
 
 /************ NOT IMPLEMENTED YET 
@@ -195,7 +223,8 @@ private:
 
     
 
-    
+    // specs
+    juce::dsp::ProcessSpec spec;
 
     
     SynthAudioSource synthAudioSource;
@@ -216,6 +245,8 @@ private:
     double currentSampleRate = 0.0;
     
     int lastInputIndex = 0;
+
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 

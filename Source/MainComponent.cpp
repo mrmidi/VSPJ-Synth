@@ -31,7 +31,6 @@ void SynthAudioSource::prepareToPlay(int samplesPerBlockExpected, double sampleR
     spec.maximumBlockSize = samplesPerBlockExpected;
     spec.numChannels = 2; // You need to provide the number of channels
 
-    filter.prepare(spec, sampleRate);
     
 }
 
@@ -65,33 +64,7 @@ void SynthAudioSource::getNextAudioBlock(const juce::AudioSourceChannelInfo& buf
         // Process the block with your filter
     juce::dsp::AudioBlock<float> block(bufferToFill.buffer->getArrayOfWritePointers(), bufferToFill.buffer->getNumChannels(), bufferToFill.numSamples);
     juce::dsp::ProcessContextReplacing<float> context(block);
-    filter.process(context);
-    // Set the cutoff frequency for each sample.
-//    for (int sample = 0; sample < bufferToFill.numSamples; ++sample)
-//    {
-//        float envValue = adsr.getNextSample();
-//        float cutoffFreq = getCutoffFreq() + 2000.0f * envValue;
-//        float resonance = getResonance() * envValue;
-//        // get cutoff frequency from slider
-//        filter.setState(*juce::dsp::IIR::Coefficients<float>::makeLowPass(currentSampleRate, cutoffFreq, resonance));
-//        juce::dsp::ProcessContextReplacing<float> context(block);
-//        filter.process(context);
-//    }
-//    for (int sample = 0; sample < bufferToFill.numSamples; ++sample)
-//    {
-//        float envValue = adsr.getNextSample();
-//        float cutoffFreq = filterCutoff.getValue() * envValue;
-//
-//        // Set the cutoff frequency for each sample.
-//        filter.state = *juce::dsp::IIR::Coefficients<float>::makeLowPass(lastSampleRate, cutoffFreq);
-//
-//        juce::dsp::ProcessContextReplacing<float> context(block.getSubBlock(sample, 1));
-//        filter.process(context);
-//    }
-//
 
-
-    //filter.process(context);
    
     float volume = 1.0f / VOICES; // Adjust volume per number of active voices
 
@@ -115,9 +88,16 @@ MainComponent::MainComponent()
     synthAudioSource(keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
 
 {
+    // init specs
+    spec.sampleRate = 44100.0;
+    spec.maximumBlockSize = 512;
+    spec.numChannels = 2;
+    
+
+
     // Make sure you set the size of the component after
     // you add any child components.
-    setSize (1000, 400);
+    setSize (1000, 600);
 
     // Some platforms require permissions to open input channels so request that here
     if (juce::RuntimePermissions::isRequired (juce::RuntimePermissions::recordAudio)
@@ -340,6 +320,55 @@ void MainComponent::initGUI() {
     // set default waveform
     waveformSelector2.setSelectedId(1);
 
+    // set ADSR group properties
+    adsrGroup1.setColour(juce::GroupComponent::textColourId, juce::Colours::white);
+    addAndMakeVisible(adsrGroup1);
+    adsrGroup1.setText("ADSR");
+    // add listeners
+    attackSlider1.addListener(this);
+    decaySlider1.addListener(this);
+    sustainSlider1.addListener(this);
+    releaseSlider1.addListener(this);
+    // attack
+    adsrGroup1.addAndMakeVisible(attackSlider1);
+    attackSlider1.setSliderStyle(juce::Slider::LinearHorizontal);
+    attackSlider1.setRange(0.01, 100.0); // set slider range from 0.1 to 100
+    attackSlider1.setSkewFactorFromMidPoint(10.0); // mid-point at 10
+    attackSlider1.setValue(0.01); // set default value to 1
+    attackSlider1.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+    adsrGroup1.addAndMakeVisible(attackLabel1);
+    // decay
+    adsrGroup1.addAndMakeVisible(decaySlider1);
+    decaySlider1.setSliderStyle(juce::Slider::LinearHorizontal);
+    decaySlider1.setRange(0.1, 10.0, 0.1);
+    decaySlider1.setValue(0.1);
+    decaySlider1.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+    adsrGroup1.addAndMakeVisible(decayLabel1);
+    // sustain
+    adsrGroup1.addAndMakeVisible(sustainSlider1);
+    sustainSlider1.setSliderStyle(juce::Slider::LinearHorizontal);
+    sustainSlider1.setRange(0.0, 1.0, 0.01);
+    sustainSlider1.setValue(1.0);
+    sustainSlider1.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+    adsrGroup1.addAndMakeVisible(sustainLabel1);
+    // release
+    adsrGroup1.addAndMakeVisible(releaseSlider1);
+    releaseSlider1.setSliderStyle(juce::Slider::LinearHorizontal);
+    releaseSlider1.setRange(0.1, 10.0, 0.1);
+    releaseSlider1.setValue(0.1);
+    releaseSlider1.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+    adsrGroup1.addAndMakeVisible(releaseLabel1);
+    // set labels
+    attackLabel1.setText("Attack", juce::dontSendNotification);
+    attackLabel1.attachToComponent(&attackSlider1, true);
+    decayLabel1.setText("Decay", juce::dontSendNotification);
+    decayLabel1.attachToComponent(&decaySlider1, true);
+    sustainLabel1.setText("Sustain", juce::dontSendNotification);
+    sustainLabel1.attachToComponent(&sustainSlider1, true);
+    releaseLabel1.setText("Release", juce::dontSendNotification);
+    releaseLabel1.attachToComponent(&releaseSlider1, true);
+
+
     // setup filterGroup properties
     filterGroup.setColour(juce::GroupComponent::textColourId, juce::Colours::white);
     addAndMakeVisible(filterGroup);
@@ -365,6 +394,75 @@ void MainComponent::initGUI() {
     filterGroup.addAndMakeVisible(filterResonanceLabel);
     filterResonanceLabel.setText("Resonance", juce::dontSendNotification);
     filterResonanceLabel.attachToComponent(&filterResonance, true);
+    // filter type
+    filterType.addItem("Low Pass", 1);
+    filterType.addItem("High Pass", 2);
+    filterType.addItem("Band Pass", 3);
+    filterType.addListener(this);
+    filterType.setSelectedId(1);
+    filterGroup.addAndMakeVisible(filterType);
+    // env amount
+    filterEnvAmount.setSliderStyle(juce::Slider::LinearHorizontal);
+    filterEnvAmount.setRange(0, 10, 1);
+    filterEnvAmount.setValue(0);
+    filterEnvAmount.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+    filterGroup.addAndMakeVisible(filterEnvAmount);
+    filterGroup.addAndMakeVisible(filterEnvAmountLabel);
+    filterEnvAmountLabel.setText("Env Amt", juce::dontSendNotification);
+    filterEnvAmountLabel.attachToComponent(&filterEnvAmount, true);
+    // add listeners
+    filterEnvAmount.addListener(this);
+    
+    
+
+
+
+    // setup filterAdsr properties
+    filterAdsrGroup.setColour(juce::GroupComponent::textColourId, juce::Colours::white);
+    addAndMakeVisible(filterAdsrGroup);
+    filterAdsrGroup.setText("Filter ADSR");
+    // add listeners
+    filterAttack.addListener(this);
+    filterDecay.addListener(this);
+    filterSustain.addListener(this);
+    filterRelease.addListener(this);
+    // filter attack
+    filterAttack.setSliderStyle(juce::Slider::LinearHorizontal);
+    filterAttack.setRange(0.0, 1, 0.01);
+    filterAttack.setValue(0.0);
+    filterAttack.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+    filterAdsrGroup.addAndMakeVisible(filterAttack);
+    filterAdsrGroup.addAndMakeVisible(filterAttackLabel);
+    filterAttackLabel.setText("Attack", juce::dontSendNotification);
+    filterAttackLabel.attachToComponent(&filterAttack, true);
+    // filter decay
+    filterDecay.setSliderStyle(juce::Slider::LinearHorizontal);
+    filterDecay.setRange(0.0, 1, 0.01);
+    filterDecay.setValue(0.0);
+    filterDecay.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+    filterAdsrGroup.addAndMakeVisible(filterDecay);
+    filterAdsrGroup.addAndMakeVisible(filterDecayLabel);
+    filterDecayLabel.setText("Decay", juce::dontSendNotification);
+    filterDecayLabel.attachToComponent(&filterDecay, true);
+    // filter sustain
+    filterSustain.setSliderStyle(juce::Slider::LinearHorizontal);   
+    filterSustain.setRange(0.0, 1.0, 0.01);
+    filterSustain.setValue(1.0);
+    filterSustain.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+    filterAdsrGroup.addAndMakeVisible(filterSustain);
+    filterAdsrGroup.addAndMakeVisible(filterSustainLabel);
+    filterSustainLabel.setText("Sustain", juce::dontSendNotification);
+    filterSustainLabel.attachToComponent(&filterSustain, true);
+    // filter release
+    filterRelease.setSliderStyle(juce::Slider::LinearHorizontal);
+    filterRelease.setRange(0.0, 1.0, 0.01);
+    filterRelease.setValue(0.0);
+    filterRelease.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+    filterAdsrGroup.addAndMakeVisible(filterRelease);
+    filterAdsrGroup.addAndMakeVisible(filterReleaseLabel);
+    filterReleaseLabel.setText("Release", juce::dontSendNotification);
+    filterReleaseLabel.attachToComponent(&filterRelease, true);
+    
 
 
     // add keyboard component
@@ -405,6 +503,7 @@ void MainComponent::resized()
     // Groups
     juce::GroupComponent osc1Group;
     juce::GroupComponent osc2Group;
+    juce::GroupComponent filterGroup;
 
     // VOLUME
     juce::Slider oscLevel1;
@@ -422,16 +521,47 @@ void MainComponent::resized()
     juce::ComboBox waveformSelector1;
     juce::ComboBox waveformSelector2;
 
-    // ADSR
-    juce::Slider attackSlider;
-    juce::Label attackLabel;
-    juce::Slider decaySlider;
-    juce::Label decayLabel;
-    juce::Slider sustainSlider;
-    juce::Label sustainLabel;
-    juce::Slider releaseSlider;
-    juce::Label releaseLabel;
-*/
+    // pulse width
+    juce::Slider pulseWidthSlider1;
+    juce::Label pulseWidthLabel1;
+    juce::Slider pulseWidthSlider2;
+    juce::Label pulseWidthLabel2;
+
+
+    // ADSR osc1
+    juce::Slider attackSlider1;
+    juce::Label attackLabel1;
+    juce::Slider decaySlider1;
+    juce::Label decayLabel1;
+    juce::Slider sustainSlider1;
+    juce::Label sustainLabel1;
+    juce::Slider releaseSlider1;
+    juce::Label releaseLabel1;
+
+    // ADSR osc2
+    juce::Slider attackSlider1;
+    juce::Label attackLabel1;
+    juce::Slider decaySlider1;
+    juce::Label decayLabel1;
+    juce::Slider sustainSlider1;
+    juce::Label sustainLabel1;
+    juce::Slider releaseSlider1;
+    juce::Label releaseLabel1;
+
+    // FILTER
+    juce::Slider filterCutoff;
+    juce::Slider filterResonance;
+    juce::Label filterCutoffLabel;
+    juce::Label filterResonanceLabel;
+
+    // ADSR filter
+    juce::Slider filterAttack;
+    juce::Label filterAttackLabel;
+    juce::Slider filterDecay;
+    juce::Label filterDecayLabel;
+    juce::Slider filterSustain;
+    juce::Label filterSustainLabel;
+    juce::Slider filterRelease; */
 
     auto area = getLocalBounds();
     // create groups for osc1 and osc2. 300 px high and 200 px wide
@@ -461,6 +591,18 @@ void MainComponent::resized()
     pulseWidthSlider2.setBounds(40, 120, 150, 20);
     pulseWidthLabel2.setBounds(40, 120, 150, 20);
 
+    // ADSR GROUP
+    adsrGroup1.setBounds(220, 180, 200, 160);
+    // add adsr controls to adsrGroup
+    attackSlider1.setBounds(40, 30, 150, 20);
+    attackLabel1.setBounds(40, 10, 150, 20);
+    decaySlider1.setBounds(40, 60, 150, 20);
+    decayLabel1.setBounds(40, 40, 150, 20);
+    sustainSlider1.setBounds(40, 90, 150, 20);
+    sustainLabel1.setBounds(40, 70, 150, 20);
+    releaseSlider1.setBounds(40, 120, 150, 20);
+    releaseLabel1.setBounds(40, 100, 150, 20);
+
     // FILTER GROUP
     filterGroup.setBounds(430, 10, 200, 160);
     // add filter controls to filterGroup
@@ -472,6 +614,28 @@ void MainComponent::resized()
     filterResonance.setBounds(40, 60, 150, 20);
     filterCutoffLabel.setBounds(40, 10, 150, 20);
     filterResonanceLabel.setBounds(40, 40, 150, 20);
+    filterType.setBounds(40, 70, 150, 20);
+
+    //    juce::Slider filterEnvAmount;
+    // juce::Label filterEnvAmountLabel;
+    filterEnvAmount.setBounds(40, 90, 150, 20);
+    filterEnvAmountLabel.setBounds(40, 90, 150, 20);
+    //    juce::ComboBox filterType;
+
+    
+
+    // FILTER ADSR GROUP (put below filter group)
+    filterAdsrGroup.setBounds(430, 180, 200, 160);
+    // add filter adsr controls to filterGroup
+    filterAttack.setBounds(40, 30, 150, 20);
+    filterDecay.setBounds(40, 60, 150, 20);
+    filterSustain.setBounds(40, 90, 150, 20);
+    filterRelease.setBounds(40, 120, 150, 20);
+    filterAttackLabel.setBounds(40, 10, 150, 20);
+    filterDecayLabel.setBounds(40, 40, 150, 20);
+    filterSustainLabel.setBounds(40, 70, 150, 20);
+    filterReleaseLabel.setBounds(40, 100, 150, 20);
+
 
     
 
@@ -498,7 +662,7 @@ void MainComponent::resized()
     midiMessagesBox.setBounds(messageArea);
     
     // put keyboard to bottom of screen
-    keyboardComponent.setBounds(10, 300, getWidth() - 20, getHeight() - 310);
+    keyboardComponent.setBounds(10, 500, getWidth() - 20, getHeight() - 510);
 }
 
 
@@ -542,17 +706,75 @@ void MainComponent::sliderValueChanged(juce::Slider* slider) {
         std::cout << slider->getValue() << std::endl;
         synthAudioSource.setPulseWidth(2, slider->getValue());
     }
-    // Filter Cutoff Slider
-    if (slider == &filterCutoff) {
-        std::cout << "Filter Cutoff Slider" << std::endl;
+    // Attack Slider
+    if (slider == &attackSlider1) {
+        std::cout << "Attack Slider" << std::endl;
         std::cout << slider->getValue() << std::endl;
-        synthAudioSource.setCutoffFreq(slider->getValue());
+        synthAudioSource.setAttack(slider->getValue());
     }
-    // Filter Resonance Slider
-    if (slider == &filterResonance) {
-        std::cout << "Filter Resonance Slider" << std::endl;
+    // Decay Slider
+    if (slider == &decaySlider1) {
+        std::cout << "Decay Slider" << std::endl;
         std::cout << slider->getValue() << std::endl;
-        synthAudioSource.setResonance(slider->getValue());
+        synthAudioSource.setDecay(slider->getValue());
+    }
+    // Sustain Slider
+    if (slider == &sustainSlider1) {
+        std::cout << "Sustain Slider" << std::endl;
+        std::cout << slider->getValue() << std::endl;
+        synthAudioSource.setSustain(slider->getValue());
+    }
+    // Release Slider
+    if (slider == &releaseSlider1) {
+        std::cout << "Release Slider" << std::endl;
+        std::cout << slider->getValue() << std::endl;
+        synthAudioSource.setRelease(slider->getValue());
+    }
+
+
+
+   // Filter Cutoff Slider
+   if (slider == &filterCutoff) {
+       std::cout << "Filter Cutoff Slider" << std::endl;
+       std::cout << slider->getValue() << std::endl;
+       synthAudioSource.setFilterCutoff(slider->getValue());
+   }
+   // Filter Resonance Slider
+   if (slider == &filterResonance) {
+       std::cout << "Filter Resonance Slider" << std::endl;
+       std::cout << slider->getValue() << std::endl;
+       synthAudioSource.setFilterResonance(slider->getValue());
+   }
+
+   // Filter Attack Slider
+    if (slider == &filterAttack) {
+         std::cout << "Filter Attack Slider" << std::endl;
+         std::cout << slider->getValue() << std::endl;
+         synthAudioSource.setFilterAttack(slider->getValue());
+    }
+    // Filter Decay Slider
+    if (slider == &filterDecay) {
+         std::cout << "Filter Decay Slider" << std::endl;
+         std::cout << slider->getValue() << std::endl;
+         //synthAudioSource.setFilterDecay(slider->getValue());
+    }
+    // Filter Sustain Slider
+    if (slider == &filterSustain) {
+         std::cout << "Filter Sustain Slider" << std::endl;
+         std::cout << slider->getValue() << std::endl;
+         //synthAudioSource.setFilterSustain(slider->getValue());
+    }
+    // Filter Release Slider
+    if (slider == &filterRelease) {
+         std::cout << "Filter Release Slider" << std::endl;
+         std::cout << slider->getValue() << std::endl;
+         //synthAudioSource.setFilterRelease(slider->getValue());
+    }
+    // Filter Amount Slider
+    if (slider == &filterEnvAmount) {
+         std::cout << "Filter Amount Slider" << std::endl;
+         std::cout << slider->getValue() << std::endl;
+         synthAudioSource.setDepth(slider->getValue());
     }
     
 }

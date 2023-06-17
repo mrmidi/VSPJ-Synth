@@ -5,6 +5,9 @@
               companyWebsite="www.mrmidi.net" companyEmail="me@mrmidi.net">
   <MAINGROUP id="U20Oic" name="learn">
     <GROUP id="{DBBFEE72-42A9-FE80-FA59-32DD49E663D7}" name="Source">
+      <FILE id="akWQHB" name="Adsr.cpp" compile="1" resource="0" file="Source/Adsr.cpp"/>
+      <FILE id="sTWRAK" name="Adsr.h" compile="0" resource="0" file="Source/Adsr.h"/>
+      <FILE id="vyoTFo" name="Specs.h" compile="0" resource="0" file="Source/Specs.h"/>
       <FILE id="cGINQq" name="Filter.cpp" compile="1" resource="0" file="Source/Filter.cpp"/>
       <FILE id="LMuZKQ" name="Filter.h" compile="0" resource="0" file="Source/Filter.h"/>
       <FILE id="wbTg7D" name="Mixer.cpp" compile="1" resource="0" file="Source/Mixer.cpp"/>
