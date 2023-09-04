@@ -20,13 +20,14 @@ MidiusAudioProcessor::MidiusAudioProcessor(juce::MidiKeyboardState& state)
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ),
-                       keyboardState(state), // Initialize keyboardState
-                       synthSource(keyboardState) // Initialize synthSource
+    params(*this),
+    keyboardState(state), // Initialize keyboardState
+    synthSource(keyboardState) // Initialize synthSource
 #endif
 {
-    
-    
-    
+    // synthSource.setParamsReference(&params.getState());
+    // init AudioProcessorValueTreeState
+    //params(*this);
 }
 
 MidiusAudioProcessor::~MidiusAudioProcessor()
@@ -217,6 +218,7 @@ void MidiusAudioProcessor::setStateInformation (const void* data, int sizeInByte
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }
+
 
 //==============================================================================
 // This creates new instances of the plugin..

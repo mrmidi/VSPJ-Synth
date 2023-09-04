@@ -37,15 +37,10 @@ public:
 //        DBG("OSC FREQUENCY: " << frequency);
 //    }
 
-    void setGain(float newGain)
-    {
-        gain = newGain;
-    }
+    void setGain(float newGain);
+    
+    void prepareToPlay(double sampleRate, int samplesPerBlock, int numChannels);
 
-    void setWaveformToSine()
-    {
-        initialise([] (float x) { return std::sin(x); });
-    }
 
     // Add methods to set the waveform to other shapes as desired
 

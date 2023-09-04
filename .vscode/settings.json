@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.mm": "cpp",
+        "__tree": "cpp",
+        "map": "cpp"
+    }
+}

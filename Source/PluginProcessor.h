@@ -10,6 +10,8 @@
 
 #include <JuceHeader.h>
 #include "SynthAudioSource.h"
+#include "Params.h"
+#include "Params/ParamsManager.h"
 
 //==============================================================================
 /**
@@ -58,6 +60,8 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
+    Params& getParams() { return params; }
+    
     juce::MidiKeyboardState& getKeyboardState() { return keyboardState; }
     juce::dsp::ProcessSpec spec;
 
@@ -65,10 +69,12 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiusAudioProcessor)
     
-    juce::MidiKeyboardState& keyboardState; // Declare this before synthSource
+    Params params;
+    juce::MidiKeyboardState& keyboardState;
     SynthAudioSource synthSource;
     
     juce::dsp::Gain<float> masterGain;
+    ParamsManager paramsManager;
 
     
 };

@@ -17,12 +17,7 @@
 class SynthVoice : public juce::SynthesiserVoice
 {
 public:
-    SynthVoice() {
-        // Initialization of the voice
-        osc1.setWaveform(Oscillator::Sine);
-//        osc1.setDetune(0.0f);
-//        osc1.setGain(0.5f);
-    }
+    SynthVoice();
 
     bool canPlaySound(juce::SynthesiserSound* sound) override {
         // Return true if this voice can play the given sound
@@ -72,7 +67,14 @@ public:
         
         adsr.reset();
         adsr.setSampleRate(sampleRate);
-        osc1.prepare(spec);
+        
+        for (int i = 0; i < numChannels; ++i) {
+            DBG("Initializing oscillator " << i);
+            osc1.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
+        }
+        DBG("Initialization of oscillators finished");
+        isPrepared = true;
+
 //        osc1.setGain(1.0f);
 //        osc1.setDetune(0.0f);
         
@@ -117,31 +119,43 @@ public:
 //}
     
     void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override {
+
+        jassert (isPrepared); // check the voice if prepared
+                              // last time it was a pain to find the issue
+
         if (!isVoiceActive())
             return;
+        
+        // Fetch parameters before processing the samples
+//        std::atomic<float>* octavePtr = params.getRawParameterValue("osc1Octave");
+//        std::atomic<float>* centPtr = params.getRawParameterValue("osc1Cent");
+//        std::atomic<float>* gainPtr = params.getRawParameterValue("osc1Gain");
+//        std::atomic<float>* pulseWidthPtr = params.getRawParameterValue("osc1PulseWidth");
+//        std::atomic<float>* waveformTypePtr = params.getRawParameterValue("osc1WaveformType");
 
-        // Clear the output buffer
-//        outputBuffer.clear();
 
-        for (int sample = 0; sample < numSamples; ++sample)
-        {
-            // Get the next sample from the oscillator
-            auto oscSample = osc1.processSample(1.f);
-
-            // Apply the ADSR envelope to the oscillator sample
-            auto envSample = adsr.getNextSample() * oscSample;
-
-            for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
+            for (int sample = 0; sample < numSamples; ++sample)
             {
-                // Add the processed sample to the output buffer
-                outputBuffer.addSample(channel, startSample + sample, envSample);
-            }
-        }
-    }
+                // Get the next sample from the oscillator
+                auto oscSample = osc1.processSample(1.f);  // This 1.f might need to be replaced with gain or another relevant parameter
 
+                // Apply the ADSR envelope to the oscillator sample
+                auto envSample = adsr.getNextSample() * oscSample;
+
+                for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
+                {
+                    // Add the processed sample to the output buffer
+                    outputBuffer.addSample(channel, startSample + sample, envSample);
+                }
+            }
+        
+
+    }
 
     private:
     juce::AudioBuffer<float> synthBuffer;
     Oscillator osc1;
     Adsr adsr;
+    bool isPrepared = false; // This is used to check if the voice has been prepared for playback
+                             // and should be set to true when the voice is ready.
 };

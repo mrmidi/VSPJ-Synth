@@ -10,6 +10,8 @@
 
 void Oscillator::setWaveform(Waveform newWaveform)
 {
+    if (newWaveform == waveform)
+        return;
     waveform = newWaveform;
     std::cout << "SETTING OSC WAVEFORM TO " << waveform << "\n";
     switch (waveform)
@@ -41,4 +43,27 @@ void Oscillator::setWaveform(Waveform newWaveform)
             break;
     }
     
+}
+
+void Oscillator::prepareToPlay(double sampleRate, int samplesPerBlock, int numChannels)
+{
+    // todo: improove this
+    DBG("PREPARING OSCILLATOR");
+    DBG("SAMPLE RATE: " << sampleRate << " SAMPLES PER BLOCK: " << samplesPerBlock << " NUM CHANNELS: " << numChannels);
+    reset();
+
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = numChannels;
+
+    prepare(spec);
+
+}
+
+void Oscillator::setGain(float newGain)
+{
+    if (newGain == gain)
+        return;
+    this->gain = newGain;
 }

@@ -5,9 +5,17 @@
               companyName="mrmidi" companyWebsite="www.mrmidi.net" companyEmail="me@mrmidi.net"
               pluginFormats="buildAU,buildAUv3,buildStandalone,buildVST3" pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn"
               pluginDesc="Bachelor's thesis of my" aaxIdentifier="net.mrmidi.Midius"
-              cppLanguageStandard="20" bundleIdentifier="net.mrmidi.Midius">
+              cppLanguageStandard="20" bundleIdentifier="net.mrmidi.Midius"
+              version="1.0.1">
   <MAINGROUP id="n77ks4" name="Midius">
     <GROUP id="{3DF7E2AF-D70C-B15C-AA61-5F4B182AE5B1}" name="Source">
+      <GROUP id="{48C44F4B-734A-F0D6-9A62-C413F12E2C78}" name="Params">
+        <FILE id="tKc8bH" name="ParamsManager.cpp" compile="1" resource="0"
+              file="Source/Params/ParamsManager.cpp"/>
+        <FILE id="bdVwKE" name="ParamsManager.h" compile="0" resource="0" file="Source/Params/ParamsManager.h"/>
+        <FILE id="R0b2it" name="Params.cpp" compile="1" resource="0" file="Source/Params.cpp"/>
+        <FILE id="BKeLWS" name="Params.h" compile="0" resource="0" file="Source/Params.h"/>
+      </GROUP>
       <FILE id="O3Iw1a" name="Adsr.cpp" compile="1" resource="0" file="Source/Adsr.cpp"/>
       <FILE id="GCmyiA" name="Adsr.h" compile="0" resource="0" file="Source/Adsr.h"/>
       <FILE id="AY2g0O" name="Osc.cpp" compile="1" resource="0" file="Source/Osc.cpp"/>

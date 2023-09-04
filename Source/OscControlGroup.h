@@ -12,13 +12,10 @@
 
 #include <JuceHeader.h>
 
-//==============================================================================
-/*
-*/
 class OscControlGroup  : public juce::Component
 {
 public:
-    OscControlGroup();
+    OscControlGroup(juce::AudioProcessorValueTreeState& state, const juce::String& prefix);
     ~OscControlGroup() override;
 
     void paint (juce::Graphics&) override;
@@ -26,6 +23,9 @@ public:
     void setTitle(const juce::String& title);
 
 private:
+    juce::AudioProcessorValueTreeState& state;
+    juce::String prefix;
+
     // Group box
     juce::GroupComponent oscControlGroup;
 
@@ -34,6 +34,7 @@ private:
     juce::Slider centSlider;
     juce::Slider gainSlider;
     juce::Slider pulseWidthSlider;
+
     // Labels: Octave, Cent, Gain, Pulse Width
     juce::Label octaveLabel;
     juce::Label centLabel;
@@ -42,6 +43,13 @@ private:
 
     // ComboBox: Waveform
     juce::ComboBox waveformComboBox;
+
+    // Attachments
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> octaveAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> centAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> pulseWidthAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> waveformAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OscControlGroup)
 };

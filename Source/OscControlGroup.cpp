@@ -12,7 +12,8 @@
 #include "OscControlGroup.h"
 
 //==============================================================================
-OscControlGroup::OscControlGroup()
+OscControlGroup::OscControlGroup(juce::AudioProcessorValueTreeState& state, const juce::String& prefix)
+: state(state)
 {
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
@@ -71,10 +72,31 @@ OscControlGroup::OscControlGroup()
     waveformComboBox.addItem("Square", 4);
     waveformComboBox.setSelectedId(1);
 
+    
+    // init attachements
+    DBG("Prefix is: " << prefix);
+    
+    octaveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "Octave", octaveSlider);
+    DBG("Created octave attachment: " << prefix + "Octave");
+    centAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "Cent", centSlider);
+    DBG("Created cent attachment: " << prefix + "Cent");
+    gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "Gain", gainSlider);
+    DBG("Created gain attachment: " << prefix + "Gain");
+    pulseWidthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "PulseWidth", pulseWidthSlider);
+    DBG("Created pulse width attachment: " << prefix + "PulseWidth");
+    waveformAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(state, prefix + "WaveformType", waveformComboBox);
+    DBG("Created waveform attachment: " << prefix + "WaveformType");
+
 }
 
 OscControlGroup::~OscControlGroup()
 {
+    octaveAttachment.reset();
+    centAttachment.reset();
+    gainAttachment.reset();
+    pulseWidthAttachment.reset();
+    waveformAttachment.reset();
+
 }
 
 void OscControlGroup::paint (juce::Graphics& g)

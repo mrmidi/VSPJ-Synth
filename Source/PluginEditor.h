@@ -31,11 +31,12 @@ private:
     MidiusAudioProcessor& audioProcessor;
 
     // Oscillator control group
-    OscControlGroup oscControlGroup;
+    OscControlGroup oscControlGroup1;
 
     // Keyboard
     juce::MidiKeyboardState keyboardState;
     juce::MidiKeyboardComponent keyboardComponent;
+    
 
     // GUI
 

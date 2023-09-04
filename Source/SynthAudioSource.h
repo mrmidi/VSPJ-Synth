@@ -26,19 +26,11 @@ public:
 //        // synth.addSound(new SynthSound());
 //    }
 
-    SynthAudioSource(juce::MidiKeyboardState& keyState)
-    : keyboardState(keyState) {
-        // Initialize your synth here.
-        std::cout << "SynthAudioSource constructor called\n";
-        for (int i = 0; i < 5; ++i) {
-            synth.addVoice(new SynthVoice());
-            std::cout << "Added voice " << i << "\n";
-        }
-
-        synth.addSound(new SynthSound());
-        std::cout << "Added sound\n";
-
-    }
+    SynthAudioSource(juce::MidiKeyboardState& keyState);
+    
+    // void setParamsReference(juce::AudioProcessorValueTreeState* newParams) {
+    //     params = newParams;
+    // }
 
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override {
         // This is where you'll prepare your synth to start producing sound.
@@ -72,6 +64,11 @@ public:
 //    }
 
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override {
+        bufferToFill.clearActiveBufferRegion();
+
+
+
+        
         // Here is where you actually produce the sound.
         // You'll want to clear the buffer and then let your synth write into it.
 //        bufferToFill.clearActiveBufferRegion();
@@ -86,6 +83,7 @@ public:
     
     juce::Synthesiser synth;
 private:
+
     //juce::MidiKeyboardState& keyboardState;
     //juce::MidiKeyboardComponent::Orientation keyboardOrientation;
     // Your synth goes here.
