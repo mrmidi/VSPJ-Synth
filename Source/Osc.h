@@ -69,29 +69,46 @@ public:
         }
     }
 
-void setFrequency(float newFrequency)
-{
-        originalFrequency = newFrequency;
-        frequency = newFrequency * pow(2, octave) + detune / 100.0f;
-        
-        // This line actually sets the frequency of the base oscillator
+    void setRawFrequency(float rawFrequency) {
+        frequency = rawFrequency;
         juce::dsp::Oscillator<float>::setFrequency(frequency);
-        
-        // DBG("SETTING OSC FREQUENCY TO " << frequency);
-    
-}
+    }
+
+    // Set the musical frequency, considering octave and detune adjustments
+    // void setMusicalFrequency(float baseFrequency) {
+    //     originalFrequency = baseFrequency;
+    //     frequency = originalFrequency * std::pow(2, octave) + detune / 100.0f;
+    //     juce::dsp::Oscillator<float>::setFrequency(frequency);
+    //     //DBG("SETTING OSC FREQUENCY TO " << frequency);
+    // }
+
+    void setMusicalFrequency(float baseFrequency) {
+        originalFrequency = baseFrequency;
+        frequency = baseFrequency * pow(2, octave) * pitchBendMultiplier + detune / 100.0f;
+        juce::dsp::Oscillator<float>::setFrequency(frequency);
+    }   
 
 
+    void setPitchBendMultiplier(float multiplier) {
+        pitchBendMultiplier = multiplier;
+        setMusicalFrequency(originalFrequency);
+    }
 
     void setDetune(int newDetune)
     {
         if (newDetune != detune) {
             detune = newDetune;
-            DBG("SETTING OSC DETUNE TO " << detune);
+            setMusicalFrequency(originalFrequency);
         }
-
     }
 
+    void setOctave(int newOctave)
+    {
+        if (newOctave != octave) {
+            octave = newOctave;
+            setMusicalFrequency(originalFrequency);
+        }
+    }
     void setPulseWidth(float newPulseWidth)
     {
         if (newPulseWidth != pulseWidth) {
@@ -100,13 +117,6 @@ void setFrequency(float newFrequency)
         }
     }
 
-    void setOctave(int newOctave)
-    {
-        if (newOctave != octave) {
-            octave = newOctave;
-            DBG("SETTING OSC OCTAVE TO " << octave);
-        }
-    }
 
 
 private:
@@ -118,6 +128,8 @@ private:
     int octave = 0;    // Default to no octave change
     float frequency = 440.0f;  // Default to A4
     float originalFrequency = 440.0f;   // Default to A4
+    bool allowPWMOnAllWaveforms = false;
+    float pitchBendMultiplier = 1.0f;
 
     Waveform waveform;
 };

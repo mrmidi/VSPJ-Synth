@@ -28,24 +28,31 @@ public:
         // Return true if this voice can play the given sound
         return dynamic_cast<SynthSound*>(sound) != nullptr;
     }
-void startNote(int midiNoteNumber, float velocity,
-               juce::SynthesiserSound* sound, int currentPitchWheelPosition) override {
-    // Convert the MIDI note number to a frequency.
-    auto frequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-    originalFrequency = frequency;
 
 
+    void startNote(int midiNoteNumber, float velocity,
+                juce::SynthesiserSound* sound, int currentPitchWheelPosition) override {
+        // Convert the MIDI note number to a frequency.
+        originalFrequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
 
-    osc1.setFrequency(frequency);
-    osc2.setFrequency(frequency);
-    
-    // You might also want to set the level of the oscillator based on the velocity.
-    osc1.setVelocity(velocity);
-    osc2.setVelocity(velocity);
-    
-    adsr.updateParams(0.1f, 0.2f, 0.8f, 0.5f);
-    adsr.noteOn();
-}
+        osc1.setMusicalFrequency(originalFrequency);
+        osc2.setMusicalFrequency(originalFrequency);
+
+
+        // Apply pitch bend if the pitch wheel is not centered
+        //DBG("Starting note with original frequency: " << originalFrequency);
+        if (currentPitchWheelPosition != 8192) {
+            applyPitchBend(currentPitchWheelPosition);
+            //DBG("Applied pitch bend. New frequency for osc1: " << osc1.getOriginalFrequency());
+        }
+
+        // Set the level of the oscillator based on the velocity.
+        osc1.setVelocity(velocity);
+        osc2.setVelocity(velocity);
+        
+        adsr.updateParams(0.1f, 0.2f, 0.8f, 0.5f);
+        adsr.noteOn();
+    }
 
     void stopNote(float velocity, bool allowTailOff) override {
         // This is called when a note stops
@@ -64,20 +71,22 @@ void startNote(int midiNoteNumber, float velocity,
     }
 
     void applyPitchBend(int pitchWheelValue) {
+       //DBG("Pitch wheel raw value: " << pitchWheelValue);
+
         // Assuming the pitch bend range is ±2 semitones
         float bendRangeInSemitones = 2.0f;
 
         // Calculate how far the pitch wheel is from the center
         float bendAmount = (pitchWheelValue - 8192.0f) / 8192.0f;
+        //DBG("Bend amount: " << bendAmount);
 
         // Calculate the frequency multiplier
         float frequencyMultiplier = std::pow(2.0f, bendRangeInSemitones * bendAmount / 12.0f);
-
-
+        //DBG("Frequency multiplier: " << frequencyMultiplier);
 
         // Apply the frequency multiplier to your oscillators
-        osc1.setFrequency(originalFrequency * frequencyMultiplier);
-        osc2.setFrequency(originalFrequency * frequencyMultiplier);
+        osc1.setPitchBendMultiplier(frequencyMultiplier);
+        osc2.setPitchBendMultiplier(frequencyMultiplier);
     }
 
 
@@ -129,38 +138,37 @@ void startNote(int midiNoteNumber, float velocity,
             auto envSample = adsr.getNextSample() * oscSample;
             auto envSample2 = adsr.getNextSample() * osc2Sample;
 
-        for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
-        {
-            // Mix the processed samples of osc1 and osc2 and add to the output buffer
-            outputBuffer.addSample(channel, startSample + sample, (envSample + envSample2) * 0.5f);
-        }
+            for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
+            {
+                // Mix the processed samples of osc1 and osc2 and add to the output buffer
+                outputBuffer.addSample(channel, startSample + sample, (envSample + envSample2) * 0.5f);
+            }
 
         }
     }
     //voice->setOsc1Params(osc1Octave.load(), osc1Cent.load(), osc1Gain.load(), osc1PulseWidth.load(), osc1WaveformType.load());
 
-    void setOsc1Params(int octave, int cent, float gain, float pulseWidth, int waveformType) {
+void setOsc1Params(int octave, int cent, float gain, float pulseWidth, int waveformType) {
+    osc1.setWaveform(static_cast<Oscillator::Waveform>(waveformType));
+    osc1.setGain(gain);
+    osc1.setOctave(octave);
+    osc1.setDetune(cent);
+    osc1.setPulseWidth(pulseWidth);
 
-        osc1.setWaveform(static_cast<Oscillator::Waveform>(waveformType));
-        osc1.setGain(gain);
-        osc1.setOctave(octave);
-        osc1.setDetune(cent);
-        osc1.setPulseWidth(pulseWidth);
+    // Update the frequency based on the new parameters
+    osc1.setMusicalFrequency(originalFrequency);
+}
 
+void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int waveformType) {
+    osc2.setWaveform(static_cast<Oscillator::Waveform>(waveformType));
+    osc2.setGain(gain);
+    osc2.setOctave(octave);
+    osc2.setDetune(cent);
+    osc2.setPulseWidth(pulseWidth);
 
-
-    }
-
-    void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int waveformType) {
-
-        osc2.setWaveform(static_cast<Oscillator::Waveform>(waveformType));
-        osc2.setGain(gain);
-        osc2.setOctave(octave);
-        osc2.setDetune(cent);
-        osc2.setPulseWidth(pulseWidth);
-
-
-    }
+    // Update the frequency based on the new parameters
+    osc2.setMusicalFrequency(originalFrequency);
+}
 
     private:
     juce::AudioBuffer<float> synthBuffer;

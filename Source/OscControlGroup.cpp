@@ -80,7 +80,7 @@ OscControlGroup::OscControlGroup(juce::AudioProcessorValueTreeState& state, cons
     gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "Gain", gainSlider);
     pulseWidthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "PulseWidth", pulseWidthSlider);
     waveformAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(state, prefix + "WaveformType", waveformComboBox);
-
+    
 
 }
 
