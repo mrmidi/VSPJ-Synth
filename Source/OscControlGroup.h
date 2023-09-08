@@ -18,7 +18,7 @@
 class OscControlGroup  : public juce::Component
 {
 public:
-    OscControlGroup();
+    OscControlGroup(juce::AudioProcessorValueTreeState& parameters, const juce::String& prefix);
     ~OscControlGroup() override;
 
     void paint (juce::Graphics&) override;
@@ -26,6 +26,9 @@ public:
     void setTitle(const juce::String& title);
 
 private:
+    // apvts
+    juce::AudioProcessorValueTreeState& parameters;
+
     // Group box
     juce::GroupComponent oscControlGroup;
 
@@ -39,6 +42,13 @@ private:
     juce::Label centLabel;
     juce::Label gainLabel;
     juce::Label pulseWidthLabel;
+
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> octaveAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> centAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> pulseWidthAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> waveformAttachment;
 
     // ComboBox: Waveform
     juce::ComboBox waveformComboBox;

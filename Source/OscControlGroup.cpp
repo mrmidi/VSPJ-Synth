@@ -12,12 +12,14 @@
 #include "OscControlGroup.h"
 
 //==============================================================================
-OscControlGroup::OscControlGroup()
+OscControlGroup::OscControlGroup(juce::AudioProcessorValueTreeState& state, const juce::String& prefix)
+: parameters(state)
 {
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
 
        // Set up group box
+    DBG("CREATING OSC CONTROL GROUP WITH PREFIX: " + prefix);
     addAndMakeVisible(oscControlGroup);
     oscControlGroup.setText("Oscillator Controls");
 
@@ -71,6 +73,15 @@ OscControlGroup::OscControlGroup()
     waveformComboBox.addItem("Square", 4);
     waveformComboBox.setSelectedId(1);
 
+    // init attachments
+    octaveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "Octave", octaveSlider);
+    centAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "Cent", centSlider);
+    DBG("Initial osc1Cent value: " + String(*state.getRawParameterValue(prefix + "Cent")));
+    gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "Gain", gainSlider);
+    pulseWidthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "PulseWidth", pulseWidthSlider);
+    waveformAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(state, prefix + "WaveformType", waveformComboBox);
+
+
 }
 
 OscControlGroup::~OscControlGroup()
@@ -79,12 +90,6 @@ OscControlGroup::~OscControlGroup()
 
 void OscControlGroup::paint (juce::Graphics& g)
 {
-    /* This demo code just fills the component's background and
-       draws some placeholder text to get you started.
-
-       You should replace everything in this method with your own
-       drawing code..
-    */
 
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));   // clear the background
 

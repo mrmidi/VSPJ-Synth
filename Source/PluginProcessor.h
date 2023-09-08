@@ -60,15 +60,35 @@ public:
     
     juce::MidiKeyboardState& getKeyboardState() { return keyboardState; }
     juce::dsp::ProcessSpec spec;
-
+    juce::AudioProcessorValueTreeState parameters;
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiusAudioProcessor)
+
+
+     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
+        {
+            std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+
+            params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc1Octave", 6), "Osc 1 Octave", -3, 3, 0));
+            params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc1Cent", 7), "Osc 1 Cent", -50, 50, 0));
+            params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc1Gain", 8), "Osc 1 Gain", 0.0f, 1.0f, 0.5f));
+            params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc1PulseWidth", 9), "Osc 1 Pulse Width", 0.0f, 1.0f, 0.5f));
+            params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc1WaveformType", 10), "Osc 1 Waveform Type", juce::StringArray {"Sine", "Triangle", "Sawtooth", "Square" }, 0));
+            params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc2Octave", 11), "Osc 2 Octave", -3, 3, 0));
+            params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc2Cent", 12), "Osc 2 Cent", -50, 50, 0));
+            params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc2Gain", 13), "Osc 2 Gain", 0.0, 1.0, 0.5));
+            params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc2PulseWidth", 14), "Osc 2 Pulse Width", 0.0, 1.0, 0.5));
+            params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc2WaveformType", 15), "Osc 2 Waveform Type", juce::StringArray { "Sine", "Triangle", "Sawtooth", "Square" }, 0));
+            return {params.begin(), params.end()};
+        }
     
     juce::MidiKeyboardState& keyboardState; // Declare this before synthSource
     SynthAudioSource synthSource;
     
     juce::dsp::Gain<float> masterGain;
+
+    void setVoiceParams();
 
     
 };

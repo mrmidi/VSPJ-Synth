@@ -21,7 +21,8 @@ MidiusAudioProcessor::MidiusAudioProcessor(juce::MidiKeyboardState& state)
                      #endif
                        ),
                        keyboardState(state), // Initialize keyboardState
-                       synthSource(keyboardState) // Initialize synthSource
+                       synthSource(keyboardState), // Initialize synthSource
+                       parameters (*this, nullptr, "Parameters", createParameterLayout())
 #endif
 {
     
@@ -125,8 +126,7 @@ void MidiusAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
 
 void MidiusAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -136,10 +136,6 @@ bool MidiusAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) c
     juce::ignoreUnused (layouts);
     return true;
   #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
      && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
@@ -157,25 +153,25 @@ bool MidiusAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) c
 
 void MidiusAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    juce::ScopedNoDenormals noDenormals;
+     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     // Clear the output buffers.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-    
-    for (const auto metadata : midiMessages)
-    {
-        const auto message = metadata.getMessage();
+
+//     for (const auto metadata : midiMessages)
+//     {
+//         const auto message = metadata.getMessage();
         
-        DBG("MIDI message received: "
-            << " Note: " << message.getNoteNumber()
-            << " Velocity: " << message.getVelocity()
-            << " Timestamp: " << message.getTimeStamp());
+//         // DBG("MIDI message received: "
+//         //     << " Note: " << message.getNoteNumber()
+//         //     << " Velocity: " << message.getVelocity()
+//         //     << " Timestamp: " << message.getTimeStamp());
         
-//        synthSource.addMidiMessage(message);
-    }
+// //        synthSource.addMidiMessage(message);
+//     }
 
     
     //synthSource.synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
@@ -185,6 +181,8 @@ void MidiusAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     
     // keyboardState.processNextMidiBuffer(midiMessages, info.startSample,
     //                                             info.numSamples, true);
+
+    setVoiceParams();
     synthSource.synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
     
     masterGain.process (juce::dsp::ProcessContextReplacing<float> (block));
@@ -225,3 +223,31 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     static juce::MidiKeyboardState keyboardState;
     return new MidiusAudioProcessor(keyboardState);
 }
+
+void MidiusAudioProcessor::setVoiceParams()
+{
+    for (int i = 0; i < synthSource.synth.getNumVoices(); ++i)
+
+    {
+        if (auto voice = dynamic_cast<SynthVoice*>(synthSource.synth.getVoice(i)))
+        {
+            auto& osc1Octave = *parameters.getRawParameterValue ("osc1Octave");
+            auto& osc1Cent = *parameters.getRawParameterValue ("osc1Cent");
+            auto& osc1Gain = *parameters.getRawParameterValue ("osc1Gain");
+            auto& osc1PulseWidth = *parameters.getRawParameterValue ("osc1PulseWidth");
+            auto& osc1WaveformType = *parameters.getRawParameterValue ("osc1WaveformType");
+            auto& osc2Octave = *parameters.getRawParameterValue ("osc2Octave");
+            auto& osc2Cent = *parameters.getRawParameterValue ("osc2Cent");
+            auto& osc2Gain = *parameters.getRawParameterValue ("osc2Gain");
+            auto& osc2PulseWidth = *parameters.getRawParameterValue ("osc2PulseWidth");
+            auto& osc2WaveformType = *parameters.getRawParameterValue ("osc2WaveformType");
+
+            //DBG("Retrieved waveform type: " << osc1WaveformType.load());
+//            DBG("Waveform type: " << osc1WaveformType.load());
+            voice->setOsc1Params(osc1Octave.load(), osc1Cent.load(), osc1Gain.load(), osc1PulseWidth.load(), osc1WaveformType.load());
+            voice->setOsc2Params(osc2Octave.load(), osc2Cent.load(), osc2Gain.load(), osc2PulseWidth.load(), osc2WaveformType.load());
+            //adsr.update (osc 1 octave.load(), osc 1 cent.load(), osc 1 gain.load(), osc 1 pulse width.load());
+        }
+    }
+}
+

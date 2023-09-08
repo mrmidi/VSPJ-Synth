@@ -7,9 +7,24 @@
 */
 #include "Osc.h"
 
+void Oscillator::prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels)
+{
+    reset(); // todo: complete reset
+    juce::dsp::ProcessSpec spec;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.sampleRate = sampleRate;
+    spec.numChannels = outputChannels;
+
+    prepare(spec);
+
+}
+
+
 
 void Oscillator::setWaveform(Waveform newWaveform)
 {
+    if (newWaveform == waveform)
+        return;
     waveform = newWaveform;
     std::cout << "SETTING OSC WAVEFORM TO " << waveform << "\n";
     switch (waveform)

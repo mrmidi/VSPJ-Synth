@@ -25,13 +25,16 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+
+
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     MidiusAudioProcessor& audioProcessor;
 
     // Oscillator control group
-    OscControlGroup oscControlGroup;
+    OscControlGroup oscControlGroup1;
+    OscControlGroup oscControlGroup2;
 
     // Keyboard
     juce::MidiKeyboardState keyboardState;
@@ -40,7 +43,11 @@ private:
     // GUI
 
     // Sliders
-    
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiusAudioProcessorEditor)
+
+
+
+        
 };

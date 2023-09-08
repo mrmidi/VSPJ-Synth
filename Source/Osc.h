@@ -30,16 +30,17 @@ public:
             // Add more waveforms as needed.
         };
 
-//    void setFrequency(float newFrequency)
-//    {
-//        frequency = newFrequency;
-////        setFrequency(frequency);
-//        DBG("OSC FREQUENCY: " << frequency);
-//    }
 
     void setGain(float newGain)
     {
-        gain = newGain;
+        if (newGain != gain) {
+            DBG("SETTING OSC GAIN TO " << newGain);
+            gain = newGain;
+        }
+            
+    }
+    float getOriginalFrequency() {
+        return originalFrequency;
     }
 
     void setWaveformToSine()
@@ -53,67 +54,70 @@ public:
 
     void setWaveform(Waveform newWaveform);
 
+    void prepareToPlay (double sampleRate, int samplesPerBlock, int outputChannels);
+
+    float getNextSample()
+    {
+        return juce::dsp::Oscillator<float>::processSample(1.0f) * velocity * gain;
+    }
+
+    void setVelocity(float newVelocity)
+    {
+        if (newVelocity != velocity) {
+
+            velocity = newVelocity;
+        }
+    }
+
+void setFrequency(float newFrequency)
+{
+        originalFrequency = newFrequency;
+        frequency = newFrequency * pow(2, octave) + detune / 100.0f;
+        
+        // This line actually sets the frequency of the base oscillator
+        juce::dsp::Oscillator<float>::setFrequency(frequency);
+        
+        // DBG("SETTING OSC FREQUENCY TO " << frequency);
+    
+}
+
+
+
+    void setDetune(int newDetune)
+    {
+        if (newDetune != detune) {
+            detune = newDetune;
+            DBG("SETTING OSC DETUNE TO " << detune);
+        }
+
+    }
+
+    void setPulseWidth(float newPulseWidth)
+    {
+        if (newPulseWidth != pulseWidth) {
+            pulseWidth = newPulseWidth;
+            DBG("SETTING OSC PULSE WIDTH TO " << pulseWidth);
+        }
+    }
+
+    void setOctave(int newOctave)
+    {
+        if (newOctave != octave) {
+            octave = newOctave;
+            DBG("SETTING OSC OCTAVE TO " << octave);
+        }
+    }
+
+
 private:
 //    float frequency = 440.0f;  // Default to A4
     float gain = 0.5f;         // Default to half amplitude
     float pulseWidth = 0.5f;   // Same as square
+    float velocity;     // Default to half velocity
+    int detune = 0;    // Default to no detune
+    int octave = 0;    // Default to no octave change
+    float frequency = 440.0f;  // Default to A4
+    float originalFrequency = 440.0f;   // Default to A4
+
     Waveform waveform;
 };
-
-//
-//#pragma once
-//#include <JuceHeader.h>
-//
-//class Oscillator : public juce::dsp::Oscillator<float>
-//{
-//public:
-//    Oscillator();
-//
-//    enum Waveform
-//    {
-//        Sine,
-//        Sawtooth,
-//        Square,
-//        Triangle,
-//        Pulse,
-//        // Add more waveforms as needed.
-//    };
-//
-//    void setWaveform(Waveform newWaveform);
-//
-//    void updateOscillatorFrequency();
-//
-//    float getNextSample(float sample);
-//
-//    void setFrequency(float freq);
-//
-//    void setGain(float newGain) { gain = newGain; }
-//
-//    double getGain() { return gain; }
-//    int getWaveform() { return this->waveform; } // just to check it's actually changing
-//
-//    void setDetune(float detune);
-//
-//    void setPulseWidth(float newPulseWidth) {
-//      printf("SETTING PULSE WIDTH TO %f\n", newPulseWidth);
-//      pulseWidth = newPulseWidth;
-//    }
-//
-//    void setSampleRate(double sampleRate);
-//
-//    void prepare(double sampleRate, int samplesPerBlock);
-//
-//    void prepare(juce::dsp::ProcessSpec& spec);
-//
-//    void renderNextBlock(juce::dsp::AudioBlock<float>& block);
-//
-//
-//private:
-//    juce::dsp::Oscillator<float> oscillator;
-//    Waveform waveform;
-//
-//    float gain = 1.0f;
-//    float baseFrequency = 0;
-//    float detuneAmount = 0;
-//    float pulseWidth = 0.5f;
-//};
