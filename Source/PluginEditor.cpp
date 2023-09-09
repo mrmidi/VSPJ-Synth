@@ -14,6 +14,7 @@ MidiusAudioProcessorEditor::MidiusAudioProcessorEditor (MidiusAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p),
     oscControlGroup1(p.parameters, "osc1"),
     oscControlGroup2(p.parameters, "osc2"),
+    lfoControlGroup1(p.parameters),
     keyboardComponent(audioProcessor.getKeyboardState(), juce::MidiKeyboardComponent::horizontalKeyboard)
 {
     // Make sure that before the constructor has finished, you've set the
@@ -22,6 +23,7 @@ MidiusAudioProcessorEditor::MidiusAudioProcessorEditor (MidiusAudioProcessor& p)
     addAndMakeVisible(keyboardComponent); // Add the keyboardComponent to the visible components
     addAndMakeVisible (oscControlGroup1);
     addAndMakeVisible (oscControlGroup2);
+    addAndMakeVisible (lfoControlGroup1);
 }
 
 
@@ -42,8 +44,10 @@ void MidiusAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 
-    oscControlGroup1.setBounds(10, 10, 200, 150);
-    oscControlGroup2.setBounds(10, 170, 200, 150);
+    oscControlGroup1.setBounds(10, 10, 200, 160);
+    oscControlGroup2.setBounds(10, 170, 200, 160);
+
+    lfoControlGroup1.setBounds(210, 10, 200, 160); // X, Y, Width, Height
     
     
     // KEYBOARD

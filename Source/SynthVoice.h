@@ -13,6 +13,7 @@
 #include "Osc.h"
 #include "Adsr.h"
 #include "SynthSound.h"
+#include "LFOsc.h"
 
 class SynthVoice : public juce::SynthesiserVoice
 {
@@ -113,39 +114,15 @@ public:
             osc1.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
             osc2.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
         }
+        tremoloLFO.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
+        tremoloLFO.setDepth(0.5f);       // Depth of 50%
+        tremoloLFO.setFrequency(5);   // Rate of 5 Hz
         DBG("Initialization of oscillators finished");
         isPrepared = true;
-        
-        
-        
     }
 
     
-    void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override {
-        
-        
-        jassert(isPrepared);
-        if (!isVoiceActive())
-            return;
-
-        for (int sample = 0; sample < numSamples; ++sample)
-        {
-            // Get the next sample from the oscillator
-            auto oscSample = osc1.getNextSample();
-            auto osc2Sample = osc2.getNextSample();
-
-            // Apply the ADSR envelope to the oscillators samples
-            auto envSample = adsr.getNextSample() * oscSample;
-            auto envSample2 = adsr.getNextSample() * osc2Sample;
-
-            for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
-            {
-                // Mix the processed samples of osc1 and osc2 and add to the output buffer
-                outputBuffer.addSample(channel, startSample + sample, (envSample + envSample2) * 0.5f);
-            }
-
-        }
-    }
+    void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
     //voice->setOsc1Params(osc1Octave.load(), osc1Cent.load(), osc1Gain.load(), osc1PulseWidth.load(), osc1WaveformType.load());
 
 void setOsc1Params(int octave, int cent, float gain, float pulseWidth, int waveformType) {
@@ -159,6 +136,8 @@ void setOsc1Params(int octave, int cent, float gain, float pulseWidth, int wavef
     osc1.setMusicalFrequency(originalFrequency);
 }
 
+    void enableLFO(bool isEnabled);
+    
 void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int waveformType) {
     osc2.setWaveform(static_cast<Oscillator::Waveform>(waveformType));
     osc2.setGain(gain);
@@ -170,7 +149,14 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
     osc2.setMusicalFrequency(originalFrequency);
 }
 
+void setLFOParams(float depth, float frequency, int isLFOEnable, int source, int type) {
+        this->isLFOEnabled = isLFOEnable;
+        tremoloLFO.setDepth(depth);
+        tremoloLFO.setFrequency(frequency);
+    }
+
     private:
+    LFOsc tremoloLFO;
     juce::AudioBuffer<float> synthBuffer;
     Oscillator osc1;
     Oscillator osc2;
@@ -185,5 +171,7 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
     float osc2gain = 0.5f;
     float osc2pulsewidth = 0.5f;
     float originalFrequency = 440.0f;
+
+    bool isLFOEnabled = false;
 
 };

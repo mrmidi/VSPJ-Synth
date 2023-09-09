@@ -5,27 +5,45 @@
               companyName="mrmidi" companyWebsite="www.mrmidi.net" companyEmail="me@mrmidi.net"
               pluginFormats="buildAU,buildAUv3,buildStandalone,buildVST3" pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn"
               pluginDesc="Bachelor's thesis of my" aaxIdentifier="net.mrmidi.Midius"
-              cppLanguageStandard="20" bundleIdentifier="net.mrmidi.Midius">
+              cppLanguageStandard="20" bundleIdentifier="net.mrmidi.Midius"
+              version="1.0.2">
   <MAINGROUP id="n77ks4" name="Midius">
     <GROUP id="{3DF7E2AF-D70C-B15C-AA61-5F4B182AE5B1}" name="Source">
-      <FILE id="O3Iw1a" name="Adsr.cpp" compile="1" resource="0" file="Source/Adsr.cpp"/>
-      <FILE id="GCmyiA" name="Adsr.h" compile="0" resource="0" file="Source/Adsr.h"/>
-      <FILE id="AY2g0O" name="Osc.cpp" compile="1" resource="0" file="Source/Osc.cpp"/>
-      <FILE id="bgX9cQ" name="Osc.h" compile="0" resource="0" file="Source/Osc.h"/>
-      <FILE id="ns4pAN" name="SynthVoice.cpp" compile="1" resource="0" file="Source/SynthVoice.cpp"/>
-      <FILE id="Vs5AKb" name="SynthVoice.h" compile="0" resource="0" file="Source/SynthVoice.h"/>
-      <FILE id="OkkhJs" name="SynthSound.cpp" compile="1" resource="0" file="Source/SynthSound.cpp"/>
-      <FILE id="lQvANX" name="SynthSound.h" compile="0" resource="0" file="Source/SynthSound.h"/>
-      <FILE id="soXkfm" name="SynthAudioSource.cpp" compile="1" resource="0"
-            file="Source/SynthAudioSource.cpp"/>
-      <FILE id="EA1YGz" name="SynthAudioSource.h" compile="0" resource="0"
-            file="Source/SynthAudioSource.h"/>
-      <GROUP id="{C62739CB-4649-A715-27AC-1FE26C07AC18}" name="GUI">
+      <GROUP id="{BCA2EF3A-3379-08C8-2A4B-BE0780F0E4B3}" name="ENGINE">
+        <FILE id="ns4pAN" name="SynthVoice.cpp" compile="1" resource="0" file="Source/SynthVoice.cpp"/>
+        <FILE id="Vs5AKb" name="SynthVoice.h" compile="0" resource="0" file="Source/SynthVoice.h"/>
+        <FILE id="OkkhJs" name="SynthSound.cpp" compile="1" resource="0" file="Source/SynthSound.cpp"/>
+        <FILE id="lQvANX" name="SynthSound.h" compile="0" resource="0" file="Source/SynthSound.h"/>
+        <FILE id="soXkfm" name="SynthAudioSource.cpp" compile="1" resource="0"
+              file="Source/SynthAudioSource.cpp"/>
+        <FILE id="EA1YGz" name="SynthAudioSource.h" compile="0" resource="0"
+              file="Source/SynthAudioSource.h"/>
+      </GROUP>
+      <GROUP id="{3679FA21-80D6-A232-CDD3-7D8CB3563C97}" name="OSC">
         <FILE id="Oe0zqO" name="OscControlGroup.cpp" compile="1" resource="0"
               file="Source/OscControlGroup.cpp"/>
         <FILE id="Dcq0Lt" name="OscControlGroup.h" compile="0" resource="0"
               file="Source/OscControlGroup.h"/>
+        <FILE id="AY2g0O" name="Osc.cpp" compile="1" resource="0" file="Source/Osc.cpp"/>
+        <FILE id="bgX9cQ" name="Osc.h" compile="0" resource="0" file="Source/Osc.h"/>
       </GROUP>
+      <GROUP id="{E5179022-B919-6899-AD42-3BDF835EB029}" name="ADSR">
+        <FILE id="O3Iw1a" name="Adsr.cpp" compile="1" resource="0" file="Source/Adsr.cpp"/>
+        <FILE id="GCmyiA" name="Adsr.h" compile="0" resource="0" file="Source/Adsr.h"/>
+        <FILE id="RECNQc" name="AdsrControlGroup.cpp" compile="1" resource="0"
+              file="Source/AdsrControlGroup.cpp"/>
+        <FILE id="MLm4Yk" name="AdsrControlGroup.h" compile="0" resource="0"
+              file="Source/AdsrControlGroup.h"/>
+      </GROUP>
+      <GROUP id="{2B17EA69-D4BC-077B-1962-B140527FB285}" name="LFO">
+        <FILE id="gbz6Qc" name="LFOControlGroup.cpp" compile="1" resource="0"
+              file="Source/LFOControlGroup.cpp"/>
+        <FILE id="Qpurgs" name="LFOControlGroup.h" compile="0" resource="0"
+              file="Source/LFOControlGroup.h"/>
+        <FILE id="Gk1xZ2" name="LFOsc.cpp" compile="1" resource="0" file="Source/LFOsc.cpp"/>
+        <FILE id="vy0sp6" name="LFOsc.h" compile="0" resource="0" file="Source/LFOsc.h"/>
+      </GROUP>
+      <GROUP id="{C62739CB-4649-A715-27AC-1FE26C07AC18}" name="GUI"/>
       <FILE id="K17Zwq" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="z4jPKq" name="PluginProcessor.h" compile="0" resource="0"

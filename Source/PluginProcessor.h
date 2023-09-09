@@ -80,6 +80,14 @@ private:
             params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc2Gain", 13), "Osc 2 Gain", 0.0, 1.0, 0.5));
             params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc2PulseWidth", 14), "Osc 2 Pulse Width", 0.0, 1.0, 0.5));
             params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc2WaveformType", 15), "Osc 2 Waveform Type", juce::StringArray { "Sine", "Triangle", "Sawtooth", "Square" }, 0));
+            
+            // LFO
+                   params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("enabledToggle", 16), "Enabled Toggle", 0, 1, 1));
+        params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("sourceComboBox", 17), "Source Combo Box", juce::StringArray { "keyboard", "modwheel", "lfo" }, 2));
+        params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("depthSlider", 18), "Depth Slider", 0.0, 1.0, 0.5));
+        params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("rateSlider", 19), "Rate Slider", 1, 20, 5));
+        params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("typeComboBox", 20), "Type Combo Box", juce::StringArray { "tremolo", "vibrato", "filter" }, 0));
+            
             return {params.begin(), params.end()};
         }
     

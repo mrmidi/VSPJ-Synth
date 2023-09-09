@@ -231,23 +231,70 @@ void MidiusAudioProcessor::setVoiceParams()
     {
         if (auto voice = dynamic_cast<SynthVoice*>(synthSource.synth.getVoice(i)))
         {
+            // Oscillator 1
             auto& osc1Octave = *parameters.getRawParameterValue ("osc1Octave");
             auto& osc1Cent = *parameters.getRawParameterValue ("osc1Cent");
             auto& osc1Gain = *parameters.getRawParameterValue ("osc1Gain");
             auto& osc1PulseWidth = *parameters.getRawParameterValue ("osc1PulseWidth");
             auto& osc1WaveformType = *parameters.getRawParameterValue ("osc1WaveformType");
+            // Oscillator 2
             auto& osc2Octave = *parameters.getRawParameterValue ("osc2Octave");
             auto& osc2Cent = *parameters.getRawParameterValue ("osc2Cent");
             auto& osc2Gain = *parameters.getRawParameterValue ("osc2Gain");
             auto& osc2PulseWidth = *parameters.getRawParameterValue ("osc2PulseWidth");
             auto& osc2WaveformType = *parameters.getRawParameterValue ("osc2WaveformType");
+            // LFO
+            auto& enabledToggle = *parameters.getRawParameterValue ("enabledToggle");
+            auto& sourceComboBox = *parameters.getRawParameterValue ("sourceComboBox");
+            auto& depthSlider = *parameters.getRawParameterValue ("depthSlider");
+            auto& rateSlider = *parameters.getRawParameterValue ("rateSlider");
+            auto& typeComboBox = *parameters.getRawParameterValue ("typeComboBox");
 
             //DBG("Retrieved waveform type: " << osc1WaveformType.load());
 //            DBG("Waveform type: " << osc1WaveformType.load());
             voice->setOsc1Params(osc1Octave.load(), osc1Cent.load(), osc1Gain.load(), osc1PulseWidth.load(), osc1WaveformType.load());
             voice->setOsc2Params(osc2Octave.load(), osc2Cent.load(), osc2Gain.load(), osc2PulseWidth.load(), osc2WaveformType.load());
+            if (enabledToggle.load() == 1) {
+                voice->enableLFO(true);
+            } else {
+                voice->enableLFO(false);
+            }
+            voice->setLFOParams(depthSlider.load(), rateSlider.load(), enabledToggle.load(), sourceComboBox.load(), typeComboBox.load());
+            
             //adsr.update (osc 1 octave.load(), osc 1 cent.load(), osc 1 gain.load(), osc 1 pulse width.load());
         }
     }
 }
 
+/* 
+LFO Control Group
+
+----------------------------
+Parameter ID: enabledToggle
+Component Type: Slider
+Declaration: std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> enabledToggleAttachment;
+Implementation: enabledToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(parameters, "enabledToggle", enabledToggleSlider);
+----------------------------
+Parameter ID: sourceComboBox
+Component Type: ComboBox
+Declaration: std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> sourceComboBoxAttachment;
+Implementation: sourceComboBoxAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(parameters, "sourceComboBox", sourceComboBoxComboBox);
+----------------------------
+Parameter ID: depthSlider
+Component Type: Slider
+Declaration: std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> depthSliderAttachment;
+Implementation: depthSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(parameters, "depthSlider", depthSliderSlider);
+----------------------------
+Parameter ID: rateSlider
+Component Type: Slider
+Declaration: std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> rateSliderAttachment;
+Implementation: rateSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(parameters, "rateSlider", rateSliderSlider);
+----------------------------
+Parameter ID: typeComboBox
+Component Type: ComboBox
+Declaration: std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> typeComboBoxAttachment;
+Implementation: typeComboBoxAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(parameters, "typeComboBox", typeComboBoxComboBox);
+----------------------------
+
+
+*/

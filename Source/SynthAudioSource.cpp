@@ -13,4 +13,16 @@
 
 #define VOICES 10
 
+SynthAudioSource::SynthAudioSource(juce::MidiKeyboardState& keyState) : keyboardState(keyState) 
+{
+        // Initialize your synth here.
+        std::cout << "SynthAudioSource constructor called\n";
+        for (int i = 0; i < VOICES; ++i) {
+            synth.addVoice(new SynthVoice());
+            std::cout << "Added voice " << i << "\n";
+        }
 
+        synth.addSound(new SynthSound());
+        std::cout << "Added sound\n";
+
+    }

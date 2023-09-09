@@ -84,7 +84,7 @@ public:
 
     void setMusicalFrequency(float baseFrequency) {
         originalFrequency = baseFrequency;
-        frequency = baseFrequency * pow(2, octave) * pitchBendMultiplier + detune / 100.0f;
+        frequency = baseFrequency * pow(2, octave) * pitchBendMultiplier + detune;
         juce::dsp::Oscillator<float>::setFrequency(frequency);
     }   
 

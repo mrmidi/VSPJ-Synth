@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "OscControlGroup.h"
+#include "LFOControlGroup.h"
 
 //==============================================================================
 /**
@@ -35,6 +36,9 @@ private:
     // Oscillator control group
     OscControlGroup oscControlGroup1;
     OscControlGroup oscControlGroup2;
+    
+    // LFO Control group
+    LFOControlGroup lfoControlGroup1;
 
     // Keyboard
     juce::MidiKeyboardState keyboardState;
