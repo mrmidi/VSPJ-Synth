@@ -12,6 +12,7 @@
 #include "PluginProcessor.h"
 #include "OscControlGroup.h"
 #include "LFOControlGroup.h"
+#include "AdsrControlGroup.h"
 
 //==============================================================================
 /**
@@ -40,13 +41,18 @@ private:
     // LFO Control group
     LFOControlGroup lfoControlGroup1;
 
+    // ADSR For oscillators
+    AdsrControlGroup adsrControlGroup1;
+
+    // ADSR for filter
+    AdsrControlGroup adsrControlGroup2;
+
+    // Filter control group
+
+
     // Keyboard
     juce::MidiKeyboardState keyboardState;
     juce::MidiKeyboardComponent keyboardComponent;
-
-    // GUI
-
-    // Sliders
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiusAudioProcessorEditor)

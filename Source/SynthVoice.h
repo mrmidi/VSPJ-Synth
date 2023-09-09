@@ -155,6 +155,11 @@ void setLFOParams(float depth, float frequency, int isLFOEnable, int source, int
         tremoloLFO.setFrequency(frequency);
     }
 
+    // voice->setADSRParams(adsrAttack.load(), adsrDecay.load(), adsrSustain.load(), adsrRelease.load());
+    void setADSRParams(float attack, float decay, float sustain, float release) {
+        adsr.updateParams(attack, decay, sustain, release);
+    }
+
     private:
     LFOsc tremoloLFO;
     juce::AudioBuffer<float> synthBuffer;

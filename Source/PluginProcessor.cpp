@@ -249,6 +249,17 @@ void MidiusAudioProcessor::setVoiceParams()
             auto& depthSlider = *parameters.getRawParameterValue ("depthSlider");
             auto& rateSlider = *parameters.getRawParameterValue ("rateSlider");
             auto& typeComboBox = *parameters.getRawParameterValue ("typeComboBox");
+            // ADSR voice
+            auto& adsrAttack = *parameters.getRawParameterValue ("adsr1attack");
+            auto& adsrDecay = *parameters.getRawParameterValue ("adsr1decay");
+            auto& adsrSustain = *parameters.getRawParameterValue ("adsr1sustain");
+            auto& adsrRelease = *parameters.getRawParameterValue ("adsr1release");
+            // ADSR filter
+            auto& adsrAttackFilter = *parameters.getRawParameterValue ("adsr2attack");
+            auto& adsrDecayFilter = *parameters.getRawParameterValue ("adsr2decay");
+            auto& adsrSustainFilter = *parameters.getRawParameterValue ("adsr2sustain");
+            auto& adsrReleaseFilter = *parameters.getRawParameterValue ("adsr2release");
+                      
 
             //DBG("Retrieved waveform type: " << osc1WaveformType.load());
 //            DBG("Waveform type: " << osc1WaveformType.load());
@@ -260,6 +271,8 @@ void MidiusAudioProcessor::setVoiceParams()
                 voice->enableLFO(false);
             }
             voice->setLFOParams(depthSlider.load(), rateSlider.load(), enabledToggle.load(), sourceComboBox.load(), typeComboBox.load());
+            voice->setADSRParams(adsrAttack.load(), adsrDecay.load(), adsrSustain.load(), adsrRelease.load());
+            
             
             //adsr.update (osc 1 octave.load(), osc 1 cent.load(), osc 1 gain.load(), osc 1 pulse width.load());
         }
@@ -298,3 +311,27 @@ Implementation: typeComboBoxAttachment = std::make_unique<juce::AudioProcessorVa
 
 
 */
+/*
+ ----------------------------
+ Parameter ID: adsrAttack
+ Component Type: Slider
+ Declaration: std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> adsrAttackAttachment;
+ Implementation: adsrAttackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "adsrAttack", adsrAttackSlider, juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.1f);
+ ----------------------------
+ Parameter ID: adsrDecay
+ Component Type: Slider
+ Declaration: std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> adsrDecayAttachment;
+ Implementation: adsrDecayAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "adsrDecay", adsrDecaySlider, juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f);
+ ----------------------------
+ Parameter ID: adsrSustain
+ Component Type: Slider
+ Declaration: std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> adsrSustainAttachment;
+ Implementation: adsrSustainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "adsrSustain", adsrSustainSlider, juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f);
+ ----------------------------
+ Parameter ID: adsrRelease
+ Component Type: Slider
+ Declaration: std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> adsrReleaseAttachment;
+ Implementation: adsrReleaseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state, prefix + "adsrRelease", adsrReleaseSlider, juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.2f);
+ ----------------------------
+ 
+ */

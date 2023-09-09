@@ -9,6 +9,14 @@
               version="1.0.2">
   <MAINGROUP id="n77ks4" name="Midius">
     <GROUP id="{3DF7E2AF-D70C-B15C-AA61-5F4B182AE5B1}" name="Source">
+      <GROUP id="{D6EF3049-4ED9-27A8-C6D7-893BEFDFA34D}" name="FILTER">
+        <FILE id="eVTiKZ" name="Filter.cpp" compile="1" resource="0" file="Source/Filter.cpp"/>
+        <FILE id="NVycT3" name="Filter.h" compile="0" resource="0" file="Source/Filter.h"/>
+        <FILE id="oBhfsU" name="FilterControlGroup.cpp" compile="1" resource="0"
+              file="Source/FilterControlGroup.cpp"/>
+        <FILE id="nZjtmd" name="FilterControlGroup.h" compile="0" resource="0"
+              file="Source/FilterControlGroup.h"/>
+      </GROUP>
       <GROUP id="{BCA2EF3A-3379-08C8-2A4B-BE0780F0E4B3}" name="ENGINE">
         <FILE id="ns4pAN" name="SynthVoice.cpp" compile="1" resource="0" file="Source/SynthVoice.cpp"/>
         <FILE id="Vs5AKb" name="SynthVoice.h" compile="0" resource="0" file="Source/SynthVoice.h"/>
@@ -43,7 +51,6 @@
         <FILE id="Gk1xZ2" name="LFOsc.cpp" compile="1" resource="0" file="Source/LFOsc.cpp"/>
         <FILE id="vy0sp6" name="LFOsc.h" compile="0" resource="0" file="Source/LFOsc.h"/>
       </GROUP>
-      <GROUP id="{C62739CB-4649-A715-27AC-1FE26C07AC18}" name="GUI"/>
       <FILE id="K17Zwq" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="z4jPKq" name="PluginProcessor.h" compile="0" resource="0"

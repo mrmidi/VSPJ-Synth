@@ -15,6 +15,8 @@ MidiusAudioProcessorEditor::MidiusAudioProcessorEditor (MidiusAudioProcessor& p)
     oscControlGroup1(p.parameters, "osc1"),
     oscControlGroup2(p.parameters, "osc2"),
     lfoControlGroup1(p.parameters),
+    adsrControlGroup1(p.parameters, "adsr1"),
+    adsrControlGroup2(p.parameters, "adsr2"),
     keyboardComponent(audioProcessor.getKeyboardState(), juce::MidiKeyboardComponent::horizontalKeyboard)
 {
     // Make sure that before the constructor has finished, you've set the
@@ -24,6 +26,8 @@ MidiusAudioProcessorEditor::MidiusAudioProcessorEditor (MidiusAudioProcessor& p)
     addAndMakeVisible (oscControlGroup1);
     addAndMakeVisible (oscControlGroup2);
     addAndMakeVisible (lfoControlGroup1);
+    addAndMakeVisible (adsrControlGroup1);
+    addAndMakeVisible (adsrControlGroup2);
 }
 
 
@@ -48,7 +52,13 @@ void MidiusAudioProcessorEditor::resized()
     oscControlGroup2.setBounds(10, 170, 200, 160);
 
     lfoControlGroup1.setBounds(210, 10, 200, 160); // X, Y, Width, Height
-    
+
+    adsrControlGroup1.setBounds(210, 170, 200, 160);
+
+    // filter control group
+    adsrControlGroup2.setBounds(410, 10, 200, 160);   
+
+    // filter control group
     
     // KEYBOARD
     const int keyboardHeight = 100;

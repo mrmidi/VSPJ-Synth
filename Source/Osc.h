@@ -34,7 +34,7 @@ public:
     void setGain(float newGain)
     {
         if (newGain != gain) {
-            DBG("SETTING OSC GAIN TO " << newGain);
+            // DBG("SETTING OSC GAIN TO " << newGain);
             gain = newGain;
         }
             
