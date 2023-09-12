@@ -10,25 +10,56 @@
 #include "PluginEditor.h"
 
 //==============================================================================
+//MidiusAudioProcessor::MidiusAudioProcessor(juce::MidiKeyboardState& state)
+//#ifndef JucePlugin_PreferredChannelConfigurations
+//     : AudioProcessor (BusesProperties()
+//                     #if ! JucePlugin_IsMidiEffect
+//                      #if ! JucePlugin_IsSynth
+//                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
+//                      #endif
+//                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
+//                     #endif
+//                       ),
+//                       keyboardState(state), // Initialize keyboardState
+//                       synthSource(keyboardState), // Initialize synthSource
+//                       parameters (*this, nullptr, "Parameters", createParameterLayout())
+//#endif
+//{
+//
+//    FOLEYS_SET_SOURCE_PATH(__FILE__);
+//
+//}
+//
+// foleys::MagicProcessor (juce::AudioProcessor::BusesProperties()
+//                            .withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
+//    treeState (*this, nullptr, ProjectInfo::projectName, createParameterLayout())
+//
 MidiusAudioProcessor::MidiusAudioProcessor(juce::MidiKeyboardState& state)
-#ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       ),
-                       keyboardState(state), // Initialize keyboardState
-                       synthSource(keyboardState), // Initialize synthSource
-                       parameters (*this, nullptr, "Parameters", createParameterLayout())
-#endif
+     : foleys::MagicProcessor (juce::AudioProcessor::BusesProperties()
+                                .withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
+     keyboardState(state), // Initialize keyboardState
+       synthSource(keyboardState), // Initialize synthSource
+       parameters (*this, nullptr, "Parameters", createParameterLayout())
 {
     
+    FOLEYS_SET_SOURCE_PATH(__FILE__);
     
+    DBG("Searching for midius.xml");
+    magicState.setGuiValueTree (BinaryData::midius_xml, BinaryData::midius_xmlSize);
+    outputMeter = magicState.createAndAddObject<foleys::MagicLevelSource>("output");
+    oscilloscope = magicState.createAndAddObject<foleys::MagicOscilloscope>("waveform");
+    analyser     = magicState.createAndAddObject<foleys::MagicAnalyser>("analyser");
+    magicState.addBackgroundProcessing (analyser);
+
+    magicState.setApplicationSettingsFile (juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+                                           .getChildFile (ProjectInfo::companyName)
+                                           .getChildFile (ProjectInfo::projectName + juce::String (".settings")));
+
+    magicState.setPlayheadUpdateFrequency (30);
+
     
 }
+
 
 MidiusAudioProcessor::~MidiusAudioProcessor()
 {
@@ -121,6 +152,13 @@ void MidiusAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     std::cout << "MidiusAudioProcessor::prepareToPlay called with sample rate " << sampleRate
                   << " and samples per block " << samplesPerBlock << "\n";
     synthSource.prepareToPlay(samplesPerBlock, sampleRate);
+
+    // magic meters
+    outputMeter->setupSource (getTotalNumOutputChannels(), sampleRate, 500);
+    oscilloscope->prepareToPlay (sampleRate, samplesPerBlock);
+    analyser->prepareToPlay (sampleRate, samplesPerBlock);
+
+
     
 }
 
@@ -186,35 +224,63 @@ void MidiusAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     synthSource.synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
     
     masterGain.process (juce::dsp::ProcessContextReplacing<float> (block));
+
+    for (int i = 1; i < buffer.getNumChannels(); ++i)
+        buffer.copyFrom (i, 0, buffer.getReadPointer (0), buffer.getNumSamples());
+
+    // MAGIC GUI: send the finished buffer to the level meter
+    
+    // Amplify buffer for oscilloscope
+    juce::AudioBuffer<float> oscBuffer = buffer; // Create a copy of the buffer for amplification
+    float gainFactor = 15.0; // or any other desired gain value
+
+    for (int channel = 0; channel < oscBuffer.getNumChannels(); ++channel)
+    {
+        float* channelData = oscBuffer.getWritePointer(channel);
+        for (int sample = 0; sample < oscBuffer.getNumSamples(); ++sample)
+        {
+            channelData[sample] *= gainFactor;
+        }
+    }
+
+    outputMeter->pushSamples (buffer);
+    oscilloscope->pushSamples (oscBuffer);
+    analyser->pushSamples (buffer);
     
         
     
 }
 
 //==============================================================================
-bool MidiusAudioProcessor::hasEditor() const
-{
-    return true; // (change this to false if you choose to not supply an editor)
-}
+//bool MidiusAudioProcessor::hasEditor() const
+//{
+//    return true; // (change this to false if you choose to not supply an editor)
+//}
 
-juce::AudioProcessorEditor* MidiusAudioProcessor::createEditor()
-{
-    return new MidiusAudioProcessorEditor (*this);
-}
+//juce::AudioProcessorEditor* MidiusAudioProcessor::createEditor()
+//{
+//    return new MidiusAudioProcessorEditor (*this);
+//}
+
+// juce::AudioProcessorEditor* MidiusAudioProcessor::createEditor()
+// {
+//    return new MidiusAudioProcessorEditor (*this);
+// }
+
 
 //==============================================================================
-void MidiusAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
-{
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
-}
+//void MidiusAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+//{
+//    // You should use this method to store your parameters in the memory block.
+//    // You could do that either as raw data, or use the XML or ValueTree classes
+//    // as intermediaries to make it easy to save and load complex data.
+//}
 
-void MidiusAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
-{
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
-}
+//void MidiusAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+//{
+//    // You should use this method to restore your parameters from this memory block,
+//    // whose contents will have been created by the getStateInformation() call.
+//}
 
 //==============================================================================
 // This creates new instances of the plugin..
@@ -255,22 +321,17 @@ void MidiusAudioProcessor::setVoiceParams()
             auto& adsrSustain = *parameters.getRawParameterValue ("adsr1sustain");
             auto& adsrRelease = *parameters.getRawParameterValue ("adsr1release");
             // ADSR filter
-            auto& adsrAttackFilter = *parameters.getRawParameterValue ("adsr2attack");
-            auto& adsrDecayFilter = *parameters.getRawParameterValue ("adsr2decay");
-            auto& adsrSustainFilter = *parameters.getRawParameterValue ("adsr2sustain");
-            auto& adsrReleaseFilter = *parameters.getRawParameterValue ("adsr2release");
+            auto& adsr2AttackFilter = *parameters.getRawParameterValue ("adsr2attack");
+            auto& adsr2DecayFilter = *parameters.getRawParameterValue ("adsr2decay");
+            auto& adsr2SustainFilter = *parameters.getRawParameterValue ("adsr2sustain");
+            auto& adsr2ReleaseFilter = *parameters.getRawParameterValue ("adsr2release");
                       
 
             //DBG("Retrieved waveform type: " << osc1WaveformType.load());
 //            DBG("Waveform type: " << osc1WaveformType.load());
             voice->setOsc1Params(osc1Octave.load(), osc1Cent.load(), osc1Gain.load(), osc1PulseWidth.load(), osc1WaveformType.load());
             voice->setOsc2Params(osc2Octave.load(), osc2Cent.load(), osc2Gain.load(), osc2PulseWidth.load(), osc2WaveformType.load());
-            if (enabledToggle.load() == 1) {
-                voice->enableLFO(true);
-            } else {
-                voice->enableLFO(false);
-            }
-            voice->setLFOParams(depthSlider.load(), rateSlider.load(), enabledToggle.load(), sourceComboBox.load(), typeComboBox.load());
+            voice->setLFOParams(depthSlider.load(), rateSlider.load(), sourceComboBox.load(), typeComboBox.load());
             voice->setADSRParams(adsrAttack.load(), adsrDecay.load(), adsrSustain.load(), adsrRelease.load());
             
             

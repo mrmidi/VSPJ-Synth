@@ -14,10 +14,11 @@
 //==============================================================================
 /**
 */
-class MidiusAudioProcessor  : public juce::AudioProcessor
-                            #if JucePlugin_Enable_ARA
-                             , public juce::AudioProcessorARAExtension
-                            #endif
+//class MidiusAudioProcessor  : public juce::AudioProcessor
+//                            #if JucePlugin_Enable_ARA
+//                             , public juce::AudioProcessorARAExtension
+//                            #endif
+class MidiusAudioProcessor : public foleys::MagicProcessor
 {
 public:
     //==============================================================================
@@ -36,8 +37,8 @@ public:
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
     //==============================================================================
-    juce::AudioProcessorEditor* createEditor() override;
-    bool hasEditor() const override;
+    // juce::AudioProcessorEditor* createEditor() override;
+//    bool hasEditor() const override;
 
     //==============================================================================
     const juce::String getName() const override;
@@ -55,8 +56,8 @@ public:
     void changeProgramName (int index, const juce::String& newName) override;
 
     //==============================================================================
-    void getStateInformation (juce::MemoryBlock& destData) override;
-    void setStateInformation (const void* data, int sizeInBytes) override;
+//    void getStateInformation (juce::MemoryBlock& destData) override;
+//    void setStateInformation (const void* data, int sizeInBytes) override;
     
     juce::MidiKeyboardState& getKeyboardState() { return keyboardState; }
     juce::dsp::ProcessSpec spec;
@@ -66,48 +67,79 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiusAudioProcessor)
 
 
-     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
-        {
-            std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+         juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
+            {
+                std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-            params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc1Octave", 6), "Osc 1 Octave", -3, 3, 0));
-            params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc1Cent", 7), "Osc 1 Cent", -50, 50, 0));
-            params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc1Gain", 8), "Osc 1 Gain", 0.0f, 1.0f, 0.5f));
-            params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc1PulseWidth", 9), "Osc 1 Pulse Width", 0.0f, 1.0f, 0.5f));
-            params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc1WaveformType", 10), "Osc 1 Waveform Type", juce::StringArray {"Sine", "Triangle", "Sawtooth", "Square" }, 0));
-            params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc2Octave", 11), "Osc 2 Octave", -3, 3, 0));
-            params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc2Cent", 12), "Osc 2 Cent", -50, 50, 0));
-            params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc2Gain", 13), "Osc 2 Gain", 0.0, 1.0, 0.5));
-            params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc2PulseWidth", 14), "Osc 2 Pulse Width", 0.0, 1.0, 0.5));
-            params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc2WaveformType", 15), "Osc 2 Waveform Type", juce::StringArray { "Sine", "Triangle", "Sawtooth", "Square" }, 0));
-            
-            // LFO
-            params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("enabledToggle", 16), "Enabled Toggle", 0, 1, 1));
-            params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("sourceComboBox", 17), "Source Combo Box", juce::StringArray { "keyboard", "modwheel", "lfo" }, 2));
-            params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("depthSlider", 18), "Depth Slider", 0.0, 1.0, 0.5));
-            params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("rateSlider", 19), "Rate Slider", 1, 20, 5));
-            params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("typeComboBox", 20), "Type Combo Box", juce::StringArray { "tremolo", "vibrato", "filter" }, 0));
+                params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc1Octave", 6), "Octave 1", -3, 3, 0));
+                params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc1Cent", 7), "Cent 1", -50, 50, 0));
+                params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc1Gain", 8), "Gain 1", 0.0f, 1.0f, 0.5f));
+                params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc1PulseWidth", 9), "PW 1", 0.0f, 1.0f, 0.5f));
+                params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc1WaveformType", 10), "Waveform 1", juce::StringArray {"Sine", "Sawtooth", "Triangle", "Square"}, 0));
 
-          // ADSR voice
-          params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr1attack", 21), "ADSR Attack", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.1f));
-          params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr1decay", 22), "ADSR Decay", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.5));
-          params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr1sustain", 23), "ADSR Sustain", 0.0f, 1.0f, 0.5f));
-          params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr1release", 24), "ADSR Release", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.2f));
 
-          // ADSR filter
-          params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr2attack", 25), "ADSR Attack", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.1f));
-          params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr2decay", 26), "ADSR Decay", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.5));
-          params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr2sustain", 27), "ADSR Sustain", 0.0f, 1.0f, 0.5f));
-          params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr2release", 28), "ADSR Release", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.2f));
+                params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc2Octave", 11), "Octave 2", -3, 3, 0));
+                params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc2Cent", 12), "Cent 2", -50, 50, 0));
+                params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc2Gain", 13), "Gain 2", 0.0, 1.0, 0.5));
+                params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc2PulseWidth", 14), "PW 2", 0.0, 1.0, 0.5));
+                params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc2WaveformType", 15), "Waveform 2", juce::StringArray {"Sine", "Sawtooth", "Triangle", "Square"}, 0));
+                
+                // LFO
 
-            return {params.begin(), params.end()};
-        }
+                params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("sourceComboBox", 17), "Source", juce::StringArray { "keyboard", "modwheel", "lfo" }, 2));
+                params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("depthSlider", 18), "Depth", 0.0, 1.0, 0.5));
+                params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("rateSlider", 19), "Rate", 1, 20, 5));
+                params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("typeComboBox", 20), "Type", juce::StringArray { "tremolo", "vibrato", "filter" }, 0));
+
+              // ADSR voice
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr1attack", 21), "ADSR Attack", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.1f));
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr1decay", 22), "ADSR Decay", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.5));
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr1sustain", 23), "ADSR Sustain", 0.0f, 1.0f, 0.5f));
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr1release", 24), "ADSR Release", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.2f));
+
+              // ADSR filter
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr2attack", 25), "Filter Attack", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.1f));
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr2decay", 26), "Filter Decay", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.5));
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr2sustain", 27), "Filter Sustain", 0.0f, 1.0f, 0.5f));
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr2release", 28), "Filter Release", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.2f));
+             
+              // Filter Amount (If you are using this to mix the dry/wet signal)
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterAmount", 29), "Filter Amount", 0.0, 1.0, 0.5));
+
+              // Cutoff Frequency (usually in Hz, but you can use a normalized value if you prefer)
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("cutoff", 30), "Cutoff", 20.0, 20000.0, 1000.0));
+
+              // Resonance (or Q Factor)
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("resonance", 31), "Resonance", 0.1, 10.0, 1.0));
+
+              // Filter Type
+              params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("filterType", 32), "Filter Type", juce::StringArray { "High Pass", "Low Pass", "Band Pass" }, 1)); // default to "Low Pass"
+
+              // Delay Parameters
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("delayTime", 29), "Delay Time", 0.0, 2000.0, 500.0)); // in milliseconds, from 0ms to 2000ms with a default of 500ms
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("feedback", 30), "Feedback", 0.0, 1.0, 0.5)); // normalized from 0 to 1
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("delayMix", 31), "Delay Mix", 0.0, 1.0, 0.5)); // dry/wet mix, normalized from 0 to 1
+
+              // Distortion Parameters
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("drive", 32), "Drive", 1.0, 100.0, 1.0)); // from 1 (no gain) to 100 (a lot of gain)
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("tone", 33), "Tone", 20.0, 20000.0, 1000.0)); // in Hz, from 20Hz to 20kHz with a default of 1kHz
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("distortionMix", 34), "Distortion Mix", 0.0, 1.0, 0.5)); // dry/wet mix, normalized from 0 to 1
+
+              // master gain
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("masterGain", 35), "Master Gain", 0.0, 1.0, 0.5)); // normalized from 0 to 1 TODO: convert to decibels
+
+                return {params.begin(), params.end()};
+            }
     
     juce::MidiKeyboardState& keyboardState; // Declare this before synthSource
     SynthAudioSource synthSource;
     
     juce::dsp::Gain<float> masterGain;
-
+    
+    foleys::MagicLevelSource*   outputMeter  = nullptr;
+    foleys::MagicPlotSource*    oscilloscope = nullptr;
+    foleys::MagicPlotSource*    analyser     = nullptr;
+    
     void setVoiceParams();
 
     

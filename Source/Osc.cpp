@@ -33,15 +33,19 @@ void Oscillator::setWaveform(Waveform newWaveform)
             initialise([] (float x) { return std::sin(x); });
             break;
             
-        case Sawtooth:
-            initialise([] (float x) { return x / juce::MathConstants<float>::pi; });
-            break;
+        // case Sawtooth:
+        //     initialise([] (float x) { return x / juce::MathConstants<float>::pi; });
+        //     break;
             
-        case Triangle:
+        case Sawtooth:
+            initialise([] (float x) { return (2.0f / juce::MathConstants<float>::pi) * (x - juce::MathConstants<float>::pi); });
+            break;
+
+        case Square:
             initialise([] (float x) { return 2.0f * std::abs(2.0f * (x / juce::MathConstants<float>::twoPi) - 1.0f) - 1.0f; });
             break;
             
-        case Square:
+        case Triangle:
             initialise([] (float x) {
                 // calculate square wave by using sine wave and apply sign function to it
                 return std::sin(x) > 0 ? 1.0f : -1.0f;

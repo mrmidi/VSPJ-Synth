@@ -149,8 +149,7 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
     osc2.setMusicalFrequency(originalFrequency);
 }
 
-void setLFOParams(float depth, float frequency, int isLFOEnable, int source, int type) {
-        this->isLFOEnabled = isLFOEnable;
+void setLFOParams(float depth, float frequency, int source, int type) {
         tremoloLFO.setDepth(depth);
         tremoloLFO.setFrequency(frequency);
     }
@@ -177,6 +176,6 @@ void setLFOParams(float depth, float frequency, int isLFOEnable, int source, int
     float osc2pulsewidth = 0.5f;
     float originalFrequency = 440.0f;
 
-    bool isLFOEnabled = false;
+    bool isLFOEnabled = true;
 
 };

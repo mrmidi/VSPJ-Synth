@@ -75,6 +75,11 @@
         "concepts": "cpp",
         "numeric": "cpp",
         "algorithm": "cpp",
-        "*.mm": "cpp"
+        "*.mm": "cpp",
+        "codecvt": "cpp",
+        "fstream": "cpp",
+        "regex": "cpp",
+        "shared_mutex": "cpp",
+        "stack": "cpp"
     }
 }
