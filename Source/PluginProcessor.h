@@ -103,7 +103,7 @@ private:
               params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr2sustain", 27), "Filter Sustain", 0.0f, 1.0f, 0.5f));
               params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr2release", 28), "Filter Release", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.2f));
              
-              // Filter Amount (If you are using this to mix the dry/wet signal)
+              // Filter Amount (using this to mix the dry/wet signal) or maybe it's better to use depth?
               params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterAmount", 29), "Filter Amount", 0.0, 1.0, 0.5));
 
               // Cutoff Frequency (usually in Hz, but you can use a normalized value if you prefer)

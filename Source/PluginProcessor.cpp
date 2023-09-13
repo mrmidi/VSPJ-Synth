@@ -310,7 +310,7 @@ void MidiusAudioProcessor::setVoiceParams()
             auto& osc2PulseWidth = *parameters.getRawParameterValue ("osc2PulseWidth");
             auto& osc2WaveformType = *parameters.getRawParameterValue ("osc2WaveformType");
             // LFO
-            auto& enabledToggle = *parameters.getRawParameterValue ("enabledToggle");
+            //auto& enabledToggle = *parameters.getRawParameterValue ("enabledToggle");
             auto& sourceComboBox = *parameters.getRawParameterValue ("sourceComboBox");
             auto& depthSlider = *parameters.getRawParameterValue ("depthSlider");
             auto& rateSlider = *parameters.getRawParameterValue ("rateSlider");
@@ -325,6 +325,11 @@ void MidiusAudioProcessor::setVoiceParams()
             auto& adsr2DecayFilter = *parameters.getRawParameterValue ("adsr2decay");
             auto& adsr2SustainFilter = *parameters.getRawParameterValue ("adsr2sustain");
             auto& adsr2ReleaseFilter = *parameters.getRawParameterValue ("adsr2release");
+            // Filter
+            auto& filterType = *parameters.getRawParameterValue ("filterType");
+            auto& filterCutoff = *parameters.getRawParameterValue ("cutoff");
+            auto& filterResonance = *parameters.getRawParameterValue ("resonance");
+            auto& filterAmount = *parameters.getRawParameterValue ("filterAmount");
                       
 
             //DBG("Retrieved waveform type: " << osc1WaveformType.load());
@@ -333,6 +338,8 @@ void MidiusAudioProcessor::setVoiceParams()
             voice->setOsc2Params(osc2Octave.load(), osc2Cent.load(), osc2Gain.load(), osc2PulseWidth.load(), osc2WaveformType.load());
             voice->setLFOParams(depthSlider.load(), rateSlider.load(), sourceComboBox.load(), typeComboBox.load());
             voice->setADSRParams(adsrAttack.load(), adsrDecay.load(), adsrSustain.load(), adsrRelease.load());
+            voice->setFilterAdsrParams(adsr2AttackFilter.load(), adsr2DecayFilter.load(), adsr2SustainFilter.load(), adsr2ReleaseFilter.load(), filterCutoff.load()); // baseCutoffFreq
+            voice->setFilterParams(filterType.load(), filterCutoff.load(), filterResonance.load(), filterAmount.load());
             
             
             //adsr.update (osc 1 octave.load(), osc 1 cent.load(), osc 1 gain.load(), osc 1 pulse width.load());

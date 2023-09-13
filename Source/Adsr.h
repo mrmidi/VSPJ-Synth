@@ -22,6 +22,13 @@ public:
 
     void setCutoffFreqency(const float cutoffFreq);
 
+    void getParams(float& attack, float& decay, float& sustain, float& release) {
+        attack = adsrParams.attack;
+        decay = adsrParams.decay;
+        sustain = adsrParams.sustain;
+        release = adsrParams.release;
+    }
+
 
 private:
     juce::ADSR::Parameters adsrParams;

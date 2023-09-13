@@ -30,25 +30,21 @@ void Oscillator::setWaveform(Waveform newWaveform)
     switch (waveform)
     {
         case Sine:
-            initialise([] (float x) { return std::sin(x); });
+            initialise([] (float x) { return std::sin(x); }); // PWM is not used here
             break;
-            
-        // case Sawtooth:
-        //     initialise([] (float x) { return x / juce::MathConstants<float>::pi; });
-        //     break;
-            
-        case Sawtooth:
+                   
+        case Sawtooth: // it's sawtooth actually
             initialise([] (float x) { return (2.0f / juce::MathConstants<float>::pi) * (x - juce::MathConstants<float>::pi); });
             break;
 
-        case Square:
+        case Square: // it's triangle actually
             initialise([] (float x) { return 2.0f * std::abs(2.0f * (x / juce::MathConstants<float>::twoPi) - 1.0f) - 1.0f; });
             break;
             
-        case Triangle:
-            initialise([] (float x) {
+        case Triangle: // it's square actually
+            initialise([this] (float x) {
                 // calculate square wave by using sine wave and apply sign function to it
-                return std::sin(x) > 0 ? 1.0f : -1.0f;
+                return std::sin(x) > pulseWidth ? 1.0f : -1.0f; // PWM is used here
             });
             break;
             

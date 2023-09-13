@@ -10,6 +10,8 @@
 
 #include "Filter.h"
 
+Filter::Filter() {}; // empty constructor
+
 void Filter::prepareToPlay(double sampleRate, int samplesPerBlock, int numChannels)
 {
     juce::dsp::ProcessSpec spec;
@@ -17,7 +19,14 @@ void Filter::prepareToPlay(double sampleRate, int samplesPerBlock, int numChanne
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = numChannels;
 
-    prepare (spec);
+    for (int i = 0; i < numChannels; ++i)
+    {
+        lfo.prepare(spec);
+    }
+}
+
+void Filter::setBaseCutOffFreq(float baseCutoffFreq) {
+    this->baseCutoffFreq = baseCutoffFreq;
 }
 
 void Filter::setParams(int filterType, float filterCutoff, float filterResonance)
@@ -61,6 +70,13 @@ void Filter::selectFilterType (const int filterType)
     }
 }
 
+float Filter::getBaseCutOffFreq() const {
+    return baseCutoffFreq;
+}
+
+int Filter::getDepth() const {
+    return depth;
+}
 
 void Filter::processNextBlock(juce::AudioBuffer<float>& buffer)
 {
@@ -76,5 +92,5 @@ float Filter::processNextSample (int channel, float inputValue)
 void Filter::resetAll()
 {
     reset();
-    lfo.reset();
+    lfo.reset(); // todo??
 }

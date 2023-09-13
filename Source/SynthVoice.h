@@ -14,6 +14,7 @@
 #include "Adsr.h"
 #include "SynthSound.h"
 #include "LFOsc.h"
+#include "Filter.h"
 
 class SynthVoice : public juce::SynthesiserVoice
 {
@@ -51,14 +52,16 @@ public:
         osc1.setVelocity(velocity);
         osc2.setVelocity(velocity);
         
-        adsr.updateParams(0.1f, 0.2f, 0.8f, 0.5f);
+        adsr.updateParams(0.1f, 0.2f, 0.8f, 0.5f); // default values will be overriden by APVTS
         adsr.noteOn();
+        filterAdsr.updateParams(0.1f, 0.2f, 0.8f, 0.5f); // default values will be overriden by APVTS
+        filterAdsr.noteOn();
     }
 
     void stopNote(float velocity, bool allowTailOff) override {
         // This is called when a note stops
         adsr.noteOff();
-//        filterAdsr.noteOff();
+        filterAdsr.noteOff();
         
         if (! allowTailOff || ! adsr.isActive())
         //osc1.reset();
@@ -117,7 +120,14 @@ public:
         tremoloLFO.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
         tremoloLFO.setDepth(0.5f);       // Depth of 50%
         tremoloLFO.setFrequency(5);   // Rate of 5 Hz
-        DBG("Initialization of oscillators finished");
+
+        // prepare the filter
+        filterAdsr.reset();
+        filterAdsr.setSampleRate(sampleRate);
+
+        filter.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
+
+        DBG("Initialization finished");
         isPrepared = true;
     }
 
@@ -149,7 +159,7 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
     osc2.setMusicalFrequency(originalFrequency);
 }
 
-void setLFOParams(float depth, float frequency, int source, int type) {
+    void setLFOParams(float depth, float frequency, int source, int type) {
         tremoloLFO.setDepth(depth);
         tremoloLFO.setFrequency(frequency);
     }
@@ -159,12 +169,34 @@ void setLFOParams(float depth, float frequency, int source, int type) {
         adsr.updateParams(attack, decay, sustain, release);
     }
 
+    void setFilterParams(int type, float cutoff, float resonance, float amount) {
+        filterAmount = amount;
+        filter.setParams(type, cutoff, resonance);
+    }
+
+    void setFilterAdsrParams(float attack, float decay, float sustain, float release, float baseCutoffFreq) {
+
+        float currentAttack, currentDecay, currentSustain, currentRelease;
+        filterAdsr.getParams(currentAttack, currentDecay, currentSustain, currentRelease);
+        if (currentAttack == attack && currentDecay == decay && currentSustain == sustain && currentRelease == release) {
+            return;
+        }
+        DBG("Updating filter ADSR params to attack: " << attack << ", decay: " << decay << ", sustain: " << sustain << ", release: " << release);
+        DBG("Current values: attack: " << currentAttack << ", decay: " << currentDecay << ", sustain: " << currentSustain << ", release: " << currentRelease);
+        filterAdsr.updateParams(attack, decay, sustain, release);
+        filter.setBaseCutOffFreq(baseCutoffFreq);
+
+    }
+
     private:
     LFOsc tremoloLFO;
     juce::AudioBuffer<float> synthBuffer;
     Oscillator osc1;
     Oscillator osc2;
     Adsr adsr;
+    Adsr filterAdsr;
+    Filter filter;
+
     bool isPrepared = false;
     int osc1detune = 0;
     int osc1octave = 0;;
@@ -175,6 +207,8 @@ void setLFOParams(float depth, float frequency, int source, int type) {
     float osc2gain = 0.5f;
     float osc2pulsewidth = 0.5f;
     float originalFrequency = 440.0f;
+
+    float filterAmount = 1.0f; // will be overriden by APVTS
 
     bool isLFOEnabled = true;
 

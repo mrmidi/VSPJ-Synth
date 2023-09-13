@@ -46,9 +46,12 @@ public:
     void setBaseCutOffFreq(float baseCutoffFreq);
     float getBaseCutOffFreq() const;
 
-private:
-    /** Set the cutoff frequency with checks for min and max values. */
+        /** Set the cutoff frequency with checks for min and max values. */
     void setCutOffFreq(float filterCutoff);
+
+
+private:
+
 
     /** Select the filter type based on an integer value. */
     void selectFilterType(int filterType);
