@@ -124,13 +124,26 @@ static const unsigned char temp_binary_data_0[] =
 "        <Slider caption=\"Master Gain\" parameter=\"masterGain\"/>\r\n"
 "      </View>\r\n"
 "    </View>\r\n"
-"    <View class=\"parameters nomargin\">\r\n"
-"      <View display=\"tabbed\">\r\n"
+"    <View class=\"parameters nomargin\" id=\"Metering\">\r\n"
+"      <View display=\"tabbed\" id=\"OSC+Freq\">\r\n"
 "        <Plot source=\"waveform\" plot-color=\"FFEF0000\" plot-fill-color=\"00FFFFFF\"/>\r\n"
 "        <Plot source=\"analyser\" plot-color=\"FF1300FF\" plot-fill-color=\"FF00B45A\"\r\n"
 "              plot-gradient=\"\"/>\r\n"
 "      </View>\r\n"
-"      <View flex-grow=\"0.1\">\r\n"
+"      <View flex-grow=\"0.1\" id=\"Zoom\" flex-direction=\"column\">\r\n"
+"        <View flex-grow=\"0.2\" caption=\"Zoom\">\r\n"
+"          <Label/>\r\n"
+"        </View>\r\n"
+"        <Slider pos-x=\"-13.75%\" pos-y=\"-4.87805%\" pos-width=\"100%\" pos-height=\"82.9268%\"\r\n"
+"                parameter=\"oscZoom\" slider-textbox=\"no-textbox\"/>\r\n"
+"      </View>\r\n"
+"      <View flex-grow=\"0.2\" id=\"HPF\" flex-direction=\"column\">\r\n"
+"        <View flex-grow=\"0.3\">\r\n"
+"          <Label caption=\"Low Cut\"/>\r\n"
+"        </View>\r\n"
+"        <Slider parameter=\"hpfCutoff\"/>\r\n"
+"      </View>\r\n"
+"      <View flex-grow=\"0.1\" id=\"Volume\">\r\n"
 "        <Meter source=\"output\"/>\r\n"
 "      </View>\r\n"
 "    </View>\r\n"
@@ -152,7 +165,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
 
     switch (hash)
     {
-        case 0xe7e31557:  numBytes = 6129; return midius_xml;
+        case 0xe7e31557:  numBytes = 6695; return midius_xml;
         default: break;
     }
 

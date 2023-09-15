@@ -9,7 +9,7 @@
 namespace BinaryData
 {
     extern const char*   midius_xml;
-    const int            midius_xmlSize = 6129;
+    const int            midius_xmlSize = 6695;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
     const int namedResourceListSize = 1;

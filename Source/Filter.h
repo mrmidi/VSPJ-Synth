@@ -49,6 +49,8 @@ public:
         /** Set the cutoff frequency with checks for min and max values. */
     void setCutOffFreq(float filterCutoff);
 
+    void getCurrentCutoffFreq(float& filterCutoff) const;
+
 
 private:
 

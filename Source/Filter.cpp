@@ -94,3 +94,8 @@ void Filter::resetAll()
     reset();
     lfo.reset(); // todo??
 }
+
+void Filter::getCurrentCutoffFreq(float& filterCutoff) const
+{
+    filterCutoff = getCutoffFrequency();
+}

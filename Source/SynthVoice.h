@@ -15,6 +15,7 @@
 #include "SynthSound.h"
 #include "LFOsc.h"
 #include "Filter.h"
+#include "Delay.h"
 
 class SynthVoice : public juce::SynthesiserVoice
 {
@@ -22,8 +23,6 @@ public:
     SynthVoice() {
         // Initialization of the voice
         osc1.setWaveform(Oscillator::Sine);
-//        osc1.setDetune(0.0f);
-//        osc1.setGain(0.5f);
     }
 
     bool canPlaySound(juce::SynthesiserSound* sound) override {
@@ -62,6 +61,7 @@ public:
         // This is called when a note stops
         adsr.noteOff();
         filterAdsr.noteOff();
+        filterAdsr.reset();
         
         if (! allowTailOff || ! adsr.isActive())
         //osc1.reset();
@@ -96,14 +96,17 @@ public:
 
     void controllerMoved(int controllerNumber, int newControllerValue) override {
         // Handle controller movements
+        if (controllerNumber == 1) // 1 is the mod wheel's CC number
+        {
+            modControllerCutOffFreq = mapModWheelToFrequency(newControllerValue);
+            // DBG("Mod wheel value: " << newControllerValue << ", mapped frequency: " << modControllerCutOffFreq);
+            // DBG("New cutoff frequency: " << filter.getCutoffFrequency());
+            
+        }
     }
     
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate, int numChannels) {
-        // This is where you can do the pre-playback calculations..
-        //reset();
-        //osc1.setSampleRate(sampleRate);
-        // todo complete reset
-        
+
         juce::dsp::ProcessSpec spec;
         spec.maximumBlockSize = samplesPerBlockExpected;
         spec.sampleRate = sampleRate;
@@ -116,24 +119,42 @@ public:
             DBG("Initializing oscillator " << i);
             osc1.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
             osc2.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
+
+            DBG("Initializing filter " << i);
+            filter.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
+
+            DBG("Initializing LFO " << i);
+            tremoloLFO.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
+
         }
-        tremoloLFO.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
+        
         tremoloLFO.setDepth(0.5f);       // Depth of 50%
         tremoloLFO.setFrequency(5);   // Rate of 5 Hz
+
 
         // prepare the filter
         filterAdsr.reset();
         filterAdsr.setSampleRate(sampleRate);
 
-        filter.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
-
         DBG("Initialization finished");
         isPrepared = true;
     }
 
+
+    float mapModWheelToFrequency(int modWheelValue)
+    {
+        // Ensure the modWheelValue is in the range [0, 127]
+        modWheelValue = juce::jlimit(0, 127, modWheelValue);
+        //DBG("New freq");
+
+        // Map from [0, 127] to [300, 3200]
+        float normalizedValue = modWheelValue / 127.0f; // Converts to [0, 1]
+        return 300.0f + normalizedValue * (5000.0f - 300.0f);
+    }
+
     
     void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
-    //voice->setOsc1Params(osc1Octave.load(), osc1Cent.load(), osc1Gain.load(), osc1PulseWidth.load(), osc1WaveformType.load());
+
 
 void setOsc1Params(int octave, int cent, float gain, float pulseWidth, int waveformType) {
     osc1.setWaveform(static_cast<Oscillator::Waveform>(waveformType));
@@ -181,21 +202,30 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
         if (currentAttack == attack && currentDecay == decay && currentSustain == sustain && currentRelease == release) {
             return;
         }
-        DBG("Updating filter ADSR params to attack: " << attack << ", decay: " << decay << ", sustain: " << sustain << ", release: " << release);
-        DBG("Current values: attack: " << currentAttack << ", decay: " << currentDecay << ", sustain: " << currentSustain << ", release: " << currentRelease);
+
         filterAdsr.updateParams(attack, decay, sustain, release);
         filter.setBaseCutOffFreq(baseCutoffFreq);
+
 
     }
 
     private:
-    LFOsc tremoloLFO;
-    juce::AudioBuffer<float> synthBuffer;
-    Oscillator osc1;
+
+    // The audio programmer youtube Josh Hodge recommends
+    // to organize signal chain declaration in actual order of processing
+    // (i.e. osc -> filter -> adsr -> output)
+
+    Oscillator osc1; // oscillators
     Oscillator osc2;
-    Adsr adsr;
-    Adsr filterAdsr;
+    
+    Adsr adsr; // amplitude envelope
+ 
+    LFOsc tremoloLFO; // tremolo LFO
+    
     Filter filter;
+    Adsr filterAdsr;
+
+    juce::AudioBuffer<float> synthBuffer;
 
     bool isPrepared = false;
     int osc1detune = 0;
@@ -211,5 +241,7 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
     float filterAmount = 1.0f; // will be overriden by APVTS
 
     bool isLFOEnabled = true;
+    
+    float modControllerCutOffFreq = 0; // default value. will be overridden by ModWheel
 
 };

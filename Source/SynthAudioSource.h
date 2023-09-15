@@ -16,15 +16,6 @@
 class SynthAudioSource : public juce::AudioSource
 {
 public:
-//    SynthAudioSource() {
-//        // Here you can initialize your synth.
-//        // For example:
-//        // synth.clearVoices();
-//        // for (int i = 0; i < 5; ++i)
-//        //    synth.addVoice(new SynthVoice());
-//        // synth.clearSounds();
-//        // synth.addSound(new SynthSound());
-//    }
 
     SynthAudioSource(juce::MidiKeyboardState& keyState);
 
@@ -55,30 +46,15 @@ public:
     void releaseResources() override {
         // This is where you would deallocate any resources you no longer need.
     }
-    
-//    void addMidiMessage(const juce::MidiMessage& message) {
-//        midiCollector.addMessageToQueue(message);
-//    }
+
 
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override {
-        // Here is where you actually produce the sound.
-        // You'll want to clear the buffer and then let your synth write into it.
-//        bufferToFill.clearActiveBufferRegion();
-//        juce::MidiBuffer incomingMidi;
-//        midiCollector.removeNextBlockOfMessages(incomingMidi, bufferToFill.numSamples);
-//        keyboardState.processNextMidiBuffer(incomingMidi, bufferToFill.startSample,
-//                                            bufferToFill.numSamples, true);
-//
-//        synth.renderNextBlock(*bufferToFill.buffer, incomingMidi, bufferToFill.startSample, bufferToFill.numSamples);
+
     }
 
     
     juce::Synthesiser synth;
 private:
-    //juce::MidiKeyboardState& keyboardState;
-    //juce::MidiKeyboardComponent::Orientation keyboardOrientation;
-    // Your synth goes here.
     juce::MidiKeyboardState& keyboardState;
-
     juce::MidiMessageCollector midiCollector;
 };

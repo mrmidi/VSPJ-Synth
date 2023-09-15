@@ -80,6 +80,7 @@
         "fstream": "cpp",
         "regex": "cpp",
         "shared_mutex": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "filesystem": "cpp"
     }
 }

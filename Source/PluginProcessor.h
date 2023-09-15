@@ -11,6 +11,9 @@
 #include <JuceHeader.h>
 #include "SynthAudioSource.h"
 
+#include "Delay.h"
+#include "HPF.h"
+
 //==============================================================================
 /**
 */
@@ -113,7 +116,7 @@ private:
               params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("resonance", 31), "Resonance", 0.1, 10.0, 1.0));
 
               // Filter Type
-              params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("filterType", 32), "Filter Type", juce::StringArray { "High Pass", "Low Pass", "Band Pass" }, 1)); // default to "Low Pass"
+              //params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("filterType", 32), "Filter Type", juce::StringArray { "High Pass", "Low Pass", "Band Pass" }, 1)); // default to "Low Pass"
 
               // Delay Parameters
               params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("delayTime", 29), "Delay Time", 0.0, 2000.0, 500.0)); // in milliseconds, from 0ms to 2000ms with a default of 500ms
@@ -128,6 +131,12 @@ private:
               // master gain
               params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("masterGain", 35), "Master Gain", 0.0, 1.0, 0.5)); // normalized from 0 to 1 TODO: convert to decibels
 
+              // osc zoom
+              params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("oscZoom", 36), "Osc Zoom", 1, 10, 5)); // min 1, max 10, default 1 
+
+              // hpf
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("hpfCutoff", 37), "HP", 20.0, 25.0, 20.0)); // in Hz, from 20Hz to 20kHz with a default of 1kHz
+
                 return {params.begin(), params.end()};
             }
     
@@ -135,12 +144,23 @@ private:
     SynthAudioSource synthSource;
     
     juce::dsp::Gain<float> masterGain;
+
+
     
-    foleys::MagicLevelSource*   outputMeter  = nullptr;
-    foleys::MagicPlotSource*    oscilloscope = nullptr;
-    foleys::MagicPlotSource*    analyser     = nullptr;
+
     
     void setVoiceParams();
+
+    StereoDelay delayEffect;
+
+    HighPassFilter hpf; // i've noticed a lot of low-end rumble in the audio, so let's add a high-pass filter to remove it
+
+    float hpfCutoffFreq = 20.0f; // default to 20Hz
+
+    foleys::MagicLevelSource*   outputMeter  = nullptr;
+    foleys::MagicPlotSource*    oscilloscope = nullptr;
+    int oscZoomVal; // 1 to 10 multiplier for oscilloscope zoom
+    foleys::MagicPlotSource*    analyser     = nullptr;
 
     
 };
