@@ -36,6 +36,8 @@ public:
         // Convert the MIDI note number to a frequency.
         originalFrequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
 
+        DBG("Starting note with midi note number " << midiNoteNumber << " with frequency " << originalFrequency);
+
         osc1.setMusicalFrequency(originalFrequency);
         osc2.setMusicalFrequency(originalFrequency);
 
@@ -51,9 +53,9 @@ public:
         osc1.setVelocity(velocity);
         osc2.setVelocity(velocity);
         
-        adsr.updateParams(0.1f, 0.2f, 0.8f, 0.5f); // default values will be overriden by APVTS
+        //adsr.updateParams(0.1f, 0.2f, 0.8f, 0.5f); // default values will be overriden by APVTS
         adsr.noteOn();
-        filterAdsr.updateParams(0.1f, 0.2f, 0.8f, 0.5f); // default values will be overriden by APVTS
+        //filterAdsr.updateParams(0.1f, 0.2f, 0.8f, 0.5f); // default values will be overriden by APVTS
         filterAdsr.noteOn();
     }
 
@@ -62,7 +64,7 @@ public:
         adsr.noteOff();
         filterAdsr.noteOff();
         filterAdsr.reset();
-        
+
         if (! allowTailOff || ! adsr.isActive())
         //osc1.reset();
             clearCurrentNote();
@@ -111,14 +113,50 @@ public:
         spec.maximumBlockSize = samplesPerBlockExpected;
         spec.sampleRate = sampleRate;
         spec.numChannels = numChannels;
+
+
+                // oversampling
+        int overSamplingFactor;
+
+        if (sampleRate < 48000) {
+            overSamplingFactor = 2;
+            upSampledBufferSize = samplesPerBlockExpected * overSamplingFactor;
+            upSamledSampleRate = sampleRate * static_cast<float>(overSamplingFactor);
+        }
+        else if (sampleRate >= 48000 && sampleRate < 80000) {
+            overSamplingFactor = 2;
+            upSampledBufferSize = samplesPerBlockExpected * overSamplingFactor;
+            upSamledSampleRate = sampleRate * static_cast<float>(overSamplingFactor);
+        }
+        else if (sampleRate < 80000) {
+            overSamplingFactor = 1;
+            upSampledBufferSize = samplesPerBlockExpected * overSamplingFactor;
+            upSamledSampleRate = sampleRate * static_cast<float>(overSamplingFactor);
+        }
+        else {
+            overSamplingFactor = 1;
+            upSampledBufferSize = samplesPerBlockExpected * overSamplingFactor;
+            upSamledSampleRate = sampleRate * static_cast<float>(overSamplingFactor);
+        }
+
+        oversampler.reset();
+        oversampler.factorOversampling = overSamplingFactor;
+        oversampler.initProcessing(samplesPerBlockExpected);
+
+        
         
         adsr.reset();
         adsr.setSampleRate(sampleRate);
 
         for (int i = 0; i < numChannels; ++i) {
-            DBG("Initializing oscillator " << i);
-            osc1.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
-            osc2.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
+            //DBG("Initializing oscillator " << i);
+            DBG("Initializing oscillator 1, channel " << i << " with sample rate " << (String)upSamledSampleRate << " and buffer size " << (String)upSampledBufferSize);
+            osc1.prepareToPlay(upSamledSampleRate, upSampledBufferSize, numChannels);
+            DBG("Initializing oscillator 2, channel " << i << " with sample rate " << (String)upSamledSampleRate << " and buffer size " << (String)upSampledBufferSize);
+            osc2.prepareToPlay(upSamledSampleRate, upSamledSampleRate, numChannels);
+
+            // osc1.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
+            // osc2.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
 
             DBG("Initializing filter " << i);
             filter.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
@@ -127,6 +165,15 @@ public:
             tremoloLFO.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
 
         }
+
+        // for (int ch = 0; ch < numChannels; ch++) {
+        //     DBG("Initializing oscillator 1, channel " << ch << " with sample rate " << (String)upSamledSampleRate << " and buffer size " << (String)upSampledBufferSize);
+        //     oscArray1[ch].prepareToPlay(upSamledSampleRate, upSampledBufferSize, numChannels);
+        //     DBG("Initializing oscillator 2, channel " << ch);
+        //     oscArray2[ch].prepareToPlay(upSamledSampleRate, upSamledSampleRate, numChannels);
+        // }
+
+ 
         
         tremoloLFO.setDepth(0.5f);       // Depth of 50%
         tremoloLFO.setFrequency(5);   // Rate of 5 Hz
@@ -135,6 +182,9 @@ public:
         // prepare the filter
         filterAdsr.reset();
         filterAdsr.setSampleRate(sampleRate);
+
+        
+
 
         DBG("Initialization finished");
         isPrepared = true;
@@ -215,9 +265,20 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
     // to organize signal chain declaration in actual order of processing
     // (i.e. osc -> filter -> adsr -> output)
 
+    dsp::Oversampling<float> oversampler{ 
+        2, // num channels
+        2, // factor
+        dsp::Oversampling<float>::filterHalfBandPolyphaseIIR, // filter type
+        false, // isMaxQuality
+        true // useIntegerLatency
+        };
+
     Oscillator osc1; // oscillators
     Oscillator osc2;
-    
+
+    std::array<Oscillator, 2> oscArray1;
+    std::array<Oscillator, 2> oscArray2;
+
     Adsr adsr; // amplitude envelope
  
     LFOsc tremoloLFO; // tremolo LFO
@@ -226,6 +287,9 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
     Adsr filterAdsr;
 
     juce::AudioBuffer<float> synthBuffer;
+
+    int upSampledBufferSize { 0 };
+    float upSamledSampleRate { 0 };
 
     bool isPrepared = false;
     int osc1detune = 0;

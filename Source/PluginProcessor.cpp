@@ -16,10 +16,12 @@ MidiusAudioProcessor::MidiusAudioProcessor(juce::MidiKeyboardState& state)
        parameters (*this, nullptr, "Parameters", createParameterLayout())
 {
     
-    FOLEYS_SET_SOURCE_PATH(__FILE__);
+    FOLEYS_SET_SOURCE_PATH(__FILE__); // set source path for magic GUI
     
-    DBG("Searching for midius.xml");
-    magicState.setGuiValueTree (BinaryData::midius_xml, BinaryData::midius_xmlSize);
+    DBG("Searching for small.xml");
+//    magicState.setGuiValueTree (BinaryData::midius_xml, BinaryData::midius_xmlSize); // load GUI from binary data
+    magicState.setGuiValueTree (BinaryData::small_xml, BinaryData::small_xmlSize);
+    
     outputMeter = magicState.createAndAddObject<foleys::MagicLevelSource>("output");
     oscilloscope = magicState.createAndAddObject<foleys::MagicOscilloscope>("waveform");
     analyser     = magicState.createAndAddObject<foleys::MagicAnalyser>("analyser");

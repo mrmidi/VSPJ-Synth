@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "SynthAudioSource.h"
 
-#define VOICES 10
+#define VOICES 5
 
 SynthAudioSource::SynthAudioSource(juce::MidiKeyboardState& keyState) : keyboardState(keyState) 
 {
