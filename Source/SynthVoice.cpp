@@ -38,17 +38,17 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
         // }
         
         // Modulate the filter cutoff frequency
-        float cutoff = filter.getBaseCutOffFreq() + filterMod * filter.getCutoffFrequency();
-        cutoff = juce::jlimit(Filter::MIN_CUTOFF, Filter::MAX_CUTOFF, cutoff);
+        //float cutoff = filter.getBaseCutOffFreq() + filterMod * filter.getCutoffFrequency();
+        //cutoff = juce::jlimit(Filter::MIN_CUTOFF, Filter::MAX_CUTOFF, cutoff);
         //  DBG("CUTOFF: " << juce::String(cutoff));
 
-        filter.setCutOffFreq(cutoff + modControllerCutOffFreq); // Apply the modulated cutoff to the filter
+        // filter.setCutOffFreq(cutoff + modControllerCutOffFreq); // Apply the modulated cutoff to the filter
         
         // Combine oscillator samples and apply LFO
         float drySample = (envSample + envSample2) * 0.5f * lfoSample;
 
         // Filter the dry sample
-        float wetSample = filter.processNextSample(0, drySample);
+        float wetSample = filter.processSample(drySample);
 
         // Calculate the dry/wet mix
         float mixedSample = drySample * (1.0f - filterAmount) + wetSample * filterAmount;

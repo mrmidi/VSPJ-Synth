@@ -148,8 +148,7 @@ static const unsigned char temp_binary_data_0[] =
 "      </View>\r\n"
 "    </View>\r\n"
 "  </View>\r\n"
-"</magic>\r\n"
-"\0";
+"</magic>\r\n";
 
 const char* midius_xml = (const char*) temp_binary_data_0;
 
@@ -165,7 +164,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
 
     switch (hash)
     {
-        case 0xe7e31557:  numBytes = 6695; return midius_xml;
+        case 0xe7e31557:  numBytes = 6694; return midius_xml;
         default: break;
     }
 

@@ -78,15 +78,28 @@ private:
                 params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc1Cent", 7), "Cent 1", -50, 50, 0));
                 params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc1Gain", 8), "Gain 1", 0.0f, 1.0f, 0.5f));
                 params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc1PulseWidth", 9), "PW 1", 0.0f, 1.0f, 0.5f));
-                params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc1WaveformType", 10), "Waveform 1", juce::StringArray {"Sine", "Sawtooth", "Triangle", "Square"}, 0));
+                //params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc1WaveformType", 10), "Waveform 1", juce::StringArray {"Sine", "Sawtooth", "Triangle", "Square"}, 0));
+                /* actual oscillators:
+                                    enum WaveForm {
+                      SINE,
+                      SQUARE,
+                      SAW,
+                      SAWBL2,
+                      SAWBL3,
+                      SAWBL4,
+                      SAWPTR2,
+                    };
 
+                */
+               params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc1WaveformType", 10), "Waveform 1", juce::StringArray {"Sine", "Square", "Saw", "SawBL2", "SawBL3", "SawBL4", "SawPTR2"}, 6));
 
                 params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc2Octave", 11), "Octave 2", -3, 3, 0));
                 params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc2Cent", 12), "Cent 2", -50, 50, 0));
                 params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc2Gain", 13), "Gain 2", 0.0, 1.0, 0.5));
                 params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc2PulseWidth", 14), "PW 2", 0.0, 1.0, 0.5));
-                params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc2WaveformType", 15), "Waveform 2", juce::StringArray {"Sine", "Sawtooth", "Triangle", "Square"}, 0));
-                
+                //params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc2WaveformType", 15), "Waveform 2", juce::StringArray {"Sine", "Sawtooth", "Triangle", "Square"}, 0));
+                params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc2WaveformType", 15), "Waveform 2", juce::StringArray {"Sine", "Square", "Saw", "SawBL2", "SawBL3", "SawBL4", "SawPTR2"}, 6));
+
                 // LFO
 
                 params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("sourceComboBox", 17), "Source", juce::StringArray { "keyboard", "modwheel", "lfo" }, 2));
@@ -113,7 +126,7 @@ private:
               params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("cutoff", 30), "Cutoff", 20.0, 20000.0, 1000.0));
 
               // Resonance (or Q Factor)
-              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("resonance", 31), "Resonance", 0.1, 10.0, 1.0));
+              params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("resonance", 31), "Resonance", 0.1, 25, 1.0));
 
               // Filter Type
               //params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("filterType", 32), "Filter Type", juce::StringArray { "High Pass", "Low Pass", "Band Pass" }, 1)); // default to "Low Pass"

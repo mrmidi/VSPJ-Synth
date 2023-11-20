@@ -21,6 +21,10 @@
         <FILE id="c8eoFa" name="midius.xml" compile="0" resource="1" file="Source/midius.xml"/>
       </GROUP>
       <GROUP id="{D6EF3049-4ED9-27A8-C6D7-893BEFDFA34D}" name="FILTER">
+        <FILE id="wwQHWQ" name="MFLNEW.h" compile="0" resource="0" file="Source/MFLNEW.h"/>
+        <FILE id="ZfAtqz" name="MLF.h" compile="0" resource="0" file="Source/MLF.h"/>
+        <FILE id="jexsxu" name="MoogLadderFilter.h" compile="0" resource="0"
+              file="Source/MoogLadderFilter.h"/>
         <FILE id="eVTiKZ" name="Filter.cpp" compile="1" resource="0" file="Source/Filter.cpp"/>
         <FILE id="NVycT3" name="Filter.h" compile="0" resource="0" file="Source/Filter.h"/>
         <FILE id="KshCJC" name="HPF.cpp" compile="1" resource="0" file="Source/HPF.cpp"/>
@@ -37,6 +41,7 @@
               file="Source/SynthAudioSource.h"/>
       </GROUP>
       <GROUP id="{3679FA21-80D6-A232-CDD3-7D8CB3563C97}" name="OSC">
+        <FILE id="LyZM4T" name="MidiusOsc.h" compile="0" resource="0" file="Source/MidiusOsc.h"/>
         <FILE id="AY2g0O" name="Osc.cpp" compile="1" resource="0" file="Source/Osc.cpp"/>
         <FILE id="bgX9cQ" name="Osc.h" compile="0" resource="0" file="Source/Osc.h"/>
       </GROUP>
@@ -57,7 +62,8 @@
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"
                FOLEYS_ENABLE_BINARY_DATA="1" FOLEYS_SHOW_GUI_EDITOR_PALLETTE="0"/>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="Builds/MacOSX">
+    <XCODE_MAC targetFolder="Builds/MacOSX" extraLinkerFlags="-Wl,-weak_reference_mismatches,weak"
+               extraDefs="JUCE_SILENCE_XCODE_15_LINKER_WARNING=1">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="Midius" plistPreprocessorDefinitions="FOLEYS_SHOW_GUI_EDITOR_PALLETTE=0"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="Midius" plistPreprocessorDefinitions="FOLEYS_SHOW_GUI_EDITOR_PALLETTE=0"/>
@@ -78,12 +84,12 @@
         <MODULEPATH id="juce_gui_extra" path="../../JUCE/modules"/>
         <MODULEPATH id="juce_osc" path="../../JUCE/modules"/>
         <MODULEPATH id="juce_cryptography" path="../JUCE/modules"/>
-        <MODULEPATH id="foleys_gui_magic" path="../foleys_gui_magic/modules"/>
+        <MODULEPATH id="foleys_gui_magic" path="../foleys_gui_magic/modules/foleys_gui_magic"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>
   <MODULES>
-    <MODULE id="foleys_gui_magic" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="foleys_gui_magic" showAllCode="1" useLocalCopy="1" useGlobalPath="0"/>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>

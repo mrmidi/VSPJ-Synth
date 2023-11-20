@@ -16,6 +16,8 @@
 #include "LFOsc.h"
 #include "Filter.h"
 #include "Delay.h"
+#include "OSCMidius.h"
+#include "MFLNEW.h"
 
 class SynthVoice : public juce::SynthesiserVoice
 {
@@ -48,8 +50,8 @@ public:
         }
 
         // Set the level of the oscillator based on the velocity.
-        osc1.setVelocity(velocity);
-        osc2.setVelocity(velocity);
+        osc1.setGain(velocity);
+        osc2.setGain(velocity);
         
         adsr.updateParams(0.1f, 0.2f, 0.8f, 0.5f); // default values will be overriden by APVTS
         adsr.noteOn();
@@ -117,11 +119,13 @@ public:
 
         for (int i = 0; i < numChannels; ++i) {
             DBG("Initializing oscillator " << i);
-            osc1.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
-            osc2.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
+//            osc1.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
+//            osc2.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
+            osc1.setSampleRate(sampleRate);
+            osc2.setSampleRate(sampleRate);
 
             DBG("Initializing filter " << i);
-            filter.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
+            filter.prepareToPlay(sampleRate);
 
             DBG("Initializing LFO " << i);
             tremoloLFO.prepareToPlay(sampleRate, samplesPerBlockExpected, numChannels);
@@ -157,14 +161,15 @@ public:
 
 
 void setOsc1Params(int octave, int cent, float gain, float pulseWidth, int waveformType) {
-    osc1.setWaveform(static_cast<Oscillator::Waveform>(waveformType));
-    osc1.setGain(gain);
-    osc1.setOctave(octave);
-    osc1.setDetune(cent);
-    osc1.setPulseWidth(pulseWidth);
+    // osc1.setWaveform(static_cast<Oscillator::Waveform>(waveformType));
+    // osc1.setGain(gain);
+    // osc1.setOctave(octave);
+    // osc1.setDetune(cent);
+    // osc1.setPulseWidth(pulseWidth);
 
-    // Update the frequency based on the new parameters
-    osc1.setMusicalFrequency(originalFrequency);
+    // // Update the frequency based on the new parameters
+    // osc1.setMusicalFrequency(originalFrequency);
+
 }
 
     void enableLFO(bool isEnabled);
@@ -192,7 +197,7 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
 
     void setFilterParams(int type, float cutoff, float resonance, float amount) {
         filterAmount = amount;
-        filter.setParams(type, cutoff, resonance);
+        filter.setParams(cutoff, resonance);
     }
 
     void setFilterAdsrParams(float attack, float decay, float sustain, float release, float baseCutoffFreq) {
@@ -204,7 +209,7 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
         }
 
         filterAdsr.updateParams(attack, decay, sustain, release);
-        filter.setBaseCutOffFreq(baseCutoffFreq);
+        //filter.setBaseCutOffFreq(baseCutoffFreq);
 
 
     }
@@ -215,14 +220,19 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
     // to organize signal chain declaration in actual order of processing
     // (i.e. osc -> filter -> adsr -> output)
 
-    Oscillator osc1; // oscillators
-    Oscillator osc2;
+    // Oscillator osc1; // oscillators
+    // Oscillator osc2;
+
+    MidiusOsc osc1;
+    MidiusOsc osc2;
+
+
     
     Adsr adsr; // amplitude envelope
  
     LFOsc tremoloLFO; // tremolo LFO
     
-    Filter filter;
+    MoogLadderFilter filter; // filter
     Adsr filterAdsr;
 
     juce::AudioBuffer<float> synthBuffer;

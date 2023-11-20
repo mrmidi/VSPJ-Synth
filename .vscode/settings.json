@@ -81,6 +81,7 @@
         "regex": "cpp",
         "shared_mutex": "cpp",
         "stack": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "charconv": "cpp"
     }
 }
