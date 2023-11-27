@@ -14,14 +14,13 @@
 class MoogLadderFilter {
 public:
     MoogLadderFilter()
-        : sampleRate(44100.0f),
-          frequency(1000.0f),
-          cutoff(1.0f) {
+        : sampleRate(44100.0),  // Changed to double
+          frequency(1000.0),   // Changed to double
+          cutoff(1.0) {        // Changed to double
         updateCoefficients();
     }
 
     void setParams(float cutoff, float resonance) {
-        // check if values has changed to avoid unnecessary calculations
         if (cutoff == this->cutoff && resonance == this->resonance) {
             return;
         }
@@ -29,77 +28,64 @@ public:
         setResonance(resonance);
     }
 
-    void prepareToPlay(float sampleRate) {
+    void prepareToPlay(double sampleRate) {  // Changed argument type to double
         this->sampleRate = sampleRate;
-        // reset state
         state = {0.0f, 0.0f, 0.0f, 0.0f};
         updateCoefficients();
     }
 
-    void setFrequency(float freq) {
+    void setFrequency(double freq) {  // Changed argument type to double
         frequency = freq;
         updateCoefficients();
     }
 
-    void setResonance(float resonance) {
+    void setResonance(double resonance) {  // Changed argument type to double
         this->resonance = resonance;
         updateCoefficients();
     }
 
     float processSample(float input) {
-    // Calculate input to the first stage with feedback
-    float feedback = beta1 * state[0] + beta2 * state[1] + beta3 * state[2] + beta4 * state[3];
-    float u = input - K * feedback;
+        float feedback = beta1 * state[0] + beta2 * state[1] + beta3 * state[2] + beta4 * state[3];
+        float u = input - K * feedback;
 
-    // Update state variables for each stage
-    for (int i = 0; i < 4; ++i) {
-        float v = g * (u - state[i]);  // v is the output of each stage
-        u = state[i] + v;             // u is the input to the next stage
-        //state[i] = state[i] + 2 * v;  // Update state with the bilinear transform
-        state.set(i, state[i] + 2 * v);
+        for (int i = 0; i < 4; ++i) {
+            float v = g * (u - state[i]);
+            u = state[i] + v;
+            state.set(i, state[i] + 2 * v);
+        }
+
+        return state[3];
     }
 
-    // Output of the fourth stage is the filter output
-    return state[3];
-}
-
-
-    private:
-
+private:
     double sampleRate;
-    float frequency;
-    float cutoff;
-    float resonance;
+    double frequency;  
+    double cutoff;     
+    double resonance;  
 
-    float beta1;
-    float beta2;
-    float beta3;
-    float beta4;
+    double beta1;      
+    double beta2;      
+    double beta3;      
+    double beta4;      
 
-    float K;
-    float g;
-    float alpha;
-    float T;
-    float wd;
+    double K;          
+    double g;          
+    double alpha;      
+    double T;          
+    double wd;         
 
     juce::Array<float> state = {0.0f, 0.0f, 0.0f, 0.0f};
 
     void updateCoefficients() {
-        // Calculate the coefficients for each stage
-         T = 1.0f / sampleRate; // Sample period
-         wd = 2 * juce::MathConstants<float>::pi * frequency / 2; // Discrete frequency in Fs/2 (pi radians/sample)
-         g = 2 * std::tan(wd * T / 2); // Feedforward coefficient
-         alpha = g / (1 + g); // Feedback coefficient
-         K = 4.0f * ((resonance - 0.707f)/(25 - 0.707f)) ; // Feedback coefficient normalized in range 0 to 4
+        T = 1.0 / sampleRate;
+        wd = 2 * juce::MathConstants<double>::pi * frequency / 2;  // Changed to double
+        g = 2 * std::tan(wd * T / 2);
+        alpha = g / (1 + g);
+        K = 4.0 * ((resonance - 0.707)/(25 - 0.707));  // Changed to double
 
-        // Calculate the coefficients for each stage
-        beta1 = alpha * alpha * alpha / (1.0f + g);
-        beta2 = alpha * alpha / (1.0f + g);
-        beta3 = alpha / (1.0f + g);
-        beta4 = 1.0f / (1.0f + g);
-
-
+        beta1 = alpha * alpha * alpha / (1.0 + g);
+        beta2 = alpha * alpha / (1.0 + g);
+        beta3 = alpha / (1.0 + g);
+        beta4 = 1.0 / (1.0 + g);
     }
-
-
 };

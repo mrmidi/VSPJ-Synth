@@ -87,25 +87,27 @@ private:
                       SAWBL2,
                       SAWBL3,
                       SAWBL4,
+                      SAWPTR,
                       SAWPTR2,
+                      TRIANGLE
                     };
 
                 */
-               params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc1WaveformType", 10), "Waveform 1", juce::StringArray {"Sine", "Square", "Saw", "SawBL2", "SawBL3", "SawBL4", "SawPTR2"}, 6));
+               params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc1WaveformType", 10), "Waveform 1", juce::StringArray  {"Sine", "Square", "Saw", "SawBL2", "SawBL3", "SawBL4", "SawPTR", "SawPTR2", "Triangle"}, 0));
 
                 params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc2Octave", 11), "Octave 2", -3, 3, 0));
                 params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("osc2Cent", 12), "Cent 2", -50, 50, 0));
                 params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc2Gain", 13), "Gain 2", 0.0, 1.0, 0.5));
                 params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("osc2PulseWidth", 14), "PW 2", 0.0, 1.0, 0.5));
                 //params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc2WaveformType", 15), "Waveform 2", juce::StringArray {"Sine", "Sawtooth", "Triangle", "Square"}, 0));
-                params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc2WaveformType", 15), "Waveform 2", juce::StringArray {"Sine", "Square", "Saw", "SawBL2", "SawBL3", "SawBL4", "SawPTR2"}, 6));
+                params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("osc2WaveformType", 15), "Waveform 2", juce::StringArray {"Sine", "Square", "Saw", "SawBL2", "SawBL3", "SawBL4", "SawPTR", "SawPTR2", "Triangle"}, 7));
 
                 // LFO
 
                 params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("sourceComboBox", 17), "Source", juce::StringArray { "keyboard", "modwheel", "lfo" }, 2));
                 params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("depthSlider", 18), "Depth", 0.0, 1.0, 0.5));
                 params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("rateSlider", 19), "Rate", 1, 20, 5));
-                params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("typeComboBox", 20), "Type", juce::StringArray { "tremolo", "vibrato", "filter" }, 0));
+                params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("typeComboBox", 20), "Type", juce::StringArray { "tremolo", "pwm", "filter" }, 0));
 
               // ADSR voice
               params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr1attack", 21), "ADSR Attack", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.1f));

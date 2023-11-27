@@ -22,6 +22,8 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
         auto oscSample = osc1.getNextSample();
         auto osc2Sample = osc2.getNextSample();
 
+        //DBG("Osc 2 sample value: " << osc2Sample);
+
         // Apply the ADSR envelope to the oscillators samples
         auto envSample = adsr.getNextSample() * oscSample;
         auto envSample2 = adsr.getNextSample() * osc2Sample;
@@ -45,7 +47,23 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
         // filter.setCutOffFreq(cutoff + modControllerCutOffFreq); // Apply the modulated cutoff to the filter
         
         // Combine oscillator samples and apply LFO
-        float drySample = (envSample + envSample2) * 0.5f * lfoSample;
+        // if lfo type is tremolo, multiply the samples by the LFO
+        LFOsc::lfoType type = tremoloLFO.getType();
+        float drySample;
+        if (type == LFOsc::lfoType::TREMOLO) {
+            drySample = (envSample + envSample2) * 0.5f * lfoSample;
+        } else if (type == LFOsc::lfoType::PWM) {
+             lfoSample = (lfoSample + 1.0f) / 2.0f;
+            osc1.setPulseWidth(lfoSample);
+            // DBG("LFO sample: " << lfoSample);
+            osc2.setPulseWidth(lfoSample);
+            drySample = (envSample + envSample2) * 0.5f;
+        } else {
+            // not implemented yet
+            // TODO
+            drySample = (envSample + envSample2) * 0.5f;
+        }
+        // float drySample = (envSample + envSample2) * 0.5f * lfoSample;
 
         // Filter the dry sample
         float wetSample = filter.processSample(drySample);

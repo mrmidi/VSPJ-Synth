@@ -17,14 +17,16 @@
 #include "Filter.h"
 #include "Delay.h"
 #include "OSCMidius.h"
-#include "MFLNEW.h"
+// #include "MFLNEW.h"
+// #include "OnePoleFilter.h"
+#include "MLF2.h"
 
 class SynthVoice : public juce::SynthesiserVoice
 {
 public:
     SynthVoice() {
         // Initialization of the voice
-        osc1.setWaveform(Oscillator::Sine);
+        // osc1.setWaveform(Oscillator::Sine);
     }
 
     bool canPlaySound(juce::SynthesiserSound* sound) override {
@@ -169,8 +171,28 @@ void setOsc1Params(int octave, int cent, float gain, float pulseWidth, int wavef
 
     // // Update the frequency based on the new parameters
     // osc1.setMusicalFrequency(originalFrequency);
+    
+    osc1.setWaveform(static_cast<Oscillator::Waveform>(waveformType));
+    osc1.setGain(gain);
+    osc1.setOctave(octave);
+    osc1.setDetune(cent);
+    // check if PWM is modlated by lfo and if so - do not update the puls width in this code
+    if (tremoloLFO.getType() != LFOsc::lfoType::PWM)
+        osc1.setPulseWidth(pulseWidth);
+
+    osc1.setMusicalFrequency(originalFrequency);
 
 }
+
+    void setLfoType(int type) {
+        
+        // check the value has changed
+        if (type == tremoloLFO.getType()) {
+            return;
+        }
+        DBG("Switching LFO type to " << type);
+        tremoloLFO.setType(static_cast<LFOsc::lfoType>(type));
+    }
 
     void enableLFO(bool isEnabled);
     
@@ -197,7 +219,8 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
 
     void setFilterParams(int type, float cutoff, float resonance, float amount) {
         filterAmount = amount;
-        filter.setParams(cutoff, resonance);
+        filter.setParams(cutoff, resonance); 
+        // filter.setParams(cutoff); // testing one-pole filter
     }
 
     void setFilterAdsrParams(float attack, float decay, float sustain, float release, float baseCutoffFreq) {
@@ -233,6 +256,7 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
     LFOsc tremoloLFO; // tremolo LFO
     
     MoogLadderFilter filter; // filter
+    // OnePoleFilter filter;
     Adsr filterAdsr;
 
     juce::AudioBuffer<float> synthBuffer;

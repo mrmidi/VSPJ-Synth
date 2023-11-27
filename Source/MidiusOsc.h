@@ -335,6 +335,22 @@ float getSaw2PtrTick() {
     return value;
   }
 
+    // Функция для обновления и возврата текущего значения счетчика модуло
+    float phi() {
+        float currentPhase = phase; // Сохраняем текущую фазу для возврата
+        phase += phaseIncrement; // Обновляем фазу
+        if (phase >= 1.0f) {
+            phase -= 1.0f; // Оборачиваем фазу, если она достигла или превысила 1
+        }
+        return currentPhase; // Возвращаем фазу на момент вызова функции
+    }
+
+    // Modulo counter method
+    float getSawModTick() {
+        // transfer to bipolar singal from unipolar modulo counter;
+        return 2.0f * phi() - 1.0f;
+    }
+
   /**
    * @brief Updates the phase increment and scaling factors.
    *

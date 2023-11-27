@@ -326,7 +326,9 @@ void MidiusAudioProcessor::setVoiceParams()
 
             // HPF
             auto& hpfCutoffFreq = *parameters.getRawParameterValue ("hpfCutoff");
-                      
+
+            // LFO Type
+            auto& lfoType = *parameters.getRawParameterValue("typeComboBox");          
 
             //DBG("Retrieved waveform type: " << osc1WaveformType.load());
 //            DBG("Waveform type: " << osc1WaveformType.load());
@@ -337,6 +339,9 @@ void MidiusAudioProcessor::setVoiceParams()
             voice->setFilterAdsrParams(adsr2AttackFilter.load(), adsr2DecayFilter.load(), adsr2SustainFilter.load(), adsr2ReleaseFilter.load(), filterCutoff.load()); // baseCutoffFreq
             voice->setFilterParams(0, filterCutoff.load(), filterResonance.load(), filterAmount.load());
             delayEffect.setDelayParams(delayTime.load(), delayFeedback.load(), delayWetDry.load());
+            voice->setLfoType(lfoType.load());
+
+            
 
 
 

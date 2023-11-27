@@ -32,6 +32,8 @@ float LFOsc::getNextSample()
     return oscillator.processSample(1.0f) * depth;
 }
 
+
+
 void LFOsc::prepareToPlay (double sampleRate, int samplesPerBlock, int outputChannels)
 {
     juce::dsp::ProcessSpec spec;
@@ -41,4 +43,15 @@ void LFOsc::prepareToPlay (double sampleRate, int samplesPerBlock, int outputCha
 
     oscillator.prepare(spec);
 
+}
+
+
+void LFOsc::setType(lfoType type)
+{
+    currentType = type;
+}
+
+LFOsc::lfoType LFOsc::getType() const
+{
+    return currentType;
 }

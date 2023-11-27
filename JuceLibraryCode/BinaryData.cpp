@@ -39,8 +39,8 @@ static const unsigned char temp_binary_data_0[] =
 "    </Style>\r\n"
 "  </Styles>\r\n"
 "  <View id=\"root\" resizable=\"1\" resize-corner=\"1\" flex-direction=\"column\"\r\n"
-"        margin=\"0\" padding=\"0\" border-color=\"FF000000\" width=\"1200\" height=\"900\"\r\n"
-"        min-width=\"1200\" min-height=\"900\" max-width=\"1200\" max-height=\"900\">\r\n"
+"        margin=\"0\" padding=\"0\" border-color=\"FF000000\" width=\"1000\" height=\"700\"\r\n"
+"        min-width=\"100\" min-height=\"100\" max-width=\"1200\" max-height=\"900\">\r\n"
 "    <View flex-direction=\"row\" id=\"Oscillators\">\r\n"
 "      <View flex-direction=\"column\" id=\"OSC1\" background-color=\"FF2D2424\">\r\n"
 "        <View flex-grow=\"2\">\r\n"
@@ -164,7 +164,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
 
     switch (hash)
     {
-        case 0xe7e31557:  numBytes = 6694; return midius_xml;
+        case 0xe7e31557:  numBytes = 6693; return midius_xml;
         default: break;
     }
 

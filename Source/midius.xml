@@ -26,8 +26,8 @@
     </Style>
   </Styles>
   <View id="root" resizable="1" resize-corner="1" flex-direction="column"
-        margin="0" padding="0" border-color="FF000000" width="1200" height="900"
-        min-width="1200" min-height="900" max-width="1200" max-height="900">
+        margin="0" padding="0" border-color="FF000000" width="1000" height="700"
+        min-width="100" min-height="100" max-width="1200" max-height="900">
     <View flex-direction="row" id="Oscillators">
       <View flex-direction="column" id="OSC1" background-color="FF2D2424">
         <View flex-grow="2">

@@ -37,7 +37,7 @@ public:
     phase = 0;
     sampleRate = 44100;
     frequency = 220;
-    waveForm = SAWPTR2;
+    waveForm = SAWPTR;
     // waveForm = SINE;
       // waveForm = SQUAE;
     amplitude = 1.0f;
@@ -138,9 +138,16 @@ public:
       }
       else if (waveForm == SQUARE) {
         value = getPulseTick();
-
       }
-      CUSTOMDBG("Square value: " << value);
+      else if (waveForm == SAWPTR) {
+        DBG("SAWPTR waveform detected");
+        value = getSawPtrTick() * amplitude;
+      }
+      else
+      {
+        value = 0.0f; // no waveform detecter or not implemented, so should'n be here
+      }
+      CUSTOMDBG("Sample value: " << value);
       // float value = getSineTick();
       // filter value
 //      value = filter.processSample(value);
@@ -155,7 +162,7 @@ public:
     // depending on waveform type, return the next sample
     switch (waveForm) {
       case SINE:
-        return 0.0f;
+        return getSineTick() * amplitude;
       case SAW:
         return lf_sawpos() * amplitude;
       case SAWBL2:
@@ -168,6 +175,10 @@ public:
         return getSaw2PtrTick() * amplitude;
       case SQUARE:
         return getPulseTick() * amplitude;
+      case SAWPTR:
+        return getSawPtrTick() * amplitude;
+      default:
+        jassert(false); // unknown waveform type
     }
   }
 
@@ -184,7 +195,10 @@ public:
       if (this->waveForm == waveformType) {
         return;
       }
-
+      // check the new waferom in range [0, 7], set 0 if out of range
+      if (waveformType < 0 || waveformType > 7) {
+        waveformType = 0;
+      }
       waveForm = static_cast<WaveForm>(waveformType);
       DBG("New waveform: " << getWaveformType());
     }
@@ -247,59 +261,133 @@ private:
     return value;
   }
 
-float getSaw2PtrTick() {
+float getSawPtrTick() {
+    // DBG("Method getSawPtrTick() called");
+    float h = 1.0f; // Coefficient for update
+    float cdc = T0 * h; // DC offset
+    float DC = 1.0f + cdc; // Total DC offset
 
-  // T0 = f0/fs = fundamental frequency / sample rate
-  // it's better to update it in setFrequency method in the future
+    // Coefficients for the transition polynomial
+    float a1 = 2.0f - 2.0f * h / P0;
+    float a0 = 2.0f * h - DC;
 
-  /*
-  Original Python code:
-  def PTR1(T0):
-	h = 1										# f0 update for h=1:
-	cdc = T0									# m
-	DC = 1 + cdc
-	# -- coefficients (5 operations)
-	a1 = 2 - 2*h*P0		# am			# am
-	a0 = 2*h - DC			# maa			# a
-	#
-	p = phi(T0,0.5)
-	y = zeros(L)
-	for n in range(0,L):
-		if p[n] >= T0:		y[n] =  2*p[n] - DC	# outside	MA
-		else:				y[n] = a1*p[n] + a0	# inside		MA
-	return y
-  */
+    // Get the current phase value
+    float currentPhase = phi();
 
-
-  // Update phase and wrap if necessary
-  phase += phaseIncrement;
-  wrapPhase();
-
-  // Calculate the normalized phase position for the sawtooth wave, ranging from 0 to 1
-  float normalizedPhase = phase / TWOPI;
-  
-  // Constants for the PTR1 algorithm
-  float h = 1.0f; 
-  float T0 = frequency / sampleRate;
-  float cdc = T0 * h;
-  float DC = 1 + cdc;
-
-  // Coefficients for the inside and outside conditions
-  float a1 = 2 - 2 * h / p0n;
-  float a0 = 2 * h - DC;
-  
-  // Calculate the sawtooth value based on the phase position
-  if (normalizedPhase >= T0) {
-    // Outside
-    return 2 * normalizedPhase - DC;
-  } else {
-    // Inside
-    return a1 * normalizedPhase + a0;
-  }
-
-  
-  return 0.0f;
+    // Compute the sawtooth waveform value
+    if (currentPhase >= T0) {
+        // Outside the transition region
+        return 2.0f * currentPhase - DC; // Bipolar transform
+    } else {
+        // Inside the transition region
+        // DBG("Transition region detected at phase: " << currentPhase);
+        return a1 * currentPhase + a0;
+    }
 }
+
+    // float getSawPtrTick() {
+    //   // test with simple sawtooth generation
+    //   return 2 * phi() - 1;
+    // }
+
+    float getSaw2PtrTick() {
+      float h = 1.0f; // Coefficient for update
+        float T2 = T0 + T0; // Double T0
+        float cdc = T2;
+        float DC = 1 + cdc;
+
+        // Coefficients for the polynomial
+        float a21 = -h;
+        float a11 = T2;
+        float a01 = 2 * h - DC;
+        float a22 = h;
+        float a12 = T2 - 4 * h;
+        float a02 = 4 * h - DC;
+
+        // Get the current phase value
+        float currentPhase = phi(); // Assuming phi() is defined elsewhere
+
+        // Calculate the output sample based on the phase value
+        if (currentPhase >= T2) {
+            return 2 * currentPhase - DC;
+        } else if (currentPhase >= T0) {
+            float D = currentPhase * P0;
+            return (a22 * D + a12) * D + a02;
+        } else {
+            float D = currentPhase * P0;
+            return (a21 * D + a11) * D + a01;
+        }
+    }
+
+
+// float getSaw2PtrTick() {
+
+//   // NOT WORKING SOLUTION
+
+//   // T0 = f0/fs = fundamental frequency / sample rate
+//   // it's better to update it in setFrequency method in the future
+
+//   /*
+//   Original Python code:
+//   def PTR1(T0):
+// 	h = 1										# f0 update for h=1:
+// 	cdc = T0									# m
+// 	DC = 1 + cdc
+// 	# -- coefficients (5 operations)
+// 	a1 = 2 - 2*h*P0		# am			# am
+// 	a0 = 2*h - DC			# maa			# a
+// 	#
+// 	p = phi(T0,0.5)
+// 	y = zeros(L)
+// 	for n in range(0,L):
+// 		if p[n] >= T0:		y[n] =  2*p[n] - DC	# outside	MA
+// 		else:				y[n] = a1*p[n] + a0	# inside		MA
+// 	return y
+//   */
+
+
+//   // Update phase and wrap if necessary
+//   phase += phaseIncrement;
+//   wrapPhase();
+
+//   // Calculate the normalized phase position for the sawtooth wave, ranging from 0 to 1
+//   float normalizedPhase = phase / TWOPI;
+  
+//   // Constants for the PTR1 algorithm
+//   float h = 1.0f; 
+//   float T0 = frequency / sampleRate;
+//   float cdc = T0 * h;
+//   float DC = 1 + cdc;  
+
+//   // Coefficients for the inside and outside conditions
+//   float a1 = 2 - 2 * h / p0n;
+//   float a0 = 2 * h - DC;
+  
+//   // Calculate the sawtooth value based on the phase position
+//   if (normalizedPhase >= T0) {
+//     // Outside
+//     return 2 * normalizedPhase - DC;
+//   } else {
+//     // Inside
+//     // DBG("Transition region detected at phase: " << normalizedPhase)
+//     return a1 * normalizedPhase + a0;
+//   }
+
+  
+//   return 0.0f;
+// }
+
+  // Unipolar modulo counter approach as described in papers
+  float phi() {
+        float currentPhase = phase; // Сохраняем текущую фазу для возврата
+        phase += T0; // Обновляем фазу
+        if (phase >= 1.0f) {
+            // DBG("Phase was wrapped at value: " << phase);
+            phase -= 1.0f; // Оборачиваем фазу, если она достигла или превысила 1
+
+        }
+        return currentPhase; // Возвращаем фазу на момент вызова функции
+  }
 
 
   /**
@@ -424,6 +512,11 @@ float getSaw2PtrTick() {
     samplingPeriod = 1.0f / sampleRate;
     phaseIncrement = frequency * TWOPI / sampleRate;
     p0n = sampleRate / frequency;
+
+    T0 = frequency / sampleRate;
+    P0 = sampleRate / frequency;
+
+    // DBG("Frequency: " << frequency << ", sample rate: " << sampleRate << ", sampling period: " << samplingPeriod << ", phase increment: " << phaseIncrement << ", p0n: " << p0n << ", T0: " << T0 << ", P0: " << P0);
 
     scalingFactor2 = calculateScalingFactor(2);
     scalingFactor3 = calculateScalingFactor(3);
@@ -613,13 +706,15 @@ float getSaw2PtrTick() {
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiusOsc)
 
                     enum WaveForm {
-                      SINE,
-                      SQUARE,
-                      SAW,
-                      SAWBL2,
-                      SAWBL3,
-                      SAWBL4,
-                      SAWPTR2,
+                      SINE, // 0
+                      SQUARE, // 1
+                      SAW, // 2
+                      SAWBL2, // 3
+                      SAWBL3, // 4
+                      SAWBL4, // 5
+                      SAWPTR, // 6
+                      SAWPTR2, // 7
+                      TRIANGLE // Not implemented yet
                     };
 
   juce::String getWaveformType() {
@@ -636,9 +731,13 @@ float getSaw2PtrTick() {
         return "SawBL3";
       case SAWBL4:
         return "SawBL4";
+      case SAWPTR:
+        return "SawPTR";
       case SAWPTR2:
         return "SawPTR2";
-        default:
+      case TRIANGLE:
+        return "Triangle";
+      default:
           return "Unknown";
     }
   }
@@ -658,6 +757,11 @@ float getSaw2PtrTick() {
   float scalingFactor3;    // scaling factor for 3rd order sawtooth wave
   float scalingFactor4;    // scaling factor for 4th order sawtooth wave
 
+  
+  // PTR variables
+  float T0; // frequency / sampling rate (fundamental frequency)
+  float P0; // 
+
   long double improvedScalingFactor2; // improved scaling factor for 2nd order sawtooth wave
   long double improvedScalingFactor3; // improved scaling factor for 3rd order sawtooth wave
   long double improvedScalingFactor4; // improved scaling factor for 4th order sawtooth wave
@@ -675,9 +779,6 @@ float getSaw2PtrTick() {
   int delayBufferSize = 2048;            // size of the delay buffer
   std::vector<float> delayBuffer;       // delay buffer
   int writeIndex = 0;                   // write index for the delay buffer
-
-
-
 
 };
 

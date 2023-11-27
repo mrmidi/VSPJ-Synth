@@ -57,7 +57,8 @@ public:
         for (int i = 0; i < 4; ++i) {
             float v = g * (u - state[i]);  // v is the output of each stage
             u = state[i] + v;              // u is the input to the next stage
-            state[i] += 2 * v;             // Update state with the bilinear transform
+            // state[i] += 2 * v;             // Update state with the bilinear transform
+            state[i] += g * v;             // Update state with the bilinear transform
         }
         // update the state_old vector
 //        state_old = state;

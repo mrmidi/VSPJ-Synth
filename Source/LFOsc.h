@@ -28,8 +28,24 @@ public:
     // Prepare the LFO for playback
     void prepareToPlay (double sampleRate, int samplesPerBlock, int outputChannels);
 
+    enum lfoType {
+        TREMOLO,
+        PWM,
+        FILTER
+    };
+
+    // Set the type of the LFO
+    void setType(lfoType type);
+
+    // Get the current type of the LFO
+    lfoType getType() const;
+
 private:
     juce::dsp::Oscillator<float> oscillator;
     float frequency = 1.0f;  // 1 Hz by default
     float depth = 1.0f;      // Full depth by default
+
+
+
+    lfoType currentType = TREMOLO;
 };

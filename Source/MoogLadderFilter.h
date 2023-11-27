@@ -21,7 +21,7 @@ public:
     MoogLadderFilter() {
         sampleRate = 44100.0f;
         normalizedFrequency = 0.02f;
-        Q = 5.0f;
+        Q = 0.7072f;
         updateCoefficients();
     }
 

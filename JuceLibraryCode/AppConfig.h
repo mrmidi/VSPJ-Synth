@@ -45,7 +45,7 @@
 
 #define JUCE_USE_DARK_SPLASH_SCREEN 1
 
-#define JUCE_PROJUCER_VERSION 0x70008
+#define JUCE_PROJUCER_VERSION 0x70009
 
 //==============================================================================
 #define JUCE_MODULE_AVAILABLE_foleys_gui_magic              1
@@ -71,7 +71,7 @@
 // foleys_gui_magic flags:
 
 #ifndef    FOLEYS_SHOW_GUI_EDITOR_PALLETTE
- #define   FOLEYS_SHOW_GUI_EDITOR_PALLETTE 0
+ #define   FOLEYS_SHOW_GUI_EDITOR_PALLETTE 1
 #endif
 
 #ifndef    FOLEYS_ENABLE_BINARY_DATA
