@@ -179,6 +179,7 @@ void setOsc1Params(int octave, int cent, float gain, float pulseWidth, int wavef
     // check if PWM is modlated by lfo and if so - do not update the puls width in this code
     if (tremoloLFO.getType() != LFOsc::lfoType::PWM)
         osc1.setPulseWidth(pulseWidth);
+    
 
     osc1.setMusicalFrequency(originalFrequency);
 
@@ -201,7 +202,9 @@ void setOsc2Params(int octave, int cent, float gain, float pulseWidth, int wavef
     osc2.setGain(gain);
     osc2.setOctave(octave);
     osc2.setDetune(cent);
-    osc2.setPulseWidth(pulseWidth);
+    // osc2.setPulseWidth(pulseWidth);
+    if (tremoloLFO.getType() != LFOsc::lfoType::PWM) // only update the pulse width if it is not modulated by LFO
+        osc2.setPulseWidth(pulseWidth);
 
     // Update the frequency based on the new parameters
     osc2.setMusicalFrequency(originalFrequency);

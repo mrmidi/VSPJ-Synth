@@ -83,5 +83,6 @@
         "stack": "cpp",
         "filesystem": "cpp",
         "charconv": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": false
 }
