@@ -67,6 +67,10 @@ static const unsigned char temp_binary_data_0[] =
 "          <ComboBox caption=\"Waveform 2\" parameter=\"osc2WaveformType\" caption-placement=\"centred-left\"/>\r\n"
 "        </View>\r\n"
 "      </View>\r\n"
+"      <View flex-grow=\"0.2\" pos-x=\"94.322%\" pos-y=\"-4.87805%\" pos-width=\"4.83051%\"\r\n"
+"            pos-height=\"100%\">\r\n"
+"        <Slider caption=\"Noise\" parameter=\"noiseGain\"/>\r\n"
+"      </View>\r\n"
 "    </View>\r\n"
 "    <View id=\"ADSRS\" flex-grow=\"1\" pos-x=\"0%\" pos-y=\"28.5566%\" pos-width=\"100%\"\r\n"
 "          pos-height=\"14.2264%\">\r\n"
@@ -164,7 +168,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
 
     switch (hash)
     {
-        case 0xe7e31557:  numBytes = 6693; return midius_xml;
+        case 0xe7e31557:  numBytes = 6881; return midius_xml;
         default: break;
     }
 

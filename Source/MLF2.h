@@ -8,6 +8,20 @@
   ==============================================================================
 */
 
+// Custom debug macro is used to print debug messages only when MIDIUSDEBUG is set to 1
+#define MIDIUSDEBUG 0
+// Define CUSTOMDBG based on whether DEBUG is enabled
+#if MIDIUSDEBUG
+#define CUSTOMDBG(...) \
+  {                    \
+    DBG(__VA_ARGS__);  \
+  }
+#else
+#define CUSTOMDBG(...) \
+  {                    \
+  }
+#endif
+
 #pragma once
 #include <JuceHeader.h>
 #include "FilterCoeffs.h"
@@ -32,7 +46,7 @@ public:
         if (cutoff == this->Fc && Q == resonance) {
             return;
         }
-        DBG("Cutoff: " + String(cutoff) + " Resonance: " + String(resonance));
+        CUSTOMDBG("Cutoff: " + String(cutoff) + " Resonance: " + String(resonance));
         setFrequency(cutoff);
         setResonance(resonance);
     }

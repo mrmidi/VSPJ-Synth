@@ -291,6 +291,9 @@ void MidiusAudioProcessor::setVoiceParams()
             auto& osc2Gain = *parameters.getRawParameterValue ("osc2Gain");
             auto& osc2PulseWidth = *parameters.getRawParameterValue ("osc2PulseWidth");
             auto& osc2WaveformType = *parameters.getRawParameterValue ("osc2WaveformType");
+            // Noise
+            auto& noiseGain = *parameters.getRawParameterValue ("noiseGain");
+
             // LFO
             //auto& enabledToggle = *parameters.getRawParameterValue ("enabledToggle");
             auto& sourceComboBox = *parameters.getRawParameterValue ("sourceComboBox");
@@ -338,6 +341,7 @@ void MidiusAudioProcessor::setVoiceParams()
             voice->setADSRParams(adsrAttack.load(), adsrDecay.load(), adsrSustain.load(), adsrRelease.load());
             voice->setFilterAdsrParams(adsr2AttackFilter.load(), adsr2DecayFilter.load(), adsr2SustainFilter.load(), adsr2ReleaseFilter.load(), filterCutoff.load()); // baseCutoffFreq
             voice->setFilterParams(0, filterCutoff.load(), filterResonance.load(), filterAmount.load());
+            voice->setNoiseLevel(noiseGain.load());
             delayEffect.setDelayParams(delayTime.load(), delayFeedback.load(), delayWetDry.load());
             voice->setLfoType(lfoType.load());
 

@@ -54,6 +54,10 @@
           <ComboBox caption="Waveform 2" parameter="osc2WaveformType" caption-placement="centred-left"/>
         </View>
       </View>
+      <View flex-grow="0.2" pos-x="94.322%" pos-y="-4.87805%" pos-width="4.83051%"
+            pos-height="100%">
+        <Slider caption="Noise" parameter="noiseGain"/>
+      </View>
     </View>
     <View id="ADSRS" flex-grow="1" pos-x="0%" pos-y="28.5566%" pos-width="100%"
           pos-height="14.2264%">

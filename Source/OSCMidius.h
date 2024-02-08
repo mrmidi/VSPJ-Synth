@@ -32,22 +32,7 @@
 class MidiusOsc
 {
 public:
-  MidiusOsc()
-  {
-    phase = 0;
-    sampleRate = 44100;
-    frequency = 220;
-    waveForm = SAWPTR;
-    // waveForm = SINE;
-      // waveForm = SQUAE;
-    amplitude = 1.0f;
-
-    // pulse train variables
-    delayBuffer.resize(delayBufferSize, 0.0f);
-    writeIndex = 0;
-
-    updatePhaseIncrement();
-  }
+  MidiusOsc();
 
   /**
    * @brief Sets the sample rate and updates the phase increment.
@@ -58,41 +43,13 @@ public:
    *
    * @param newSampleRate The new sample rate to be set.
    */
-  void setSampleRate(float newSampleRate)
-  {
-//    filter.prepareToPlay(newSampleRate);
-    sampleRate = newSampleRate;
-    updatePhaseIncrement();
-  }
+  void setSampleRate(float newSampleRate);
 
-  void setFrequency(float newFrequency)
-  {
-    // clamp frequency from 20hz
-    frequency = std::max<float>(20.0f, std::fabs(newFrequency));
-    CUSTOMDBG("New frequency: " << frequency);
-    updatePhaseIncrement();
-  }
+  void setFrequency(float newFrequency);
 
-  void setAmplitude(float newAmplitude)
-  {
-    amplitude = newAmplitude; // linear amplitude
-  }
+  void setAmplitude(float newAmplitude);
 
-  void setAmplitudeDB(float newAmplitudeDB)
-  {
-    amplitude = juce::Decibels::decibelsToGain(newAmplitudeDB); // dB amplitude
-  }
-
-  /**
-   * @brief Sets the waveform type for the oscillator.
-   *
-   * This function sets the waveform type for the oscillator to the new value provided.
-   *
-   * @param newWaveForm The new waveform type to be set.
-   */
-  // void setWaveForm(WaveForm newWaveForm) {
-  //   waveForm = newWaveForm;
-  // }
+  void setAmplitudeDB(float newAmplitudeDB);
 
   /**
    * @brief Renders the next block of samples for the oscillator.
@@ -105,145 +62,31 @@ public:
    * @param startSample The index of the first sample to be calculated.
    * @param numSamples The number of samples to be calculated.
    */
-  void renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples)
-  {
-    for (int sample = 0; sample < numSamples; ++sample)
-    {
-      float value = 0;
-      // float amplitude = 0.5f;
-      if (waveForm == SINE)
-      {
-        value = getSineTick() * amplitude; // amplitude * sin(phase)
-      }
-      else if (waveForm == SAW)
-      {
-        value = lf_sawpos() * amplitude; // aplitude * (2 * (phase / TWOPI) - 1.0f)
-        CUSTOMDBG("Sawtooth value: " << value);
-      }
-      else if (waveForm == SAWBL2)
-      {
-        value = getSaw2Tick() * amplitude;
-      }
-      else if (waveForm == SAWBL4)
-      {
-        value = getSaw4Tick() * amplitude;
-      }
-      else if (waveForm == SAWBL3)
-      {
-        value = getSaw3Tick() * amplitude;
-      }
-      else if (waveForm == SAWPTR2)
-      {
-        value = getSaw2PtrTick() * amplitude;
-      }
-      else if (waveForm == SQUARE) {
-        value = getPulseTick();
-      }
-      else if (waveForm == SAWPTR) {
-        DBG("SAWPTR waveform detected");
-        value = getSawPtrTick() * amplitude;
-      }
-      else
-      {
-        value = 0.0f; // no waveform detecter or not implemented, so should'n be here
-      }
-      CUSTOMDBG("Sample value: " << value);
-      // float value = getSineTick();
-      // filter value
-//      value = filter.processSample(value);
-      for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
-      {
-        outputBuffer.addSample(channel, startSample + sample, value);
-      }
-    }
-  }
+  void renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples);
 
-  float getNextSample() {
-    // depending on waveform type, return the next sample
-    switch (waveForm) {
-      case SINE:
-        return getSineTick() * amplitude;
-      case SAW:
-        return lf_sawpos() * amplitude;
-      case SAWBL2:
-        return getSaw2Tick() * amplitude;
-      case SAWBL3:
-        return getSaw3Tick() * amplitude;
-      case SAWBL4:
-        return getSaw4Tick() * amplitude;
-      case SAWPTR2:
-        return getSaw2PtrTick() * amplitude;
-      case SQUARE:
-        return getPulseTick() * amplitude;
-      case SAWPTR:
-        return getSawPtrTick() * amplitude;
-      default:
-        jassert(false); // unknown waveform type
-    }
-  }
+  float getNextSample();
 
-      // osc1.setWaveform(static_cast<Oscillator::Waveform>(waveformType));
-    // osc1.setGain(gain);
-    // osc1.setOctave(octave);
-    // osc1.setDetune(cent);
-    // osc1.setPulseWidth(pulseWidth);
+  void setWaveform(int waveformType);
 
-    // // Update the frequency based on the new parameters
-    // osc1.setMusicalFrequency(originalFrequency);
+  void setPulseWidth(float pulseWidth);
 
-    void setWaveform(int waveformType) {
-      if (this->waveForm == waveformType) {
-        return;
-      }
-      // check the new waferom in range [0, 7], set 0 if out of range
-      if (waveformType < 0 || waveformType > 7) {
-        waveformType = 0;
-      }
-      waveForm = static_cast<WaveForm>(waveformType);
-      DBG("New waveform: " << getWaveformType());
-    }
+  void setGain(float gain);
 
-    void setPulseWidth(float pulseWidth) {
-      // osc1.setPulseWidth(pulseWidth);
-      dutyCycle = pulseWidth; // from 0 to 1
-    }
+  void setOctave(int octave);
 
-    void setGain(float gain) {
-      // osc1.setGain(gain);
-      amplitude = gain;
-    }
+  void setDetune(int cent);
 
-    void setOctave(int octave) {
-      // osc1.setOctave(octave);
-    }
+  void setMusicalFrequency(float freq);
 
-    void setDetune(int cent) {
-      // osc1.setDetune(cent);
-    }
+  void setPitchBendMultiplier(float multiplier);
 
-    void setMusicalFrequency(float freq) {
-      // osc1.setMusicalFrequency(freq);
-      frequency = freq;
-      updatePhaseIncrement();
-    }
-
-    void setPitchBendMultiplier(float multiplier) {
-        // pitchBendMultiplier = multiplier;
-        // setMusicalFrequency(originalFrequency);
-    }
-//
-//    void setMusicalFrequency(float f) {
-//      frequency = f;
-//      updatePhaseIncrement();
-//    }
-    
-    // void setMusicalFrequency(float baseFrequency) {
-    //     originalFrequency = baseFrequency;
-    //     frequency = baseFrequency * pow(2, octave) * pitchBendMultiplier + detune;
-    //     juce::dsp::Oscillator<float>::setFrequency(frequency);
-    // }   
+  void updateFrequency();
 
 private:
+
+
+
+
   /**
    * @brief Calculates and returns the value of a sine wave.
    *
@@ -253,142 +96,14 @@ private:
    *
    * @return The value of the sine wave at the current phase.
    */
-  float getSineTick()
-  {
-    float value = sin(phase);
-    phase += phaseIncrement;
-    wrapPhase();
-    return value;
-  }
+  float getSineTick();
 
-float getSawPtrTick() {
-    // DBG("Method getSawPtrTick() called");
-    float h = 1.0f; // Coefficient for update
-    float cdc = T0 * h; // DC offset
-    float DC = 1.0f + cdc; // Total DC offset
+  float getSawPtrTick();
 
-    // Coefficients for the transition polynomial
-    float a1 = 2.0f - 2.0f * h / P0;
-    float a0 = 2.0f * h - DC;
-
-    // Get the current phase value
-    float currentPhase = phi();
-
-    // Compute the sawtooth waveform value
-    if (currentPhase >= T0) {
-        // Outside the transition region
-        return 2.0f * currentPhase - DC; // Bipolar transform
-    } else {
-        // Inside the transition region
-        // DBG("Transition region detected at phase: " << currentPhase);
-        return a1 * currentPhase + a0;
-    }
-}
-
-    // float getSawPtrTick() {
-    //   // test with simple sawtooth generation
-    //   return 2 * phi() - 1;
-    // }
-
-    float getSaw2PtrTick() {
-      float h = 1.0f; // Coefficient for update
-        float T2 = T0 + T0; // Double T0
-        float cdc = T2;
-        float DC = 1 + cdc;
-
-        // Coefficients for the polynomial
-        float a21 = -h;
-        float a11 = T2;
-        float a01 = 2 * h - DC;
-        float a22 = h;
-        float a12 = T2 - 4 * h;
-        float a02 = 4 * h - DC;
-
-        // Get the current phase value
-        float currentPhase = phi(); // Assuming phi() is defined elsewhere
-
-        // Calculate the output sample based on the phase value
-        if (currentPhase >= T2) {
-            return 2 * currentPhase - DC;
-        } else if (currentPhase >= T0) {
-            float D = currentPhase * P0;
-            return (a22 * D + a12) * D + a02;
-        } else {
-            float D = currentPhase * P0;
-            return (a21 * D + a11) * D + a01;
-        }
-    }
-
-
-// float getSaw2PtrTick() {
-
-//   // NOT WORKING SOLUTION
-
-//   // T0 = f0/fs = fundamental frequency / sample rate
-//   // it's better to update it in setFrequency method in the future
-
-//   /*
-//   Original Python code:
-//   def PTR1(T0):
-// 	h = 1										# f0 update for h=1:
-// 	cdc = T0									# m
-// 	DC = 1 + cdc
-// 	# -- coefficients (5 operations)
-// 	a1 = 2 - 2*h*P0		# am			# am
-// 	a0 = 2*h - DC			# maa			# a
-// 	#
-// 	p = phi(T0,0.5)
-// 	y = zeros(L)
-// 	for n in range(0,L):
-// 		if p[n] >= T0:		y[n] =  2*p[n] - DC	# outside	MA
-// 		else:				y[n] = a1*p[n] + a0	# inside		MA
-// 	return y
-//   */
-
-
-//   // Update phase and wrap if necessary
-//   phase += phaseIncrement;
-//   wrapPhase();
-
-//   // Calculate the normalized phase position for the sawtooth wave, ranging from 0 to 1
-//   float normalizedPhase = phase / TWOPI;
-  
-//   // Constants for the PTR1 algorithm
-//   float h = 1.0f; 
-//   float T0 = frequency / sampleRate;
-//   float cdc = T0 * h;
-//   float DC = 1 + cdc;  
-
-//   // Coefficients for the inside and outside conditions
-//   float a1 = 2 - 2 * h / p0n;
-//   float a0 = 2 * h - DC;
-  
-//   // Calculate the sawtooth value based on the phase position
-//   if (normalizedPhase >= T0) {
-//     // Outside
-//     return 2 * normalizedPhase - DC;
-//   } else {
-//     // Inside
-//     // DBG("Transition region detected at phase: " << normalizedPhase)
-//     return a1 * normalizedPhase + a0;
-//   }
-
-  
-//   return 0.0f;
-// }
+  float getSaw2PtrTick();
 
   // Unipolar modulo counter approach as described in papers
-  float phi() {
-        float currentPhase = phase; // Сохраняем текущую фазу для возврата
-        phase += T0; // Обновляем фазу
-        if (phase >= 1.0f) {
-            // DBG("Phase was wrapped at value: " << phase);
-            phase -= 1.0f; // Оборачиваем фазу, если она достигла или превысила 1
-
-        }
-        return currentPhase; // Возвращаем фазу на момент вызова функции
-  }
-
+  float phi();
 
   /**
    * @brief Calculates the derivative of a given input.
@@ -401,13 +116,7 @@ float getSawPtrTick() {
    * @param history The history array for the input. The previous input is stored in history[1].
    * @return The calculated derivative.
    */
-  float diff(float input, float *history)
-  {
-    float derivative = (input - history[1]) / (2.0f / p0n);
-    history[1] = history[0]; // Shift history
-    history[0] = input;      // Store current input
-    return derivative;
-  }
+  float diff(float input, float *history);
 
   /**
    * @brief Calculates and returns the normalized value of a sawtooth wave.
@@ -418,21 +127,7 @@ float getSawPtrTick() {
    *
    * @return The normalized value of the sawtooth wave at the current point in time.
    */
-  float getSaw4Tick()
-  {
-    float sawValue = lf_sawpos();
-    sawHistory[0] = sawValue * sawValue * (sawValue * sawValue - 2.0f); // x^4 - 2x^2
-
-    // Perform differentiations
-    float firstDerivative = diff(sawHistory[0], diff1History);    // 1st derivative: 4x^3 - 4x
-    float secondDerivative = diff(firstDerivative, diff2History); // 2nd derivative 12x^2 - 4
-    float thirdDerivative = diff(secondDerivative, diff3History); // 3rd derivative 24x
-
-    // Apply scaling factor
-    float normalizedValue = thirdDerivative / scalingFactor4;
-
-    return normalizedValue;
-  }
+  float getSaw4Tick();
 
   /**
    * @brief Calculates and returns the normalized value of a cubic sawtooth wave.
@@ -443,20 +138,7 @@ float getSawPtrTick() {
    *
    * @return The normalized value of the cubic sawtooth wave at the current point in time.
    */
-  float getSaw3Tick()
-  {
-    float sawValue = lf_sawpos();
-    sawHistory[0] = sawValue * sawValue * sawValue - sawValue; // x^3 - x
-
-    // Perform differentiations
-    float firstDerivative = diff(sawHistory[0], diff1History);    // 1st derivative: 3x^2 - 3
-    float secondDerivative = diff(firstDerivative, diff2History); // 2nd derivative: 6x
-
-    // Normalize by the scaling factor
-    float normalizedValue = secondDerivative / scalingFactor3;
-
-    return normalizedValue;
-  }
+  float getSaw3Tick();
 
   /**
    * @brief Calculates and returns the normalized value of a quadratic sawtooth wave.
@@ -467,19 +149,7 @@ float getSawPtrTick() {
    *
    * @return The normalized value of the quadratic sawtooth wave at the current point in time.
    */
-  float getSaw2Tick()
-  {
-    float sawValue = lf_sawpos();
-    sawHistory[0] = sawValue * sawValue; // x^2
-
-    // Perform differentiation
-    float firstDerivative = diff(sawHistory[0], diff1History); // 1st derivative: 2x
-
-    // Normalize by the scaling factor
-    float normalizedValue = firstDerivative / scalingFactor2;
-
-    return normalizedValue;
-  }
+  float getSaw2Tick();
 
   /**
    * @brief Calculates and returns the value of a linear sawtooth wave.
@@ -490,15 +160,7 @@ float getSawPtrTick() {
    *
    * @return The value of the linear sawtooth wave at the current point in time.
    */
-  float lf_sawpos()
-  {
-    //   saw1l = 2*lf_sawpos(clippedFreq) - 1;
-    float value = 2.0f * (phase / TWOPI) - 1.0f;
-
-    phase += phaseIncrement;
-    wrapPhase();
-    return value;
-  }
+  float lf_sawpos();
 
   /**
    * @brief Updates the phase increment and scaling factors.
@@ -507,38 +169,7 @@ float getSawPtrTick() {
    * frequency and sample rate. It also calculates the sampling period and the number
    * of samples per cycle (p0n). The scaling factors are calculated for orders 2, 3, and 4.
    */
-  void updatePhaseIncrement()
-  {
-    samplingPeriod = 1.0f / sampleRate;
-    phaseIncrement = frequency * TWOPI / sampleRate;
-    p0n = sampleRate / frequency;
-
-    T0 = frequency / sampleRate;
-    P0 = sampleRate / frequency;
-
-    // DBG("Frequency: " << frequency << ", sample rate: " << sampleRate << ", sampling period: " << samplingPeriod << ", phase increment: " << phaseIncrement << ", p0n: " << p0n << ", T0: " << T0 << ", P0: " << P0);
-
-    scalingFactor2 = calculateScalingFactor(2);
-    scalingFactor3 = calculateScalingFactor(3);
-    scalingFactor4 = calculateScalingFactor(4);
-
-    // improvedScalingFactor2 = calculateImprovedScalingFactor(2);
-    // improvedScalingFactor3 = calculateImprovedScalingFactor(3);
-    // improvedScalingFactor4 = calculateImprovedScalingFactor(4);
-
-    // DBG("New phase increment: " << phaseIncrement);
-    // DBG(frequency << " * " << TWOPI << " / " << sampleRate);
-    // DBG("waveform: " << waveForm);
-    // DBG("p0n: " << p0n);
-
-    // DBG("Scaling factor 2: " << scalingFactor2);
-    // DBG("Scaling factor 3: " << scalingFactor3);
-    // DBG("Scaling factor 4: " << scalingFactor4);
-
-    // update Pulse train variables
-    ddel = dutyCycle * p0n; // differential delay calculated by multiplying duty cycle by samples per cycle
-    // DBG("Differential delay: " << ddel);
-  }
+  void updatePhaseIncrement();
 
   /**
    * @brief Calculates the scaling factor for a given order.
@@ -550,55 +181,9 @@ float getSawPtrTick() {
    * @param order The order for which to calculate the scaling factor.
    * @return The calculated scaling factor.
    */
-  float calculateScalingFactor(int order)
-  {
+  float calculateScalingFactor(int order);
 
-    // T = sampling interval (1 / sample rate)
-    // omega0 = 2 * pi * f0 (fundamental frequency)
-    // formula is pi^n-1/N![2 * sin(omega0*T/2)]
-
-    float omega0 = 2 * M_PI * frequency;
-    float T = samplingPeriod;
-    float numerator = pow(M_PI, order - 1);
-    float denumerator = getFactorial(order) * (2 * std::sin(omega0 * T / 2));
-    float value = numerator / denumerator;
-    // DBG("Scaling factor: " << value << " for order " << order << " and frequency " << frequency);
-    return value;
-  }
-
-  long double calculateImprovedScalingFactor(int order)
-  {
-    long double P = sampleRate / frequency;
-    long double scalingFactor = 0.0;
-
-    // Check the order and apply the respective formula
-    switch (order)
-    {
-    case 1:
-      scalingFactor = 1;
-      break;
-    case 2:
-      scalingFactor = M_PI / (4 * sin(M_PI / P));
-      break;
-    case 3:
-      scalingFactor = pow(M_PI, 2) / (pow(2 * sin(M_PI / P), 2) * 6);
-      break;
-    case 4:
-      scalingFactor = pow(M_PI, 3) / (pow(24 * sin(M_PI / P), 3));
-      break;
-    case 5:
-      scalingFactor = pow(M_PI, 4) / (pow(120 * sin(M_PI / P), 4));
-      break;
-    case 6:
-      scalingFactor = pow(M_PI, 5) / (pow(720 * sin(M_PI / P), 5));
-      break;
-    default:
-      std::cerr << "Order not supported." << std::endl;
-      return -1; // Or some other error value
-    }
-
-    return scalingFactor;
-  }
+  long double calculateImprovedScalingFactor(int order);
 
   /**
    * @brief Calculates the factorial of a small integer.
@@ -610,27 +195,7 @@ float getSawPtrTick() {
    * @param n The integer of which to calculate the factorial. Must be between 2 and 4.
    * @return The factorial of the input number as a float. If the input is not between 2 and 4, returns 0.0f.
    */
-  float getFactorial(int n)
-  {
-    // precalculated factorials for N = 2 to N = 4
-    if (n == 2)
-    {
-      return 2.0f;
-    }
-    else if (n == 3)
-    {
-      return 6.0f;
-    }
-    else if (n == 4)
-    {
-      return 24.0f;
-    }
-    else
-    {
-      jassert(false); // you should not be here
-    }
-    return 0.0f;
-  }
+  float getFactorial(int n);
 
   /**
    * @brief Wraps the phase to the range [0, TWOPI).
@@ -638,111 +203,69 @@ float getSawPtrTick() {
    * This function checks if the phase is outside the range [0, TWOPI) and
    * wraps it back into that range by adding or subtracting TWOPI as necessary.
    */
-  void wrapPhase()
-  {
-    if (phase >= TWOPI)
-    {
-      phase -= TWOPI;
-    }
-    if (phase < 0)
-    {
-      phase += TWOPI;
-    }
-  }
+  void wrapPhase();
 
   // Pulse train methods
-  int intPart(float value)
+  int intPart(float value);
+
+  float fracPart(float value);
+
+  // Function to perform the differential delay
+  float diffDel(float x, float del);
+
+  float getPulseTick();
+
+
+private:
+  // Variable declarations
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiusOsc)
+
+  enum WaveForm
   {
-    return static_cast<int>(value); // cast value to int
-  }
+    SINE,    // 0
+    SQUARE,  // 1
+    SAW,     // 2
+    SAWBL2,  // 3
+    SAWBL3,  // 4
+    SAWBL4,  // 5
+    SAWPTR,  // 6
+    SAWPTR2, // 7
+    TRIANGLE // Not implemented yet
+  };
 
-  float fracPart(float value)
+  juce::String getWaveformType()
   {
-    return value - static_cast<float>(intPart(value)); // substract integer part from value
-  }
-
-      // Function to perform the differential delay
-  float diffDel(float x, float del) {
-        int intDel = intPart(del); // integer part of delay
-        float fracDel = fracPart(del); // fractional part of delay
-
-        // get delayed values from delay buffer where
-        // delayedX1 is the delayed value at intDel
-        // delayedX2 is the delayed value at intDel + 1
-        // the delay buffer is a circular buffer
-        // the write index is the current index
-        // the read index is the current index - intDel
-        // interpolate between the two delayed values
-        float delayedX1 = delayBuffer[(writeIndex - intDel + delayBufferSize) % delayBufferSize];
-        float delayedX2 = delayBuffer[(writeIndex - intDel - 1 + delayBufferSize) % delayBufferSize];
-        return x - delayedX1 * (1.0f - fracDel) - delayedX2 * fracDel;
-  }
-
-  float getPulseTick() {
-        // Calculate the period and desired delay based on frequency and duty cycle
-        // float period = sampleRate / frequency;
-        // float ddel = dutyCycle * period;
-
-        // del is delay size
-        float del = std::fmax(0.0f, std::fmin(static_cast<float>(delayBufferSize - 1), ddel)); // clamp delay to buffer size
-
-        // Generate the next sample of the bandlimited sawtooth wave
-        float sawSample = getSaw2PtrTick();
-
-        // Store the current sawtooth sample in the delay buffer
-        delayBuffer[writeIndex] = sawSample;
-
-        // Increment the write index and wrap if necessary
-        writeIndex = (writeIndex + 1) % delayBufferSize;
-
-        // Apply differential delay to the sawtooth wave to generate the pulse train
-        return diffDel(sawSample, del);
-    }
-
-      // filter
-
-
-    private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiusOsc)
-
-                    enum WaveForm {
-                      SINE, // 0
-                      SQUARE, // 1
-                      SAW, // 2
-                      SAWBL2, // 3
-                      SAWBL3, // 4
-                      SAWBL4, // 5
-                      SAWPTR, // 6
-                      SAWPTR2, // 7
-                      TRIANGLE // Not implemented yet
-                    };
-
-  juce::String getWaveformType() {
-    switch (waveForm) {
-      case SINE:
-        return "Sine";
-      case SQUARE:
-        return "Square";
-      case SAW:
-        return "Saw";
-      case SAWBL2:
-        return "SawBL2";
-      case SAWBL3:
-        return "SawBL3";
-      case SAWBL4:
-        return "SawBL4";
-      case SAWPTR:
-        return "SawPTR";
-      case SAWPTR2:
-        return "SawPTR2";
-      case TRIANGLE:
-        return "Triangle";
-      default:
-          return "Unknown";
+    switch (waveForm)
+    {
+    case SINE:
+      return "Sine";
+    case SQUARE:
+      return "Square";
+    case SAW:
+      return "Saw";
+    case SAWBL2:
+      return "SawBL2";
+    case SAWBL3:
+      return "SawBL3";
+    case SAWBL4:
+      return "SawBL4";
+    case SAWPTR:
+      return "SawPTR";
+    case SAWPTR2:
+      return "SawPTR2";
+    case TRIANGLE:
+      return "Triangle";
+    default:
+      return "Unknown";
     }
   }
 
-  // Sawtooth generator variables
+  // Oscillator variables
+
+  int octave = 0; // 0 on the initial state
+  int detune = 0; // 0 on the initial state
+  float pitchBendMultiplier = 1.0f;
+  juce::SmoothedValue<float> pitchBendMultiplierSmoothed;
 
   float amplitude; // amplitude of the oscillator
 
@@ -757,10 +280,9 @@ float getSawPtrTick() {
   float scalingFactor3;    // scaling factor for 3rd order sawtooth wave
   float scalingFactor4;    // scaling factor for 4th order sawtooth wave
 
-  
   // PTR variables
   float T0; // frequency / sampling rate (fundamental frequency)
-  float P0; // 
+  float P0; //
 
   long double improvedScalingFactor2; // improved scaling factor for 2nd order sawtooth wave
   long double improvedScalingFactor3; // improved scaling factor for 3rd order sawtooth wave
@@ -774,154 +296,9 @@ float getSawPtrTick() {
   float diff3History[2] = {0.0f}; // History for third derivative
 
   // Pulse train variables
-  float ddel = 0.0f;                    // differential delay
-  float dutyCycle = 0.5f;               // duty cycle of the pulse train
-  int delayBufferSize = 2048;            // size of the delay buffer
-  std::vector<float> delayBuffer;       // delay buffer
-  int writeIndex = 0;                   // write index for the delay buffer
-
+  float ddel = 0.0f;              // differential delay
+  float dutyCycle = 0.5f;         // duty cycle of the pulse train
+  int delayBufferSize = 2048;     // size of the delay buffer
+  std::vector<float> delayBuffer; // delay buffer
+  int writeIndex = 0;             // write index for the delay buffer
 };
-
-/*
-
-#include <cmath>
-#include <vector>
-
-class PulseTrainGenerator {
-private:
-    float sampleRate;
-    float frequency;
-    float dutyCycle;
-    int delayBufferSize;
-    std::vector<float> delayBuffer;
-    int writeIndex;
-
-    // Function to calculate the integer part of a float
-    int intPart(float value) {
-        return static_cast<int>(value);
-    }
-
-    // Function to calculate the fractional part of a float
-    float fracPart(float value) {
-        return value - static_cast<float>(intPart(value));
-    }
-
-    // Function to perform the differential delay
-    float diffDel(float x, float del) {
-        int intDel = intPart(del);
-        float fracDel = fracPart(del);
-        float delayedX1 = delayBuffer[(writeIndex - intDel + delayBufferSize) % delayBufferSize];
-        float delayedX2 = delayBuffer[(writeIndex - intDel - 1 + delayBufferSize) % delayBufferSize];
-        return x - delayedX1 * (1.0f - fracDel) - delayedX2 * fracDel;
-    }
-
-public:
-    PulseTrainGenerator(float sr, float freq, float duty, int bufferSize)
-        : sampleRate(sr), frequency(freq), dutyCycle(duty), delayBufferSize(bufferSize) {
-        delayBuffer.resize(bufferSize, 0.0f);
-        writeIndex = 0;
-    }
-
-    // Call this function to generate the next sample of the pulse train
-    float nextSample() {
-        // Calculate the period and desired delay based on frequency and duty cycle
-        float period = sampleRate / frequency;
-        float ddel = dutyCycle * period;
-        float del = std::fmax(0.0f, std::fmin(static_cast<float>(delayBufferSize - 1), ddel));
-
-        // Generate the next sample of the bandlimited sawtooth wave
-        float sawSample = saw2(frequency, writeIndex, sampleRate);
-
-        // Store the current sawtooth sample in the delay buffer
-        delayBuffer[writeIndex] = sawSample;
-
-        // Increment the write index and wrap if necessary
-        writeIndex = (writeIndex + 1) % delayBufferSize;
-
-        // Apply differential delay to the sawtooth wave to generate the pulse train
-        return diffDel(sawSample, del);
-    }
-};
-
-// Assume a saw2 function is defined elsewhere, which generates a bandlimited sawtooth wave
-float saw2(float frequency, int phase, float sampleRate);
-
-// Usage example
-int main() {
-    float sampleRate = 48000.0f; // Sample rate in Hz
-    float frequency = 440.0f; // Frequency of the sawtooth wave in Hz
-    float dutyCycle = 0.5f; // Duty cycle of the pulse train (0.5 for square wave)
-    int bufferSize = 2048; // Size of the delay buffer
-
-    PulseTrainGenerator generator(sampleRate, frequency, dutyCycle, bufferSize);
-
-    // Generate a buffer of samples
-    std::vector<float> outputBuffer(512);
-    for (auto& sample : outputBuffer) {
-        sample = generator.nextSample();
-    }
-
-    // Output buffer would now contain the pulse train samples
-    // ...
-
-    return 0;
-}
-
-
-*/
-
-/*
-Original Faust code:
-declare sawN author "Julius O. Smith III"; // Metadata declaration for the author
-declare sawN license "STK-4.3"; // Metadata declaration for the license
-
-// The maximum order of sawtooth wave to be generated is set to 4.
-MAX_SAW_ORDER = 4;
-// A power of two greater than MAX_SAW_ORDER for internal calculations.
-MAX_SAW_ORDER_NEXTPOW2 = 8;
-
-// The saw4 function generates a fourth-order sawtooth wave at a given frequency.
-saw4(freq) = saw1l : poly(4) : D(3) : gate(3)
-with {
-  // Ensure the frequency is at least 20 Hz to avoid inaudible frequencies.
-  clippedFreq = max(20.0, abs(freq));
-  // Generate a basic sawtooth wave, adjust its mean to zero and scale to +/-1 amplitude.
-  saw1l = 2*lf_sawpos(clippedFreq) - 1;
-  // Fourth order polynomial shaping of the sawtooth wave.
-  poly(4,x) = x*x*(x*x - 2.0);
-  // Calculate the period of the sawtooth wave in samples.
-  p0n = float(ma.SR)/clippedFreq;
-  // First-order difference function, used to approximate the derivative.
-  diff1(x) = (x - x')/(2.0/p0n);
-  // Recursively apply the difference function N times for Nth order differentiation.
-  diff(N) = seq(n,N,diff1);
-  // Factorial function needed for normalization in the D function.
-  factorial(0) = 1;
-  factorial(i) = i * factorial(i-1);
-  // Base case for the D function, returns input unchanged.
-  D(0) = _;
-  // Apply Nth order differentiation and normalize by the factorial of (N+1).
-  D(i) = diff(i)/factorial(i+1);
-  // Gate function to handle initial conditions and suppress startup transients.
-  gate(N) = *(1@(N));
-};
-*/
-
-/*
-pulsetrainN(N,freq,duty) = diffdel(sawN(N,freqC),del) with {
- // non-interpolated-delay version: diffdel(x,del) = x - x@int(del+0.5);
- // linearly interpolated delay version (sounds good to me):
-    diffdel(x,del) = x-x@int(del)*(1-ma.frac(del))-x@(int(del)+1)*ma.frac(del);
- // Third-order Lagrange interpolated-delay version (see filters.lib):
- // diffdel(x,del) = x - fdelay3(DELPWR2,max(1,min(DELPWR2-2,ddel)));
- DELPWR2 = 2048; // Needs to be a power of 2 when fdelay*() used above.
- delmax = DELPWR2-1; // arbitrary upper limit on diff delay (duty=0.5)
- SRmax = 96000.0; // assumed upper limit on sampling rate
- fmin = SRmax / float(2.0*delmax); // 23.4 Hz (audio freqs only)
- freqC = max(freq,fmin); // clip frequency at lower limit
- period = (float(ma.SR) / freqC); // actual period
- ddel = duty * period; // desired delay
- del = max(0,min(delmax,ddel));
-};
-
-*/

@@ -18,7 +18,7 @@
         <FILE id="bnbDcE" name="Delay.h" compile="0" resource="0" file="Source/Delay.h"/>
       </GROUP>
       <GROUP id="{4522E152-80F8-492C-A450-21E0144FF058}" name="RESOURCES">
-        <FILE id="GC72dE" name="midius.xml" compile="0" resource="1" file="Source/midius.xml"/>
+        <FILE id="L8LzEo" name="midius.xml" compile="0" resource="1" file="Source/midius.xml"/>
       </GROUP>
       <GROUP id="{D6EF3049-4ED9-27A8-C6D7-893BEFDFA34D}" name="FILTER">
         <FILE id="BPVWGZ" name="FilterCoeffs.h" compile="0" resource="0" file="Source/FilterCoeffs.h"/>
@@ -45,8 +45,14 @@
       </GROUP>
       <GROUP id="{3679FA21-80D6-A232-CDD3-7D8CB3563C97}" name="OSC">
         <FILE id="LyZM4T" name="MidiusOsc.h" compile="0" resource="0" file="Source/MidiusOsc.h"/>
+        <FILE id="juh98h" name="NoiseGenerator.cpp" compile="1" resource="0"
+              file="Source/NoiseGenerator.cpp"/>
+        <FILE id="oVdooA" name="NoiseGenerator.h" compile="0" resource="0"
+              file="Source/NoiseGenerator.h"/>
         <FILE id="AY2g0O" name="Osc.cpp" compile="1" resource="0" file="Source/Osc.cpp"/>
         <FILE id="bgX9cQ" name="Osc.h" compile="0" resource="0" file="Source/Osc.h"/>
+        <FILE id="VtKp4X" name="OSCMidius.cpp" compile="1" resource="0" file="Source/OSCMidius.cpp"/>
+        <FILE id="Xx9VZh" name="OSCMidius.h" compile="0" resource="0" file="Source/OSCMidius.h"/>
       </GROUP>
       <GROUP id="{E5179022-B919-6899-AD42-3BDF835EB029}" name="ADSR">
         <FILE id="O3Iw1a" name="Adsr.cpp" compile="1" resource="0" file="Source/Adsr.cpp"/>
