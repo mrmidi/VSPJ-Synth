@@ -68,8 +68,9 @@ static const unsigned char temp_binary_data_0[] =
 "        </View>\r\n"
 "      </View>\r\n"
 "      <View flex-grow=\"0.2\" pos-x=\"94.322%\" pos-y=\"-4.87805%\" pos-width=\"4.83051%\"\r\n"
-"            pos-height=\"100%\">\r\n"
-"        <Slider caption=\"Noise\" parameter=\"noiseGain\"/>\r\n"
+"            pos-height=\"100%\" flex-direction=\"column\">\r\n"
+"        <Slider caption=\"Noise\" parameter=\"noiseGain\" flex-grow=\"3\"/>\r\n"
+"        <ComboBox parameter=\"noiseType\"/>\r\n"
 "      </View>\r\n"
 "    </View>\r\n"
 "    <View id=\"ADSRS\" flex-grow=\"1\" pos-x=\"0%\" pos-y=\"28.5566%\" pos-width=\"100%\"\r\n"
@@ -152,7 +153,8 @@ static const unsigned char temp_binary_data_0[] =
 "      </View>\r\n"
 "    </View>\r\n"
 "  </View>\r\n"
-"</magic>\r\n";
+"</magic>\r\n"
+"\0";
 
 const char* midius_xml = (const char*) temp_binary_data_0;
 
@@ -168,7 +170,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
 
     switch (hash)
     {
-        case 0xe7e31557:  numBytes = 6881; return midius_xml;
+        case 0xe7e31557:  numBytes = 6963; return midius_xml;
         default: break;
     }
 

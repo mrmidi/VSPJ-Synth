@@ -24,7 +24,8 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
         auto osc2Sample = osc2.getNextSample();
 
         // noise
-        float noiseSample = noiseSource.nextFloat() * noiseLevel;
+        // float noiseSample = noiseSource.nextFloat() * noiseLevel;
+        float noiseSample = noiseGen.getNextSample() * noiseLevel;
 
         // DBG("Osc 2 sample value: " << osc2Sample);
 

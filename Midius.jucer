@@ -18,7 +18,7 @@
         <FILE id="bnbDcE" name="Delay.h" compile="0" resource="0" file="Source/Delay.h"/>
       </GROUP>
       <GROUP id="{4522E152-80F8-492C-A450-21E0144FF058}" name="RESOURCES">
-        <FILE id="L8LzEo" name="midius.xml" compile="0" resource="1" file="Source/midius.xml"/>
+        <FILE id="cwb4fd" name="midius.xml" compile="0" resource="1" file="Source/midius.xml"/>
       </GROUP>
       <GROUP id="{D6EF3049-4ED9-27A8-C6D7-893BEFDFA34D}" name="FILTER">
         <FILE id="BPVWGZ" name="FilterCoeffs.h" compile="0" resource="0" file="Source/FilterCoeffs.h"/>

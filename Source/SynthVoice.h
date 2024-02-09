@@ -135,6 +135,8 @@ public:
         spec.sampleRate = sampleRate;
         spec.numChannels = numChannels;
 
+        noiseGen.prepare(spec); // prepare the noise generator
+
         adsr.reset();
         adsr.setSampleRate(sampleRate);
 
@@ -272,6 +274,11 @@ public:
         }
         CUSTOMDBG("Setting noise level to " << level);
         noiseLevel = level;
+    }
+
+    void setNoiseType(int type)
+    {
+        noiseGen.setType(type);
     }
 
 private:
