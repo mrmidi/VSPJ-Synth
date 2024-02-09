@@ -56,7 +56,7 @@ public:
     {
         // Convert the MIDI note number to a frequency.
         originalFrequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-        // DBG("Starting note with original frequency: " << originalFrequency);
+        DBG("Starting note with original frequency: " << originalFrequency);
         osc1.setMusicalFrequency(originalFrequency);
         osc2.setMusicalFrequency(originalFrequency);
 
@@ -80,6 +80,11 @@ public:
 
     void stopNote(float velocity, bool allowTailOff) override
     {
+        // check if sustain pedal is pressed
+        // if (isSustainPedalDown()) {
+        //     DBG("Sustain pedal is down. Note will not stop");
+        // }
+
         // This is called when a note stops
         adsr.noteOff();
         filterAdsr.noteOff();
@@ -124,6 +129,12 @@ public:
             modControllerCutOffFreq = mapModWheelToFrequency(newControllerValue);
             // DBG("Mod wheel value: " << newControllerValue << ", mapped frequency: " << modControllerCutOffFreq);
             // DBG("New cutoff frequency: " << filter.getCutoffFrequency());
+        }
+        // if sustain pedal is pressed - print dbg message
+        if (controllerNumber == 64) {
+            if (newControllerValue > 63) {
+                CUSTOMDBG("Sustain pedal pressed");
+            }
         }
     }
 
