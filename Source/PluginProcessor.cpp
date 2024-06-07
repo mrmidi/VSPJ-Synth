@@ -131,6 +131,8 @@ void MidiusAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
 
     delayEffect.prepare(spec);
 
+    chorusEffect.prepare(spec);
+
     // magic meters
     outputMeter->setupSource (getTotalNumOutputChannels(), sampleRate, 500);
     oscilloscope->prepareToPlay (sampleRate, samplesPerBlock);
@@ -218,7 +220,10 @@ void MidiusAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
         buffer.copyFrom (i, 0, buffer.getReadPointer (0), buffer.getNumSamples());
     
 
+    // process with chorus
+    chorusEffect.process(buffer);
 
+    // process with delay
     delayEffect.process(buffer);
 
     // Amplify buffer for oscilloscope
@@ -275,72 +280,73 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 void MidiusAudioProcessor::setVoiceParams()
 {
     for (int i = 0; i < synthSource.synth.getNumVoices(); ++i)
-
     {
         if (auto voice = dynamic_cast<SynthVoice*>(synthSource.synth.getVoice(i)))
         {
             // Oscillator 1
-            auto& osc1Octave = *parameters.getRawParameterValue ("osc1Octave");
-            auto& osc1Cent = *parameters.getRawParameterValue ("osc1Cent");
-            auto& osc1Gain = *parameters.getRawParameterValue ("osc1Gain");
-            auto& osc1PulseWidth = *parameters.getRawParameterValue ("osc1PulseWidth");
-            auto& osc1WaveformType = *parameters.getRawParameterValue ("osc1WaveformType");
+            auto& osc1Octave = *parameters.getRawParameterValue("osc1Octave");
+            auto& osc1Cent = *parameters.getRawParameterValue("osc1Cent");
+            auto& osc1Gain = *parameters.getRawParameterValue("osc1Gain");
+            auto& osc1PulseWidth = *parameters.getRawParameterValue("osc1PulseWidth");
+            auto& osc1WaveformType = *parameters.getRawParameterValue("osc1WaveformType");
             // Oscillator 2
-            auto& osc2Octave = *parameters.getRawParameterValue ("osc2Octave");
-            auto& osc2Cent = *parameters.getRawParameterValue ("osc2Cent");
-            auto& osc2Gain = *parameters.getRawParameterValue ("osc2Gain");
-            auto& osc2PulseWidth = *parameters.getRawParameterValue ("osc2PulseWidth");
-            auto& osc2WaveformType = *parameters.getRawParameterValue ("osc2WaveformType");
+            auto& osc2Octave = *parameters.getRawParameterValue("osc2Octave");
+            auto& osc2Cent = *parameters.getRawParameterValue("osc2Cent");
+            auto& osc2Gain = *parameters.getRawParameterValue("osc2Gain");
+            auto& osc2PulseWidth = *parameters.getRawParameterValue("osc2PulseWidth");
+            auto& osc2WaveformType = *parameters.getRawParameterValue("osc2WaveformType");
             // Noise
-            auto& noiseGain = *parameters.getRawParameterValue ("noiseGain");
-            auto& noiseType = *parameters.getRawParameterValue ("noiseType"); // should be string!
+            auto& noiseGain = *parameters.getRawParameterValue("noiseGain");
+            auto& noiseType = *parameters.getRawParameterValue("noiseType");
 
             // LFO
-            //auto& enabledToggle = *parameters.getRawParameterValue ("enabledToggle");
-            auto& sourceComboBox = *parameters.getRawParameterValue ("sourceComboBox");
-            auto& depthSlider = *parameters.getRawParameterValue ("depthSlider");
-            auto& rateSlider = *parameters.getRawParameterValue ("rateSlider");
-            auto& typeComboBox = *parameters.getRawParameterValue ("typeComboBox");
+            auto& sourceComboBox = *parameters.getRawParameterValue("sourceComboBox");
+            auto& depthSlider = *parameters.getRawParameterValue("depthSlider");
+            auto& rateSlider = *parameters.getRawParameterValue("rateSlider");
+            auto& typeComboBox = *parameters.getRawParameterValue("typeComboBox");
+
             // ADSR voice
-            auto& adsrAttack = *parameters.getRawParameterValue ("adsr1attack");
-            auto& adsrDecay = *parameters.getRawParameterValue ("adsr1decay");
-            auto& adsrSustain = *parameters.getRawParameterValue ("adsr1sustain");
-            auto& adsrRelease = *parameters.getRawParameterValue ("adsr1release");
+            auto& adsrAttack = *parameters.getRawParameterValue("adsr1attack");
+            auto& adsrDecay = *parameters.getRawParameterValue("adsr1decay");
+            auto& adsrSustain = *parameters.getRawParameterValue("adsr1sustain");
+            auto& adsrRelease = *parameters.getRawParameterValue("adsr1release");
+
             // ADSR filter
-            auto& adsr2AttackFilter = *parameters.getRawParameterValue ("adsr2attack");
-            auto& adsr2DecayFilter = *parameters.getRawParameterValue ("adsr2decay");
-            auto& adsr2SustainFilter = *parameters.getRawParameterValue ("adsr2sustain");
-            auto& adsr2ReleaseFilter = *parameters.getRawParameterValue ("adsr2release");
+            auto& adsr2AttackFilter = *parameters.getRawParameterValue("adsr2attack");
+            auto& adsr2DecayFilter = *parameters.getRawParameterValue("adsr2decay");
+            auto& adsr2SustainFilter = *parameters.getRawParameterValue("adsr2sustain");
+            auto& adsr2ReleaseFilter = *parameters.getRawParameterValue("adsr2release");
+            auto& adsr2Enabled = *parameters.getRawParameterValue("adsrFilterEnabled");
+
             // Filter
-            // auto& filterType = *parameters.getRawParameterValue ("filterType"); // everything than lowpass sounds bad!
-            auto& filterCutoff = *parameters.getRawParameterValue ("cutoff");
-            auto& filterResonance = *parameters.getRawParameterValue ("resonance");
-            auto& filterAmount = *parameters.getRawParameterValue ("filterAmount");
+            auto& filterCutoff = *parameters.getRawParameterValue("cutoff");
+            auto& filterResonance = *parameters.getRawParameterValue("resonance");
+            auto& filterAmount = *parameters.getRawParameterValue("filterAmount");
 
             // Delay
-            auto& delayTime = *parameters.getRawParameterValue ("delayTime");
-            auto& delayFeedback = *parameters.getRawParameterValue ("feedback");
-            auto& delayWetDry = *parameters.getRawParameterValue ("delayMix");
+            auto& delayTime = *parameters.getRawParameterValue("delayTime");
+            auto& delayFeedback = *parameters.getRawParameterValue("feedback");
+            auto& delayWetDry = *parameters.getRawParameterValue("delayMix");
 
             // Master
-            auto& masterVolume = *parameters.getRawParameterValue ("masterGain");
+            auto& masterVolume = *parameters.getRawParameterValue("masterGain");
 
             // Osc Zoom
-            auto& oscZoom = *parameters.getRawParameterValue ("oscZoom");
+            auto& oscZoom = *parameters.getRawParameterValue("oscZoom");
 
             // HPF
-            auto& hpfCutoffFreq = *parameters.getRawParameterValue ("hpfCutoff");
+            auto& hpfCutoffFreq = *parameters.getRawParameterValue("hpfCutoff");
 
             // LFO Type
             auto& lfoType = *parameters.getRawParameterValue("typeComboBox");          
 
-            //DBG("Retrieved waveform type: " << osc1WaveformType.load());
-//            DBG("Waveform type: " << osc1WaveformType.load());
+            // Set parameters
             voice->setOsc1Params(osc1Octave.load(), osc1Cent.load(), osc1Gain.load(), osc1PulseWidth.load(), osc1WaveformType.load());
             voice->setOsc2Params(osc2Octave.load(), osc2Cent.load(), osc2Gain.load(), osc2PulseWidth.load(), osc2WaveformType.load());
             voice->setLFOParams(depthSlider.load(), rateSlider.load(), sourceComboBox.load(), typeComboBox.load());
             voice->setADSRParams(adsrAttack.load(), adsrDecay.load(), adsrSustain.load(), adsrRelease.load());
-            voice->setFilterAdsrParams(adsr2AttackFilter.load(), adsr2DecayFilter.load(), adsr2SustainFilter.load(), adsr2ReleaseFilter.load(), filterCutoff.load()); // baseCutoffFreq
+            voice->setFilterAdsrParams(adsr2AttackFilter.load(), adsr2DecayFilter.load(), adsr2SustainFilter.load(), adsr2ReleaseFilter.load(), filterCutoff.load());
+            voice->enableFilterADSR(adsr2Enabled.load());
             voice->setFilterParams(0, filterCutoff.load(), filterResonance.load(), filterAmount.load());
 
             // N O I S E    C O N T R O L
@@ -349,21 +355,29 @@ void MidiusAudioProcessor::setVoiceParams()
 
             // D E L A Y    C O N T R O L
             delayEffect.setDelayParams(delayTime.load(), delayFeedback.load(), delayWetDry.load());
+
+            // L F O   C O N T R O L
             voice->setLfoType(lfoType.load());
 
-            
+            // Filter LFO params
+            auto& filterLfoDepth = *parameters.getRawParameterValue("filterLFOdepth");
+            auto& filterLfoFrequency = *parameters.getRawParameterValue("filterLFOfrequency");
+            voice->setFilterLFOParams(filterLfoDepth.load(), filterLfoFrequency.load());
 
 
+            // C H O R U S   C O N T R O L
+            auto& chorusRate = *parameters.getRawParameterValue("chorusRate");
+            auto& chorusDepth = *parameters.getRawParameterValue("chorusDepth");
+            auto& chorusMix = *parameters.getRawParameterValue("chorusMix");
+            auto& chorusCentreDelay = *parameters.getRawParameterValue("chorusCentreDelay");
+            auto& chorusFeedback = *parameters.getRawParameterValue("chorusFeedback");
+
+            chorusEffect.setChorusParams(chorusRate.load(), chorusDepth.load(), chorusCentreDelay.load(), chorusFeedback.load(), chorusMix.load());
 
             masterGain.setGainDecibels(juce::Decibels::gainToDecibels(masterVolume.load())); // decibels control
-            //voice->setDelayParams(delayTime.load(), delayFeedback.load(), delayWetDry.load());
 
             oscZoomVal = oscZoom.load();
             hpf.setCutoffFrequency(hpfCutoffFreq.load());
-            
-            
-            
-            //adsr.update (osc 1 octave.load(), osc 1 cent.load(), osc 1 gain.load(), osc 1 pulse width.load());
         }
     }
 }

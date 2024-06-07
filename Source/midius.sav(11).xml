@@ -84,8 +84,8 @@
         </View>
       </View>
       <View flex-grow="0.5">
-        <Slider caption="D" pos-x="" pos-y="" pos-width="" pos-height="" parameter="filterLFOdepth"/>
-        <Slider caption="R" parameter="filterLFOfrequency"/>
+        <Slider caption="D" pos-x="" pos-y="" pos-width="" pos-height=""/>
+        <Slider caption="R"/>
       </View>
       <View flex-direction="row" title="">
         <View id="ADSR FILT" flex-grow="1" background-color="FF2D2424" padding="0.1"

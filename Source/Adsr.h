@@ -22,6 +22,8 @@ public:
 
     void setCutoffFreqency(const float cutoffFreq);
 
+    bool isFilterEnabled();
+
     void getParams(float& attack, float& decay, float& sustain, float& release) {
         attack = adsrParams.attack;
         decay = adsrParams.decay;

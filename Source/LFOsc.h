@@ -40,6 +40,8 @@ public:
     // Get the current type of the LFO
     lfoType getType() const;
 
+    float getDepth() const;
+
 private:
     juce::dsp::Oscillator<float> oscillator;
     float frequency = 1.0f;  // 1 Hz by default

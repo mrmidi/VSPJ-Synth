@@ -13,6 +13,7 @@
 
 #include "Delay.h"
 #include "HPF.h"
+#include "Chorus.h"
 
 //==============================================================================
 /**
@@ -93,7 +94,6 @@ private:
     params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("noiseType", 38), "Noise Type", juce::StringArray{"White", "Pink"}, 0));
 
     // LFO
-
     params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("sourceComboBox", 17), "Source", juce::StringArray{"keyboard", "modwheel", "lfo"}, 2));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("depthSlider", 18), "Depth", 0.0, 1.0, 0.5));
     params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("rateSlider", 19), "Rate", 1, 20, 5));
@@ -110,11 +110,14 @@ private:
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr2decay", 26), "Filter Decay", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.5));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr2sustain", 27), "Filter Sustain", 0.0f, 1.0f, 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("adsr2release", 28), "Filter Release", juce::NormalisableRange<float>(0.001f, 3.0f, 0.001f, 0.25f), 0.2f));
+    // disable adsr for filter combo box
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("adsrFilterEnabled", 29), "Filter ADSR Enabled", juce::StringArray{"Disabled", "Enabled"}, 1));
+    
 
     // Filter Amount (using this to mix the dry/wet signal) or maybe it's better to use depth?
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterAmount", 29), "Filter Amount", 0.0, 1.0, 0.5));
 
-    // Cutoff Frequency (usually in Hz, but you can use a normalized value if you prefer)
+    // Cutoff Frequency
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("cutoff", 30), "Cutoff", 20.0, 20000.0, 1000.0));
 
     // Resonance (or Q Factor)
@@ -133,6 +136,18 @@ private:
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("tone", 33), "Tone", 20.0, 20000.0, 1000.0));            // in Hz, from 20Hz to 20kHz with a default of 1kHz
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("distortionMix", 34), "Distortion Mix", 0.0, 1.0, 0.5)); // dry/wet mix, normalized from 0 to 1
 
+    // Chorus Parameters
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("chorusRate", 35), "Chorus Rate", 0.0, 10.0, 0.5)); // in Hz, from 0Hz to 10Hz with a default of 0.5Hz
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("chorusDepth", 36), "Chorus Depth", 0.0, 1.0, 0.5)); // normalized from 0 to 1
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("chorusMix", 37), "Chorus Mix", 0.0, 1.0, 0.5));      // dry/wet mix, normalized from 0 to 1
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("chorusCentreDelay", 38), "Chorus Centre Delay", 0.0, 100.0, 0.0)); // in milliseconds, from 0ms to 100ms with a default of 0ms
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("chorusFeedback", 39), "Chorus Feedback", -1.0, 1.0, 0.0)); // normalized from -1 to 1
+
+    // Filter LFO params
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterLFOdepth", 32), "Filter LFO Depth", 0.0f, 1.0f, 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterLFOfrequency", 33), "Filter LFO Rate", 0.0f, 40.0f, 0.5f));
+
+    
     // master gain
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("masterGain", 35), "Master Gain", 0.0, 1.0, 0.5)); // normalized from 0 to 1 TODO: convert to decibels
 
@@ -153,6 +168,8 @@ private:
   void setVoiceParams();
 
   StereoDelay delayEffect;
+
+  Chorus chorusEffect;
 
   HighPassFilter hpf; // i've noticed a lot of low-end rumble in the audio, so let's add a high-pass filter to remove it
 

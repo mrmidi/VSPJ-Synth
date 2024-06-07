@@ -18,13 +18,21 @@ LFOsc::LFOsc()
 
 void LFOsc::setFrequency(float freq)
 {
+    if (frequency == freq) {
+        return;
+    }
     frequency = freq;
     oscillator.setFrequency(frequency);
+    DBG("SETTING LFO FREQUENCY TO " << frequency);
 }
 
 void LFOsc::setDepth(float newDepth)
 {
-    depth = newDepth;
+    if (depth != newDepth) {
+        depth = newDepth;
+        DBG("SETTING LFO DEPTH TO " << depth);
+    }
+    
 }
 
 float LFOsc::getNextSample()
@@ -54,4 +62,9 @@ void LFOsc::setType(lfoType type)
 LFOsc::lfoType LFOsc::getType() const
 {
     return currentType;
+}
+
+float LFOsc::getDepth() const
+{
+    return depth;
 }

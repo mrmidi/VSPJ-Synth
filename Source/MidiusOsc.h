@@ -63,6 +63,8 @@ public:
 
   void setAmplitudeDB(float newAmplitudeDB);
 
+  void setVelocity(float newVelocity);
+
   /**
    * @brief Renders the next block of samples for the oscillator.
    *
@@ -269,6 +271,8 @@ private:
 
 
   float amplitude; // amplitude of the oscillator
+
+  float velocity; // velocity of the oscillator
 
   float baseFrequency;      // base frequency of the oscillator
   int octave;               // octave of the oscillator

@@ -6,9 +6,13 @@
               pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn"
               pluginDesc="Bachelor's thesis of my" aaxIdentifier="net.mrmidi.Midius"
               cppLanguageStandard="20" bundleIdentifier="net.mrmidi.Midius"
-              version="1.0.5" pluginFormats="buildAU,buildStandalone,buildVST3">
+              version="1.0.6" pluginFormats="buildAU,buildStandalone,buildVST3">
   <MAINGROUP id="n77ks4" name="Midius">
     <GROUP id="{3DF7E2AF-D70C-B15C-AA61-5F4B182AE5B1}" name="Source">
+      <GROUP id="{C7A73C5B-0AF5-9C22-F543-341132E2FC93}" name="CHORUS">
+        <FILE id="W38qwB" name="Chorus.cpp" compile="1" resource="0" file="Source/Chorus.cpp"/>
+        <FILE id="iqUyEA" name="Chorus.h" compile="0" resource="0" file="Source/Chorus.h"/>
+      </GROUP>
       <GROUP id="{B3066210-D435-EF18-1651-43555BB9AF79}" name="DISTORTION">
         <FILE id="crlyF2" name="Distortion.cpp" compile="1" resource="0" file="Source/Distortion.cpp"/>
         <FILE id="tfd5Ga" name="Distortion.h" compile="0" resource="0" file="Source/Distortion.h"/>
@@ -18,7 +22,7 @@
         <FILE id="bnbDcE" name="Delay.h" compile="0" resource="0" file="Source/Delay.h"/>
       </GROUP>
       <GROUP id="{4522E152-80F8-492C-A450-21E0144FF058}" name="RESOURCES">
-        <FILE id="cwb4fd" name="midius.xml" compile="0" resource="1" file="Source/midius.xml"/>
+        <FILE id="OoD1b6" name="midius.xml" compile="0" resource="1" file="Source/midius.xml"/>
       </GROUP>
       <GROUP id="{D6EF3049-4ED9-27A8-C6D7-893BEFDFA34D}" name="FILTER">
         <FILE id="BPVWGZ" name="FilterCoeffs.h" compile="0" resource="0" file="Source/FilterCoeffs.h"/>
