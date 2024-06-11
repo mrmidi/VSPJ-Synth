@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<magic>
+  <Styles>
+    <Style name="default">
+      <Nodes/>
+      <Classes>
+        <plot-view border="2" background-color="black" border-color="silver" display="contents"/>
+        <nomargin margin="0" padding="0" border="0"/>
+        <group margin="5" padding="5" border="2" flex-direction="column"/>
+        <transparent background-color="transparentblack"/>
+      </Classes>
+      <Types>
+        <Slider border="0" slider-textbox="textbox-below"/>
+        <ToggleButton border="0" max-height="50" caption-size="0" text="Active"/>
+        <TextButton border="0" max-height="50" caption-size="0"/>
+        <ComboBox border="0" max-height="50" caption-size="0"/>
+        <Plot border="0" margin="0" padding="0" background-color="00000000"
+              radius="0"/>
+        <XYDragComponent border="0" margin="0" padding="0" background-color="00000000"
+                         radius="0"/>
+      </Types>
+      <Palettes>
+        <default/>
+      </Palettes>
+    </Style>
+  </Styles>
+  <View id="root" resizable="1" resize-corner="1" flex-direction="column"
+        margin="0" padding="0" border-color="FF000000" width="1000" height="700"
+        min-width="100" min-height="100" max-width="1200" max-height="900">
+    <View flex-direction="row" id="Oscillators">
+      <View flex-direction="column" id="OSC1" background-color="FF2D2424"
+            lookAndFeel="FoleysFinest" padding="0.1">
+        <View flex-grow="2" padding="0.1">
+          <Slider caption="OCT" parameter="osc1Octave" caption-placement="centred-left"/>
+          <Slider caption="DET" parameter="osc1Cent" caption-placement="centred-left"/>
+          <Slider caption="GAIN" parameter="osc1Gain" caption-placement="centred-left"/>
+          <Slider caption="PW" parameter="osc1PulseWidth" caption-placement="centred-left"/>
+        </View>
+        <View flex-grow="1.2" padding="1">
+          <ComboBox caption="" parameter="osc1WaveformType" pos-x="-2.04499%" pos-y="-17.5439%"
+                    pos-width="100%" pos-height="100%" flex-grow="1.2" caption-placement="centred-left"
+                    padding="0.1"/>
+        </View>
+      </View>
+      <View id="OSC2" lookAndFeel="FoleysFinest" flex-direction="column"
+            background-color="FF2D2424" padding="0.5">
+        <View flex-grow="2" padding="0.5">
+          <Slider caption="OCT" parameter="osc2Octave" caption-placement="centred-left"/>
+          <Slider caption="DET" parameter="osc2Cent" caption-placement="centred-left"/>
+          <Slider caption="GAIN" parameter="osc2Gain" caption-placement="centred-left"/>
+          <Slider caption="PW" parameter="osc2PulseWidth" caption-placement="centred-left"/>
+        </View>
+        <View flex-grow="1.2" padding="1">
+          <ComboBox caption="" parameter="osc2WaveformType" caption-placement="centred-left"
+                    padding="0.1" pos-x="-2.41546%" pos-y="-29.4118%" pos-width="100%"
+                    pos-height="100%"/>
+        </View>
+      </View>
+      <View flex-grow="0.2" pos-x="94.322%" pos-y="-4.87805%" pos-width="4.83051%"
+            pos-height="100%" flex-direction="column" padding="0.1">
+        <Slider caption="Noise" parameter="noiseGain" flex-grow="3"/>
+        <ComboBox parameter="noiseType"/>
+      </View>
+    </View>
+    <View id="ADSRS" flex-grow="1" pos-x="0%" pos-y="25%" pos-width="100%"
+          pos-height="25%">
+      <View id="ADSR OSC" flex-grow="0.7" background-color="FF2D2424" padding="0.1"
+            width="0">
+        <Slider caption="A" parameter="adsr1attack" padding="0.5"/>
+        <Slider caption="D" parameter="adsr1decay" padding="0.5"/>
+        <Slider caption="S" parameter="adsr1sustain" padding="0.5"/>
+        <Slider caption="R" parameter="adsr1release" padding="0.5" pos-x="73.4177%"
+                pos-y="-3.44828%" pos-width="25%" pos-height="100%"/>
+      </View>
+      <View id="Filt" flex-grow="1" padding="0.1">
+        <View flex-direction="column" background-color="FF2D2424" padding="0.1"
+              width="0">
+          <View pos-height="" pos-width="" pos-y="" pos-x="">
+            <Slider caption="RES" parameter="resonance"/>
+            <Slider caption="CUT" parameter="cutoff"/>
+            <Slider caption="MIX" parameter="filterAmount"/>
+          </View>
+        </View>
+      </View>
+      <View flex-grow="0.5">
+        <Slider caption="D" pos-x="" pos-y="" pos-width="" pos-height="" parameter="filterLFOdepth"/>
+        <Slider caption="R" parameter="filterLFOfrequency"/>
+      </View>
+      <View flex-direction="row" title="">
+        <View id="ADSR FILT" flex-grow="1" background-color="FF2D2424" padding="0.1"
+              title="" width="0" pos-width="" flex-direction="column">
+          <ComboBox parameter="adsrFilterEnabled" flex-grow="0.4"/>
+          <View>
+            <Slider caption="A" parameter="adsr2attack" padding="0.5"/>
+            <Slider caption="D" parameter="adsr2decay" padding="0.5"/>
+            <Slider caption="S" parameter="adsr2sustain" padding="0.5"/>
+            <Slider caption="R" parameter="adsr2release" pos-x="-1.92308%" pos-y="-10.3093%"
+                    pos-width="25%" pos-height="100%" padding="0.5"/>
+          </View>
+        </View>
+      </View>
+    </View>
+    <View id="Filter + LFO" pos-x="-0.0909918%" pos-y="49.9481%" pos-width="100%"
+          pos-height="25.026%">
+      <View id="LFO" flex-direction="column" background-color="FF2D2424"
+            padding="0.5" flex-grow="0.5">
+        <View flex-grow="2">
+          <Slider caption="Depth" parameter="depthSlider"/>
+          <Slider caption="Rate" parameter="rateSlider"/>
+        </View>
+        <View flex-grow="1.2" padding="0.1" border="0">
+          <ComboBox caption="SRC" parameter="sourceComboBox" caption-placement="centred-left"
+                    pos-x="-3.92157%" pos-y="-20%" pos-width="49.8039%" pos-height="100%"/>
+          <ComboBox caption="TYPE" parameter="typeComboBox" caption-placement="centred-left"
+                    pos-x="45.3271%" pos-y="-29.4118%" pos-width="50%" pos-height="100%"/>
+        </View>
+      </View>
+      <View id="Delay" background-color="FF2D2424" padding="0.1" flex-grow="0.5">
+        <Slider caption="Time" parameter="delayTime" pos-x="-4%" pos-y="-4.97512%"
+                pos-width="33.2%" pos-height="100%"/>
+        <Slider caption="Feedback" parameter="feedback"/>
+        <Slider caption="Mix" parameter="delayMix"/>
+      </View>
+      <View id="Distortion" background-color="FF2D2424" padding="0.1">
+        <Slider parameter="chorusRate" caption="Rate"/>
+        <Slider parameter="chorusDepth" caption="Depth"/>
+        <Slider parameter="chorusCentreDelay" caption="Center"/>
+        <Slider parameter="chorusFeedback" caption="FB"/>
+        <Slider parameter="chorusMix" caption="Mix"/>
+      </View>
+      <View background-color="FF2D2424" border="0" padding="0.1" flex-grow="0.3">
+        <Slider caption="Master Gain" parameter="masterGain" flex-grow="1" pos-x="-2.12766%"
+                pos-y="-3.44828%" pos-width="100%" pos-height="100%"/>
+      </View>
+    </View>
+    <View class="parameters nomargin" id="Metering">
+      <View display="tabbed" id="OSC+Freq">
+        <Plot source="waveform" plot-color="FFEF0000" plot-fill-color="00FFFFFF"/>
+        <Plot source="analyser" plot-color="FF1300FF" plot-fill-color="FF00B45A"
+              plot-gradient=""/>
+      </View>
+      <View flex-grow="0.1" id="Zoom" flex-direction="column">
+        <View flex-grow="0.2" caption="Zoom">
+          <Label/>
+        </View>
+        <Slider pos-x="-13.75%" pos-y="-4.87805%" pos-width="100%" pos-height="82.9268%"
+                parameter="oscZoom" slider-textbox="no-textbox"/>
+      </View>
+      <View flex-grow="0.2" id="HPF" flex-direction="column">
+        <Slider parameter="hpfCutoff" caption="Low Cut"/>
+      </View>
+      <View flex-grow="0.1" id="Volume" padding="0.1">
+        <Meter source="output"/>
+      </View>
+    </View>
+  </View>
+</magic>
+ 

@@ -120,21 +120,21 @@ float MidiusOsc::getNextSample()
     switch (waveForm)
     {
         case SINE:
-            return getSineTick() * amplitude;
+            return getSineTick() * amplitude * velocity;
         case SAW:
-            return lf_sawpos() * amplitude;
+            return lf_sawpos() * amplitude * velocity;
         case SAWBL2:
-            return getSaw2Tick() * amplitude;
+            return getSaw2Tick() * amplitude * velocity;
         case SAWBL3:
-            return getSaw3Tick() * amplitude;
+            return getSaw3Tick() * amplitude * velocity;
         case SAWBL4:
-            return getSaw4Tick() * amplitude;
+            return getSaw4Tick() * amplitude * velocity;
         case SAWPTR2:
-            return getSaw2PtrTick() * amplitude;
+            return getSaw2PtrTick() * amplitude * velocity;
         case SQUARE:
-            return getPulseTick() * amplitude;
+            return getPulseTick() * amplitude * velocity;
         case SAWPTR:
-            return getSawPtrTick() * amplitude;
+            return getSawPtrTick() * amplitude * velocity;
         default:
             jassert(false); // unknown waveform type
     }
@@ -165,13 +165,17 @@ void MidiusOsc::setPulseWidth(float pulseWidth)
 void MidiusOsc::setGain(float gain)
 {
     // osc1.setGain(gain);
+    if (amplitude == gain)
+        return; // No change
     amplitude = gain;
-    // DBG("New amplitude: " << amplitude);
+    
+    DBG("New amplitude: " << amplitude);
 }
 
 void MidiusOsc::setVelocity(float velocity)
 {
     this->velocity = velocity;
+    DBG("New velocity: " << velocity);
 }
 
 void MidiusOsc::setMusicalFrequency(float freq)

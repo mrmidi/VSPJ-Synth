@@ -265,7 +265,7 @@ void SynthVoice::enableFilterADSR(int state)
 void SynthVoice::setOsc1Params(int octave, int cent, float gain, float pulseWidth, int waveformType)
 {
     osc1.setWaveform(static_cast<Oscillator::Waveform>(waveformType));
-    // osc1.setGain(gain);
+    osc1.setGain(gain);
     osc1.setOctave(octave);
     osc1.setDetune(cent);
     if (tremoloLFO.getType() != LFOsc::lfoType::PWM)
@@ -294,7 +294,7 @@ void SynthVoice::enableLFO(bool isEnabled)
 void SynthVoice::setOsc2Params(int octave, int cent, float gain, float pulseWidth, int waveformType)
 {
     osc2.setWaveform(static_cast<Oscillator::Waveform>(waveformType));
-    // osc2.setGain(gain); 
+    osc2.setGain(gain); 
     osc2.setOctave(octave);
     osc2.setDetune(cent);
     if (tremoloLFO.getType() != LFOsc::lfoType::PWM)
