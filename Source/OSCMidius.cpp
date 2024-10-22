@@ -74,7 +74,7 @@ void MidiusOsc::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int star
         }
         else if (waveForm == SAW)
         {
-            value = lf_sawpos() * amplitude * velocity; // aplitude * (2 * (phase / TWOPI) - 1.0f)
+            value = getSawTick() * amplitude * velocity; // aplitude * (2 * (phase / TWOPI) - 1.0f)
             CUSTOMDBG("Sawtooth value: " << value);
         }
         else if (waveForm == SAWBL2)
@@ -122,7 +122,7 @@ float MidiusOsc::getNextSample()
         case SINE:
             return getSineTick() * amplitude * velocity;
         case SAW:
-            return lf_sawpos() * amplitude * velocity;
+            return getSawTick() * amplitude * velocity;
         case SAWBL2:
             return getSaw2Tick() * amplitude * velocity;
         case SAWBL3:
@@ -135,6 +135,8 @@ float MidiusOsc::getNextSample()
             return getPulseTick() * amplitude * velocity;
         case SAWPTR:
             return getSawPtrTick() * amplitude * velocity;
+        case TRIANGLE:
+            return getTriangleTick() * amplitude * velocity;
         default:
             jassert(false); // unknown waveform type
     }
@@ -147,8 +149,8 @@ void MidiusOsc::setWaveform(int waveformType)
     {
         return;
     }
-    // check the new waferom in range [0, 7], set 0 if out of range
-    if (waveformType < 0 || waveformType > 7)
+    // check the new waferom in range [0, 8], set 0 if out of range
+    if (waveformType < 0 || waveformType > 8)
     {
         waveformType = 0;
     }
@@ -200,35 +202,7 @@ void MidiusOsc::updateFrequency() {
     newFrequency = std::max<float>(20.0f, std::fabs(newFrequency));
     frequency = newFrequency;
     updatePhaseIncrement();
-    
-//    if (std::fabs(newFrequency - frequency) > 0.01f) {
-//        frequency = newFrequency;
-//        CUSTOMDBG("New frequency: " << frequency);
-//        updatePhaseIncrement();
-//    }
-    
-    // if (std::fabs(newFrequency - frequency) > frequencyChangeThreshold) {
-    //     frequency = newFrequency;
-    //     CUSTOMDBG("New frequency: " << frequency);
-    //     updatePhaseIncrement();
-    // }
 }
-
-// void MidiusOsc::updateFrequency()
-// {
-//   // frequency equals baseFrequency + pitch + octave + detune
-
-//   // calulate frequency + octave
-//   frequency = frequency * std::pow(2, octave); // freq * 1 if no octave change
-//   // calculate frequency + detune
-//   frequency += detune / 100.0f; // freq + 0 if no detune
-//   // calculate frequency * pitch bend
-//   //frequency *= pitchBendMultiplierSmoothed.getNextValue(); // freq * 1 if no pitch bend
-//   frequency *= pitchBendMultiplier; // freq * 1 if no pitch bend
-//   frequency = std::max<float>(20.0f, std::fabs(frequency)); // self clamp
-//   CUSTOMDBG("New frequency: " << frequency);
-//   updatePhaseIncrement();
-// }
 
 void MidiusOsc::setOctave(int newOctave)
 {
@@ -371,7 +345,7 @@ float MidiusOsc::diff(float input, float *history)
  */
 float MidiusOsc::getSaw4Tick()
 {
-    float sawValue = lf_sawpos();
+    float sawValue = getSawTick();
     sawHistory[0] = sawValue * sawValue * (sawValue * sawValue - 2.0f); // x^4 - 2x^2
     
     // Perform differentiations
@@ -396,7 +370,7 @@ float MidiusOsc::getSaw4Tick()
  */
 float MidiusOsc::getSaw3Tick()
 {
-    float sawValue = lf_sawpos();
+    float sawValue = getSawTick();
     sawHistory[0] = sawValue * sawValue * sawValue - sawValue; // x^3 - x
     
     // Perform differentiations
@@ -420,7 +394,7 @@ float MidiusOsc::getSaw3Tick()
  */
 float MidiusOsc::getSaw2Tick()
 {
-    float sawValue = lf_sawpos();
+    float sawValue = getSawTick();
     sawHistory[0] = sawValue * sawValue; // x^2
     
     // Perform differentiation
@@ -441,7 +415,7 @@ float MidiusOsc::getSaw2Tick()
  *
  * @return The value of the linear sawtooth wave at the current point in time.
  */
-float MidiusOsc::lf_sawpos()
+float MidiusOsc::getSawTick()
 {
     float value = 2.0f * (phase / TWOPI) - 1.0f;
     
@@ -472,11 +446,8 @@ void MidiusOsc::updatePhaseIncrement()
     scalingFactor3 = calculateScalingFactor(3);
     scalingFactor4 = calculateScalingFactor(4);
     
-    
-    
     // update Pulse train variables
     ddel = dutyCycle * p0n; // differential delay calculated by multiplying duty cycle by samples per cycle
-    // DBG("Differential delay: " << ddel);
 }
 
 /**
@@ -620,22 +591,31 @@ float MidiusOsc::diffDel(float x, float del)
 
 float MidiusOsc::getPulseTick()
 {
-    // Calculate the period and desired delay based on frequency and duty cycle
-    // float period = sampleRate / frequency;
-    // float ddel = dutyCycle * period;
-    
     // del is delay size
     float del = std::fmax(0.0f, std::fmin(static_cast<float>(delayBufferSize - 1), ddel)); // clamp delay to buffer size
-    
     // Generate the next sample of the bandlimited sawtooth wave
     float sawSample = getSaw2PtrTick();
-    
     // Store the current sawtooth sample in the delay buffer
     delayBuffer[writeIndex] = sawSample;
-    
     // Increment the write index and wrap if necessary
     writeIndex = (writeIndex + 1) % delayBufferSize;
-    
     // Apply differential delay to the sawtooth wave to generate the pulse train
     return diffDel(sawSample, del);
+}
+
+float MidiusOsc::getTriangleTick()
+{
+    // Generate the next sample of the pulse (square) wave
+    float squareSample = getPulseTick();
+    // Calculate the gain factor for the triangle wave
+    float gain = 4.0f * frequency / sampleRate; 
+    // Apply the one-pole filter to the square wave
+    float triangleSample = squareSample * gain + prevOutput * pole;
+    prevOutput = triangleSample; // Update previous output
+    // Ensure the normalized sample is within the [-1, 1] range
+    if (triangleSample > 1.0f)
+        triangleSample = 1.0f;
+    else if (triangleSample < -1.0f)
+        triangleSample = -1.0f;
+    return triangleSample;
 }

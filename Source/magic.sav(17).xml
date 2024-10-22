@@ -110,7 +110,9 @@
           <Slider caption="Rate" parameter="rateSlider"/>
         </View>
         <View flex-grow="1.2" padding="0.1" border="0">
-          <ComboBox caption="" parameter="typeComboBox" caption-placement="centred-left"
+          <ComboBox caption="SRC" parameter="sourceComboBox" caption-placement="centred-left"
+                    pos-x="-3.92157%" pos-y="-20%" pos-width="49.8039%" pos-height="100%"/>
+          <ComboBox caption="TYPE" parameter="typeComboBox" caption-placement="centred-left"
                     pos-x="45.3271%" pos-y="-29.4118%" pos-width="50%" pos-height="100%"/>
         </View>
       </View>
@@ -154,3 +156,4 @@
     </View>
   </View>
 </magic>
+ 

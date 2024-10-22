@@ -27,6 +27,7 @@
       <GROUP id="{D6EF3049-4ED9-27A8-C6D7-893BEFDFA34D}" name="FILTER">
         <FILE id="BPVWGZ" name="FilterCoeffs.h" compile="0" resource="0" file="Source/FilterCoeffs.h"/>
         <FILE id="SZIUlH" name="OnePoleFilter.h" compile="0" resource="0" file="Source/OnePoleFilter.h"/>
+        <FILE id="EiU9at" name="MLF2.cpp" compile="1" resource="0" file="Source/MLF2.cpp"/>
         <FILE id="W3CgzC" name="MLF2.h" compile="0" resource="0" file="Source/MLF2.h"/>
         <FILE id="wwQHWQ" name="MFLNEW.h" compile="0" resource="0" file="Source/MFLNEW.h"/>
         <FILE id="ZfAtqz" name="MLF.h" compile="0" resource="0" file="Source/MLF.h"/>

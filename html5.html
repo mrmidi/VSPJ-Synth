@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Synthesizer Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .module {
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: normal;
+        }
+        .control {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .control label {
+            flex: 1;
+        }
+        input[type="number"] {
+            width: 80px;
+            background-color: #1e1e1e;
+            border: 1px solid #3a3a3a;
+            color: #ffffff;
+            padding: 5px;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 5px;
+            background: #3a3a3a;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #ffffff;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            background: #ffffff;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="module">
+            <h2>Sine</h2>
+            <div class="control">
+                <label>OCT</label>
+                <input type="number" value="0">
+            </div>
+            <div class="control">
+                <label>DET</label>
+                <input type="number" value="-28">
+            </div>
+            <div class="control">
+                <label>GAIN</label>
+                <input type="number" value="0.07" step="0.01">
+            </div>
+            <div class="control">
+                <label>PW</label>
+                <input type="number" value="0.50" step="0.01">
+            </div>
+        </div>
+        
+        <div class="module">
+            <h2>Triangle</h2>
+            <div class="control">
+                <label>OCT</label>
+                <input type="number" value="1">
+            </div>
+            <div class="control">
+                <label>DET</label>
+                <input type="number" value="25">
+            </div>
+            <div class="control">
+                <label>GAIN</label>
+                <input type="number" value="0.41" step="0.01">
+            </div>
+            <div class="control">
+                <label>PW</label>
+                <input type="number" value="0.50" step="0.01">
+            </div>
+        </div>
+        
+        <div class="module">
+            <h2>Envelope</h2>
+            <div class="control">
+                <label>A</label>
+                <input type="range" min="0" max="10" value="3" step="0.001">
+            </div>
+            <div class="control">
+                <label>D</label>
+                <input type="range" min="0" max="10" value="3" step="0.001">
+            </div>
+            <div class="control">
+                <label>S</label>
+                <input type="range" min="0" max="1" value="1" step="0.01">
+            </div>
+            <div class="control">
+                <label>R</label>
+                <input type="range" min="0" max="10" value="0.44" step="0.001">
+            </div>
+        </div>
+        
+        <div class="module">
+            <h2>Filter</h2>
+            <div class="control">
+                <label>RES</label>
+                <input type="number" value="4.08" step="0.01">
+            </div>
+            <div class="control">
+                <label>CUT</label>
+                <input type="number" value="3801.84" step="0.01">
+            </div>
+            <div class="control">
+                <label>MIX</label>
+                <input type="number" value="1.00" step="0.01">
+            </div>
+        </div>
+        
+        <div class="module">
+            <h2>Effects</h2>
+            <div class="control">
+                <label>Depth</label>
+                <input type="range" min="0" max="1" value="0.18" step="0.01">
+            </div>
+            <div class="control">
+                <label>Rate</label>
+                <input type="range" min="0" max="10" value="4" step="0.1">
+            </div>
+            <div class="control">
+                <label>Time</label>
+                <input type="range" min="0" max="1000" value="307.89" step="0.01">
+            </div>
+            <div class="control">
+                <label>Feedback</label>
+                <input type="range" min="0" max="1" value="0.27" step="0.01">
+            </div>
+        </div>
+        
+        <div class="module">
+            <h2>Master</h2>
+            <div class="control">
+                <label>Gain</label>
+                <input type="range" min="0" max="1" value="0.21" step="0.01">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

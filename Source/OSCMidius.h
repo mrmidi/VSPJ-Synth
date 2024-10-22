@@ -105,6 +105,8 @@ private:
     float getSawPtrTick();
     
     float getSaw2PtrTick();
+
+    float getTriangleTick();
     
     // Unipolar modulo counter approach as described in papers
     float phi();
@@ -164,7 +166,7 @@ private:
      *
      * @return The value of the linear sawtooth wave at the current point in time.
      */
-    float lf_sawpos();
+    float getSawTick();
     
     /**
      * @brief Updates the phase increment and scaling factors.
@@ -236,7 +238,7 @@ private:
         SAWBL4,  // 5
         SAWPTR,  // 6
         SAWPTR2, // 7
-        TRIANGLE // Not implemented yet
+        TRIANGLE // 8
     };
     
     juce::String getWaveformType()
@@ -267,6 +269,8 @@ private:
     }
     
     // Oscillator variables
+    float pole = 0.999f;         // Pole value for the filter (for triangle wave)
+    float prevOutput = 0.0f;     // Previous output for filter (for triangle wave)
     
     int octave = 0; // 0 on the initial state
     int detune = 0; // 0 on the initial state

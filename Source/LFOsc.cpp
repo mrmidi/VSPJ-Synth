@@ -23,14 +23,14 @@ void LFOsc::setFrequency(float freq)
     }
     frequency = freq;
     oscillator.setFrequency(frequency);
-    DBG("SETTING LFO FREQUENCY TO " << frequency);
+    // DBG("SETTING LFO FREQUENCY TO " << frequency); 
 }
 
 void LFOsc::setDepth(float newDepth)
 {
     if (depth != newDepth) {
         depth = newDepth;
-        DBG("SETTING LFO DEPTH TO " << depth);
+        // DBG("SETTING LFO DEPTH TO " << depth);
     }
     
 }

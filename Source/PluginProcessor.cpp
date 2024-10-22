@@ -104,9 +104,6 @@ void MidiusAudioProcessor::changeProgramName (int index, const juce::String& new
 //==============================================================================
 void MidiusAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
-    
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
@@ -115,9 +112,6 @@ void MidiusAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     masterGain.reset();
     masterGain.prepare(spec);
     masterGain.setGainDecibels(-24.0f);
-
-
-    
     
     synthSource.synth.setCurrentPlaybackSampleRate(sampleRate);
     
@@ -139,9 +133,6 @@ void MidiusAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     analyser->prepareToPlay (sampleRate, samplesPerBlock);
 
     hpf.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
-
-
-    
 }
 
 void MidiusAudioProcessor::releaseResources()
@@ -181,8 +172,6 @@ void MidiusAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    
-
     // Render the next block of data from the synth.
     juce::AudioSourceChannelInfo info (buffer);
     juce::dsp::AudioBlock<float> block (buffer);
@@ -191,15 +180,12 @@ void MidiusAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     for (const auto midiMetaData : midiMessages)
     {
         const auto& midiMessage = midiMetaData.getMessage();
-
         // Check if the MIDI message is a controller message
         if (midiMessage.isController())
         {
-            // DBG("Controller number: " << midiMessage.getControllerNumber()); -- make sure it's the right controller number
             // Check if the controller number is the mod wheel (1)
             if (midiMessage.getControllerNumber() == 1)
             {
-                // DBG("Modwheel value: " << midiMessage.getControllerValue());
                 for (int i = 0; i < synthSource.synth.getNumVoices(); ++i)
                 {
                     if (auto voice = dynamic_cast<SynthVoice*>(synthSource.synth.getVoice(i)))
@@ -214,12 +200,9 @@ void MidiusAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     setVoiceParams();
     synthSource.synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
     
-
-
     for (int i = 1; i < buffer.getNumChannels(); ++i)
         buffer.copyFrom (i, 0, buffer.getReadPointer (0), buffer.getNumSamples());
     
-
     // process with chorus
     chorusEffect.process(buffer);
 
@@ -241,16 +224,13 @@ void MidiusAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     }
 
 
-    // process with HPF if required
     if (hpf.getFrequency() > 21.0f) { 
- //           DBG("HPF frequency: " + juce::String(hpf.getFrequency()));
             for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
             {
                 float* channelData = buffer.getWritePointer(channel);
                 for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
                 {
                     channelData[sample] = hpf.process(channelData[sample]);
-                    //DBG("Processing HPF at frequency: " + juce::String(hpf.getFrequency()));
                 }
             }
     } 
@@ -261,9 +241,6 @@ void MidiusAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     oscilloscope->pushSamples (oscBuffer);
     outputMeter->pushSamples (buffer);
 
-
-    //masterGain.process(buffer);
-    
         
     
 }

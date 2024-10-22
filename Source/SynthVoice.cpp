@@ -82,7 +82,6 @@ void SynthVoice::applyPitchBend(int pitchWheelValue)
     CUSTOMDBG("Bend amount: " << bendAmount);
     // Calculate the frequency multiplier
     float frequencyMultiplier = std::pow(2.0f, bendRangeInSemitones * bendAmount / 12.0f);
-
     // Apply the frequency multiplier to your oscillators
     osc1.setPitchBendMultiplier(frequencyMultiplier);
     osc2.setPitchBendMultiplier(frequencyMultiplier);
@@ -166,7 +165,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
     if (!isVoiceActive())
         return;
 
-    static long dbgCounter = 0;
+    // static long dbgCounter = 0;
     for (int sample = 0; sample < numSamples; ++sample)
     {
         // Get the next sample from the oscillator
@@ -186,18 +185,15 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
         float lfoSample = 1.0f;
         if (isLFOEnabled)
         {
-            lfoSample = (tremoloLFO.getNextSample() + 1.0f) * 0.5f; // Convert LFO range from [0, 2] to [0, 1] with midpoint at 0.5
+            lfoSample = (tremoloLFO.getNextSample() + 1.0f) * 0.5f; // Convert LFO range from [-1, 1] to [0, 1] with midpoint at 0.5
         }
 
         // get the next sample from the filter LFO
-        // we should convert [0, 2] to [0, 1]
+        // we should convert [-1, 1] to [0, 1]
         float filterLfoSample = (filterLFO.getNextSample() * 0.5f);
-        // DBG("Filter LFO sample: " << filterLfoSample);
-
 
         // Calculate filter modulation using filter ADSR
         auto filterMod = filterAdsr.getNextSample();
-        // DBG("Filter mod: " << filterMod);
 
         // Combine oscillator samples and apply LFO
         LFOsc::lfoType type = tremoloLFO.getType();
@@ -337,7 +333,7 @@ void SynthVoice::setNoiseLevel(float level)
     {
         return;
     }
-    CUSTOMDBG("Setting noise level to " << level);
+    // CUSTOMDBG("Setting noise level to " << level);
     noiseLevel = level;
 }
 
