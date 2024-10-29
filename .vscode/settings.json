@@ -83,7 +83,9 @@
         "stack": "cpp",
         "filesystem": "cpp",
         "charconv": "cpp",
-        "execution": "cpp"
+        "execution": "cpp",
+        "forward_list": "cpp",
+        "print": "cpp"
     },
     "cmake.configureOnOpen": false
 }
