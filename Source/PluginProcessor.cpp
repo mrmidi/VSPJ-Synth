@@ -133,6 +133,12 @@ void MidiusAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     analyser->prepareToPlay (sampleRate, samplesPerBlock);
 
     hpf.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
+    // lowShelfFilter.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
+    lowShelfFilter.filter.reset();
+    lowShelfFilter.filter.prepare(spec);
+    lowShelfFilter.setGainDB(0.0f);
+    setVoiceParams(); // reset voice parameters
+
 }
 
 void MidiusAudioProcessor::releaseResources()
@@ -235,6 +241,9 @@ void MidiusAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             }
     } 
 
+    if (lowShelfFilter.getGainDB() != 0.0f) {
+        lowShelfFilter.filter.process(juce::dsp::ProcessContextReplacing<float> (block));
+    }
         // apply masterGain
     masterGain.process (juce::dsp::ProcessContextReplacing<float> (block));
     analyser->pushSamples (buffer);
@@ -244,6 +253,8 @@ void MidiusAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
         
     
 }
+
+
 
 
 //==============================================================================
@@ -314,24 +325,27 @@ void MidiusAudioProcessor::setVoiceParams()
             // HPF
             auto& hpfCutoffFreq = *parameters.getRawParameterValue("hpfCutoff");
 
+            // Low Shelf Filter
+            auto& lowShelfGain = *parameters.getRawParameterValue("lowShelfGain");
+
             // LFO Type
             auto& lfoType = *parameters.getRawParameterValue("typeComboBox");          
 
             // Set parameters
-            voice->setOsc1Params(osc1Octave.load(), osc1Cent.load(), osc1Gain.load(), osc1PulseWidth.load(), osc1WaveformType.load());
-            voice->setOsc2Params(osc2Octave.load(), osc2Cent.load(), osc2Gain.load(), osc2PulseWidth.load(), osc2WaveformType.load());
-            voice->setLFOParams(depthSlider.load(), rateSlider.load(), sourceComboBox.load(), typeComboBox.load());
+            voice->setOsc1Params(osc1Octave.load(), osc1Cent.load(), osc1Gain.load(), percentToLinear(osc1PulseWidth.load()), osc1WaveformType.load());
+            voice->setOsc2Params(osc2Octave.load(), osc2Cent.load(), osc2Gain.load(), percentToLinear(osc2PulseWidth.load()), osc2WaveformType.load());
+            voice->setLFOParams(percentToLinear(depthSlider.load()), rateSlider.load(), sourceComboBox.load(), typeComboBox.load());
             voice->setADSRParams(adsrAttack.load(), adsrDecay.load(), adsrSustain.load(), adsrRelease.load());
             voice->setFilterAdsrParams(adsr2AttackFilter.load(), adsr2DecayFilter.load(), adsr2SustainFilter.load(), adsr2ReleaseFilter.load(), filterCutoff.load());
             voice->enableFilterADSR(adsr2Enabled.load());
-            voice->setFilterParams(0, filterCutoff.load(), filterResonance.load(), filterAmount.load());
+            voice->setFilterParams(0, filterCutoff.load(), filterResonance.load(), percentToLinear(filterAmount.load()));
 
             // N O I S E    C O N T R O L
             voice->setNoiseLevel(noiseGain.load());
             voice->setNoiseType(noiseType.load());
 
             // D E L A Y    C O N T R O L
-            delayEffect.setDelayParams(delayTime.load(), delayFeedback.load(), delayWetDry.load());
+            delayEffect.setDelayParams(delayTime.load(), percentToLinear(delayFeedback.load()), percentToLinear(delayWetDry.load()));
 
             // L F O   C O N T R O L
             voice->setLfoType(lfoType.load());
@@ -339,7 +353,7 @@ void MidiusAudioProcessor::setVoiceParams()
             // Filter LFO params
             auto& filterLfoDepth = *parameters.getRawParameterValue("filterLFOdepth");
             auto& filterLfoFrequency = *parameters.getRawParameterValue("filterLFOfrequency");
-            voice->setFilterLFOParams(filterLfoDepth.load(), filterLfoFrequency.load());
+            voice->setFilterLFOParams(percentToLinear(filterLfoDepth.load()), filterLfoFrequency.load());
 
 
             // C H O R U S   C O N T R O L
@@ -351,10 +365,11 @@ void MidiusAudioProcessor::setVoiceParams()
 
             chorusEffect.setChorusParams(chorusRate.load(), chorusDepth.load(), chorusCentreDelay.load(), chorusFeedback.load(), chorusMix.load());
 
-            masterGain.setGainDecibels(juce::Decibels::gainToDecibels(masterVolume.load())); // decibels control
+            masterGain.setGainDecibels(juce::Decibels::gainToDecibels(percentToLinear(masterVolume.load()))); // decibels control
 
             oscZoomVal = oscZoom.load();
             hpf.setCutoffFrequency(hpfCutoffFreq.load());
+            lowShelfFilter.setGainDB(lowShelfGain.load());
         }
     }
 }

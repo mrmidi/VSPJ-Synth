@@ -170,9 +170,9 @@ public:
     switch (noiseType)
     {
     case NoiseType::White:
-      return noiseSample;
+      return noiseSample * velocity;
     case NoiseType::Pink:
-      return generatePinkNoise(noiseSample);
+      return generatePinkNoise(noiseSample) * velocity;
     default:
       return 0.0f;
     }
@@ -199,6 +199,11 @@ float generatePinkNoise(float noiseSample)
     return pinkNoise * compensation;
 }
 
+void setVelocity(float velocity)
+{
+    this->velocity = velocity;
+}
+
 
 private:
 
@@ -222,4 +227,6 @@ private:
   float k[7];                  // Coefficients for pink noise
   float b[7] = {0.0f};         // Initialize all elements to 0.0f
   bool sampleRateChanged = true; // Flag to indicate if the sample rate has changed
+
+  float velocity = 0.0f; // velocity of the oscillator
 };

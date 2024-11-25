@@ -74,7 +74,7 @@ public:
 
     void setFilterAdsrParams(float attack, float decay, float sustain, float release, float baseCutoffFreq);
     
-    void setNoiseLevel(float level);
+    void setNoiseLevel(int level);
 
     void setNoiseType(int type);
 
@@ -82,14 +82,27 @@ public:
 
     void setFilterLFOParams(float depth, float frequency);
 
+    // float noisePercentageToDbLinear(int percentage);
+
 private:
     // METHODS
     bool isFilterADSREnabled();
 
+    float noisePercentageToDbLinear(int percentage);
+
+  // helper function to convert percentage to linear
+  float percentToLinear(int percentage) {
+    return static_cast<float>(percentage) / 100.0f;
+  }
+
 private:
     // VARS
+    int prevNoiseLevel = 0;
+    int prevLFODepth = 0;
+    int prevFilterAmount = 0;
     MidiusOsc osc1;
     MidiusOsc osc2;
+
     Adsr adsr; // amplitude envelope
     LFOsc tremoloLFO; // tremolo LFO
     LFOsc filterLFO; // filter LFO
@@ -98,13 +111,13 @@ private:
     juce::AudioBuffer<float> synthBuffer;
     bool isPrepared = false;
     bool isFilterADSR = true;
-    int osc1detune = 0;
-    int osc1octave = 0;
-    float osc1gain = 0.5f;
-    float osc1pulsewidth = 0.5f;
-    int osc2detune = 0;
-    int osc2octave = 0;
-    float osc2gain = 0.5f;
+    int osc1detune;
+    int osc1octave;
+    float osc1gain;
+    float osc1pulsewidth;
+    int osc2detune;
+    int osc2octave;
+    float osc2gain;
     float osc2pulsewidth = 0.5f;
     float originalFrequency = 440.0f;
     float filterAmount = 1.0f; // will be overridden by APVTS

@@ -41,6 +41,12 @@ public:
     void setChorusParams(float rate, float depth, float centreDelay, float feedback, float mix);
 
 private:
+
+      // helper function to convert percentage to linear
+    float percentToLinear(int percentage) {
+      return static_cast<float>(percentage) / 100.0f;
+    }
+
     float rate = 1.0f;          // Modulation rate of the chorus effect
     float depth = 0.5f;         // Modulation depth of the chorus effect
     float centreDelay = 0.0f;   // Centre delay time of the chorus effect

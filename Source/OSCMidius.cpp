@@ -164,15 +164,45 @@ void MidiusOsc::setPulseWidth(float pulseWidth)
     dutyCycle = pulseWidth; // from 0 to 1
 }
 
-void MidiusOsc::setGain(float gain)
-{
-    // osc1.setGain(gain);
-    if (amplitude == gain)
-        return; // No change
-    amplitude = gain;
+// void MidiusOsc::setGain(int gain)
+// {
+//     // osc1.setGain(gain);
+//     if (amplitude == gain)
+//         return; // No change
+//     // convert to 0-1 range
+//     amplitude = gain / 100.0f;
+//     // convert to db scale
+//     amplitude = juce::Decibels::decibelsToGain(gain);
     
-    DBG("New amplitude: " << amplitude);
+//     DBG("New amplitude: " << amplitude);
+// }
+
+void MidiusOsc::setGain(int gain)
+{
+    if (prevGain == gain)
+        return; // No change
+
+    if (gain < 0 || gain > 100)
+    {
+        DBG("Gain percentage out of range: " << gain);
+        return; // Ensure gain stays within 0-100%
+    }
+    prevGain = gain;
+
+    // Map 0-100% to a decibel range (-60 dB to 0 dB)
+    float dbGain = juce::jmap(static_cast<float>(gain), 0.0f, 100.0f, -60.0f, 0.0f);
+
+    // Convert decibel value to linear gain
+    float linearGain = juce::Decibels::decibelsToGain(dbGain);
+
+    if (amplitude == linearGain)
+        return; // No change
+
+    amplitude = linearGain;
+
+    DBG("New amplitude (linear): " << amplitude << ", dB: " << dbGain);
 }
+
 
 void MidiusOsc::setVelocity(float velocity)
 {

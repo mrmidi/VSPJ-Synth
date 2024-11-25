@@ -74,8 +74,8 @@ void Chorus::setMix(float newMix)
 void Chorus::setChorusParams(float newRate, float newDepth, float newCentreDelay, float newFeedback, float newMix)
 {
     setRate(newRate);
-    setDepth(newDepth);
+    setDepth(percentToLinear(newDepth));
     setCentreDelay(newCentreDelay);
     setFeedback(newFeedback);
-    setMix(newMix);
+    setMix(percentToLinear(newMix));
 }

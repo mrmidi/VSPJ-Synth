@@ -32,8 +32,8 @@ void StereoDelay::prepare(const juce::dsp::ProcessSpec& spec)
 
     DBG("Preparing delay with sample rate: " << spec.sampleRate);
 
-    delayLineLeft.setMaximumDelayInSamples(currentSampleRate * 2.0f); // 2 second maximum delay
-    delayLineRight.setMaximumDelayInSamples(currentSampleRate * 2.0f); // 2 second maximum delay
+    delayLineLeft.setMaximumDelayInSamples(currentSampleRate * 3.0f); // 3 second maximum delay
+    delayLineRight.setMaximumDelayInSamples(currentSampleRate * 3.0f); // 3 second maximum delay
     
     delayLineLeft.prepare(spec);
     delayLineRight.prepare(spec);

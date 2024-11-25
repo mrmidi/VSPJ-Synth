@@ -41,6 +41,8 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity,
     osc1.setVelocity(velocity);
     osc2.setVelocity(velocity);
 
+    noiseGen.setVelocity(velocity);
+
     adsr.updateParams(0.1f, 0.2f, 0.8f, 0.5f); // default values will be overridden by APVTS
     adsr.noteOn();
     filterAdsr.updateParams(0.1f, 0.2f, 0.8f, 0.5f); // default values will be overridden by APVTS
@@ -145,6 +147,10 @@ void SynthVoice::prepareToPlay(int samplesPerBlockExpected, double sampleRate, i
     filterAdsr.reset();
     filterAdsr.setSampleRate(sampleRate);
 
+    // load osc params from APVTS
+
+
+
     DBG("Initialization finished");
     isPrepared = true;
 }
@@ -200,7 +206,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int sta
         float drySample;
         if (type == LFOsc::lfoType::TREMOLO)
         {
-            drySample = (envSample + envSample2) * 0.5f * lfoSample;
+            drySample = (envSample + envSample2 + noiseEnvSample) * 0.5f * lfoSample;
         }
         else if (type == LFOsc::lfoType::PWM)
         {
@@ -264,8 +270,9 @@ void SynthVoice::setOsc1Params(int octave, int cent, float gain, float pulseWidt
     osc1.setGain(gain);
     osc1.setOctave(octave);
     osc1.setDetune(cent);
-    if (tremoloLFO.getType() != LFOsc::lfoType::PWM)
-        osc1.setPulseWidth(pulseWidth);
+    float pulseWidthLimited = juce::jmap(pulseWidth, 0.0f, 1.0f, 0.05f, 0.95f);
+    // if (tremoloLFO.getType() != LFOsc::lfoType::PWM)
+    osc1.setPulseWidth(pulseWidthLimited);
     osc1.setMusicalFrequency(originalFrequency);
 }
 
@@ -292,9 +299,9 @@ void SynthVoice::setOsc2Params(int octave, int cent, float gain, float pulseWidt
     osc2.setWaveform(static_cast<Oscillator::Waveform>(waveformType));
     osc2.setGain(gain); 
     osc2.setOctave(octave);
-    osc2.setDetune(cent);
+    float pulseWidthLimited = juce::jmap(pulseWidth, 0.0f, 1.0f, 0.05f, 0.95f);
     if (tremoloLFO.getType() != LFOsc::lfoType::PWM)
-        osc2.setPulseWidth(pulseWidth);
+        osc2.setPulseWidth(pulseWidthLimited);
     osc2.setMusicalFrequency(originalFrequency);
 }
 
@@ -327,17 +334,24 @@ void SynthVoice::setFilterAdsrParams(float attack, float decay, float sustain, f
     filterAdsr.updateParams(attack, decay, sustain, release);
 }
 
-void SynthVoice::setNoiseLevel(float level)
+void SynthVoice::setNoiseLevel(int level)
 {
-    if (level == noiseLevel)
+    if (level == prevNoiseLevel)
     {
         return;
     }
+    prevNoiseLevel = level;
     // CUSTOMDBG("Setting noise level to " << level);
-    noiseLevel = level;
+    noiseLevel = noisePercentageToDbLinear(level);
 }
 
 void SynthVoice::setNoiseType(int type)
 {
     noiseGen.setType(type);
+}
+
+float SynthVoice::noisePercentageToDbLinear(int percentage)
+{
+    // Map the noise gain percentage to a linear gain value
+    return juce::Decibels::decibelsToGain(juce::jmap(static_cast<float>(percentage), 0.0f, 100.0f, -60.0f, 0.0f));
 }

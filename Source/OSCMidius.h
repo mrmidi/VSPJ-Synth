@@ -70,7 +70,7 @@ public:
     
     void setPulseWidth(float pulseWidth);
     
-    void setGain(float gain);
+    void setGain(int gain);
     
     void setOctave(int octave);
     
@@ -267,6 +267,8 @@ private:
                 return "Unknown";
         }
     }
+
+    int prevGain = 0;
     
     // Oscillator variables
     float pole = 0.999f;         // Pole value for the filter (for triangle wave)

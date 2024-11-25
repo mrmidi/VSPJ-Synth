@@ -36,6 +36,12 @@ public:
     
 
 private:
+
+      // helper function to convert percentage to linear
+    float percentToLinear(int percentage) {
+      return static_cast<float>(percentage) / 100.0f;
+    }
+
     float delayTimeMs = 500.0f;  // Default to 500ms
     float feedback = 0.5f;      // Default to 50% feedback
     float wetLevel = 0.5f;      // Default to 50% wet level
