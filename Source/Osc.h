@@ -27,7 +27,6 @@ public:
             Square,
             Triangle,
             Pulse,
-            // Add more waveforms as needed.
         };
 
 

@@ -33,6 +33,14 @@
 #endif
 
 class MyOscillator
+/**
+ * @class MyOscillator
+ * @brief A class representing an oscillator for audio synthesis.
+ *
+ * This class provides various methods to set parameters such as sample rate, base frequency,
+ * amplitude, and velocity. It also includes methods to render audio samples and generate
+ * different types of waveforms including sine, sawtooth, and pulse waves.
+ */
 {
 public:
   MyOscillator();  // Constructor declaration
@@ -51,8 +59,20 @@ public:
 
   // this method is called on noteOn event
   // to set the base frequency of the oscillator
+  /**
+   * @brief Sets the base frequency for the oscillator.
+   * 
+   * @param newFrequency The new base frequency to be set, in Hertz (Hz).
+   */
   void setBaseFrequency(float newFrequency);
 
+  /**
+   * @brief Sets the octave for the oscillator.
+   * 
+   * This function adjusts the oscillator to the specified octave.
+   * 
+   * @param newOctave The new octave value to set.
+   */
   void setOctave(int newOctave);
 
   // this method is used to update frequency
@@ -62,6 +82,8 @@ public:
   void setAmplitude(float newAmplitude);
 
   void setAmplitudeDB(float newAmplitudeDB);
+
+  void setVelocity(float newVelocity);
 
   /**
    * @brief Renders the next block of samples for the oscillator.
@@ -270,6 +292,8 @@ private:
 
   float amplitude; // amplitude of the oscillator
 
+  float velocity; // velocity of the oscillator
+
   float baseFrequency;      // base frequency of the oscillator
   int octave;               // octave of the oscillator
   int detune;             // detune of the oscillator
@@ -303,7 +327,6 @@ private:
   std::vector<float> delayBuffer;       // delay buffer
   int writeIndex = 0;                   // write index for the delay buffer
 
-  MoogLadderFilter filter; // WHY IS THIS HERE?
 
 };
 

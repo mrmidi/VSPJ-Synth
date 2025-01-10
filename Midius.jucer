@@ -6,9 +6,13 @@
               pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn"
               pluginDesc="Bachelor's thesis of my" aaxIdentifier="net.mrmidi.Midius"
               cppLanguageStandard="20" bundleIdentifier="net.mrmidi.Midius"
-              version="1.0.5" pluginFormats="buildAU,buildStandalone,buildVST3">
+              version="1.0.7" pluginFormats="buildAU,buildStandalone,buildVST3">
   <MAINGROUP id="n77ks4" name="Midius">
     <GROUP id="{3DF7E2AF-D70C-B15C-AA61-5F4B182AE5B1}" name="Source">
+      <GROUP id="{C7A73C5B-0AF5-9C22-F543-341132E2FC93}" name="CHORUS">
+        <FILE id="W38qwB" name="Chorus.cpp" compile="1" resource="0" file="Source/Chorus.cpp"/>
+        <FILE id="iqUyEA" name="Chorus.h" compile="0" resource="0" file="Source/Chorus.h"/>
+      </GROUP>
       <GROUP id="{B3066210-D435-EF18-1651-43555BB9AF79}" name="DISTORTION">
         <FILE id="crlyF2" name="Distortion.cpp" compile="1" resource="0" file="Source/Distortion.cpp"/>
         <FILE id="tfd5Ga" name="Distortion.h" compile="0" resource="0" file="Source/Distortion.h"/>
@@ -18,11 +22,14 @@
         <FILE id="bnbDcE" name="Delay.h" compile="0" resource="0" file="Source/Delay.h"/>
       </GROUP>
       <GROUP id="{4522E152-80F8-492C-A450-21E0144FF058}" name="RESOURCES">
-        <FILE id="cwb4fd" name="midius.xml" compile="0" resource="1" file="Source/midius.xml"/>
+        <FILE id="GCdMyw" name="midius.xml" compile="0" resource="1" file="Source/midius.xml"/>
       </GROUP>
       <GROUP id="{D6EF3049-4ED9-27A8-C6D7-893BEFDFA34D}" name="FILTER">
+        <FILE id="tIY6ZP" name="ShelfFilter.cpp" compile="1" resource="0" file="Source/ShelfFilter.cpp"/>
+        <FILE id="Dt5ARW" name="ShelfFilter.h" compile="0" resource="0" file="Source/ShelfFilter.h"/>
         <FILE id="BPVWGZ" name="FilterCoeffs.h" compile="0" resource="0" file="Source/FilterCoeffs.h"/>
         <FILE id="SZIUlH" name="OnePoleFilter.h" compile="0" resource="0" file="Source/OnePoleFilter.h"/>
+        <FILE id="EiU9at" name="MLF2.cpp" compile="1" resource="0" file="Source/MLF2.cpp"/>
         <FILE id="W3CgzC" name="MLF2.h" compile="0" resource="0" file="Source/MLF2.h"/>
         <FILE id="wwQHWQ" name="MFLNEW.h" compile="0" resource="0" file="Source/MFLNEW.h"/>
         <FILE id="ZfAtqz" name="MLF.h" compile="0" resource="0" file="Source/MLF.h"/>
@@ -69,7 +76,7 @@
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"
-               FOLEYS_ENABLE_BINARY_DATA="1" FOLEYS_SHOW_GUI_EDITOR_PALLETTE="1"/>
+               FOLEYS_ENABLE_BINARY_DATA="1" FOLEYS_SHOW_GUI_EDITOR_PALLETTE="0"/>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" extraLinkerFlags="-Wl,-weak_reference_mismatches,weak,-v"
                extraDefs="JUCE_SILENCE_XCODE_15_LINKER_WARNING=1">

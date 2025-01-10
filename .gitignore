@@ -1,3 +1,8 @@
 .DS_Store
 Builds/
 JuceLibraryCode/
+
+
+# Ignore ICML and CSS files
+*.icml
+*.css

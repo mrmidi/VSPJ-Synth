@@ -30,18 +30,6 @@ public:
         this->G = G;
     }
 
-    // // Method to process an individual sample
-    // float processSample(float input) {
-    //     // Calculate the LPF output
-    //     float v = (input - s) * G;
-    //     float outputLPF = v + s;
-
-    //     // Update the delay element with the current output
-    //     s = outputLPF + v;
-
-    //     return outputLPF; // Otherwise, output the LPF signal
-    // }
-
     // Method to process an individual sample
     float processSample(float input) {
         float nonLinearInput = tanh(input);

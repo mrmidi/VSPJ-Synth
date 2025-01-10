@@ -29,86 +29,102 @@
 
 class MoogLadderFilter {
 public:
-    // MoogLadderFilter()
-    //     : sampleRate(44100.0f),
-    //       Fc(1000.0f),
-    //       Q(0.7072f) {
-    //     updateCoefficients();
-    // }
+    MoogLadderFilter();
 
-    MoogLadderFilter() {
-        // Initialization of the voice
-        // osc1.setWaveform(Oscillator::Sine);
-    } 
+    /**
+     * @brief Set filter parameters
+     *
+     * @param cutoff The cutoff frequency
+     * @param resonance The resonance value
+     */
+    void setParams(float cutoff, float resonance);
 
-    void setParams(float cutoff, float resonance) {
-        // check if values has changed to avoid unnecessary calculations
-        if (cutoff == this->Fc && Q == resonance) {
-            return;
-        }
-        CUSTOMDBG("Cutoff: " + String(cutoff) + " Resonance: " + String(resonance));
-        setFrequency(cutoff);
-        setResonance(resonance);
-    }
+    /**
+     * @brief Prepare the filter for playback
+     *
+     * @param sampleRate The sample rate for playback
+     */
+    void prepareToPlay(float sampleRate);
 
-    void prepareToPlay(float sampleRate) {
-        this->sampleRate = sampleRate;
-        stage1.reset(); // reset filter stage
-        stage2.reset();
-        stage3.reset();
-        stage4.reset();
-        updateCoefficients();
-    }
+    /**
+     * @brief Set the base frequency
+     *
+     * @param freq The base frequency to be set
+     */
+    void setFrequency(float freq);
 
-    void setFrequency(float freq) {
-        frequency = freq;
-        // scale to 20-10000 Hz because filter is blowing up at frequencies more than 10000 Hz)
-        Fc = 20.0f + (frequency - 20.0f) * (10000.0f - 20.0f) / (20000.0f - 20.0f);
-        updateCoefficients();
-    }
+    /**
+     * @brief Set the resonance
+     *
+     * @param Q The resonance value to be set
+     */
+    void setResonance(float Q);
 
-    void setResonance(float Q) {
-        this->Q = Q;
-        updateCoefficients();
-    }
+    /**
+     * @brief Process a single audio sample
+     *
+     * @param input The input audio sample
+     * @return The processed audio sample
+     */
+    float processSample(float input);
 
-    float processSample(float input) {
-      float g = coeffs.getG();
-      float GAMMA = g * g * g * g;
-      float S1 = stage1.getS()/(1.0 + g);
-      float S2 = stage2.getS()/(1.0 + g);
-      float S3 = stage3.getS()/(1.0 + g);
-      float S4 = stage4.getS()/(1.0 + g);
+    /**
+     * @brief Set modulation from mod wheel
+     *
+     * @param mod The modulation value from the mod wheel
+     */
+    void setModCutoff(float mod);
 
-      float SIGMA = g*g*g * S1 + g*g * S2 + g * S3 + S4;
+    /**
+     * @brief Set modulation from ADSR
+     *
+     * @param adsrMod The modulation value from ADSR
+     */
+    void setADSRCutOff(float adsrMod);
 
-      // u is the input to the first stage
-      float u = (input - K * SIGMA) / (1.0 + K * GAMMA);
-
-      float out = stage4.processSample(stage3.processSample(stage2.processSample(stage1.processSample(u))));
-
-      return out;
-    }
+    /**
+     * @brief Set modulation from LFO
+     *
+     * @param lfoMod The modulation value from LFO
+     */
+    void setLFOMod(float lfoMod);
 
 private:
-    void updateCoefficients() {
-      coeffs.setParams(Fc, sampleRate); // update filter coefficients
-      stage1.setG(coeffs.getG());
-      stage2.setG(coeffs.getG());
-      stage3.setG(coeffs.getG());
-      stage4.setG(coeffs.getG());
-      K = 4.0f * (Q - 0.707f) / (25.0f - 0.707f); // if Q = 25, K = 4
-    }
+    /**
+     * @brief Update the modulated frequency considering base, mod wheel, and ADSR
+     */
+    void updateModFrequency();
+
+    /**
+     * @brief Convert a normalized float value (0.0 to 1.0) to a frequency (0 to 15000 Hz)
+     *
+     * @param floatVal The normalized float value
+     * @return The converted frequency
+     */
+    float floatToFrequency(float floatVal);
+
+    /**
+     * @brief Update filter coefficients
+     */
+    void updateCoefficients();
 
     FilterCoeffs coeffs;
 
     float sampleRate;
     float resonance;
-    float frequency; // not scaled
+    float frequency;
     float Q;
     float K;
     float Fc;
-    
+
+    float baseFrequency = 0.0f;
+    float modulatedFrequency = 0.0f;
+
+    float adsrMod = 0.0f;
+    float modWheelMod = 0.0f;
+    float lfoMod = 0.0f;
+
+    bool adsrEnabled = true;
 
     OnePoleFilter stage1;
     OnePoleFilter stage2;

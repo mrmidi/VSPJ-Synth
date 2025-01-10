@@ -22,16 +22,25 @@ StereoDelay::~StereoDelay()
 
 void StereoDelay::prepare(const juce::dsp::ProcessSpec& spec)
 {
+    DBG("Prepare called for StereoDelay");
+    int numChannels = spec.numChannels; 
+    DBG("Current channel count: " << numChannels);
+    // if (numChannels < 2) {
+    //     DBG("I suppose i will crash now");
+    // }
+    currentSampleRate = spec.sampleRate; // Update this first
+
     DBG("Preparing delay with sample rate: " << spec.sampleRate);
-    delayLineLeft.setMaximumDelayInSamples(currentSampleRate * 2.0f); // 2 second maximum delay
-    delayLineRight.setMaximumDelayInSamples(currentSampleRate * 2.0f); // 2 second maximum delay
+
+    delayLineLeft.setMaximumDelayInSamples(currentSampleRate * 3.0f); // 3 second maximum delay
+    delayLineRight.setMaximumDelayInSamples(currentSampleRate * 3.0f); // 3 second maximum delay
     
     delayLineLeft.prepare(spec);
     delayLineRight.prepare(spec);
     delayLineLeft.reset();
     delayLineRight.reset();
 
-    currentSampleRate = spec.sampleRate;
+//    currentSampleRate = spec.sampleRate; moved to fix validation error
 
     setDelayTime(delayTimeMs);
     setPan(-0.3f);
@@ -44,25 +53,33 @@ void StereoDelay::setStereoSpread(float newSpreadValue)
 
 void StereoDelay::process(juce::AudioBuffer<float>& buffer)
 {
+    const int numChannels = buffer.getNumChannels();
     const int numSamples = buffer.getNumSamples();
 
     for (int i = 0; i < numSamples; ++i)
     {
         float inSampleLeft = buffer.getSample(0, i);
-        float inSampleRight = buffer.getSample(1, i);
+        float inSampleRight = numChannels > 1 ? buffer.getSample(1, i) : inSampleLeft;
 
         float delaySampleLeft = delayLineLeft.popSample(0);
-        float delaySampleRight = delayLineRight.popSample(0);
+        float delaySampleRight = numChannels > 1 ? delayLineRight.popSample(0) : delaySampleLeft;
 
         // Calculate the spread values
         float mixedDelayLeft = (1.0f - stereoSpread) * 0.5f * (delaySampleLeft + delaySampleRight) + stereoSpread * delaySampleLeft;
-        float mixedDelayRight = (1.0f - stereoSpread) * 0.5f * (delaySampleLeft + delaySampleRight) + stereoSpread * delaySampleRight;
+        float mixedDelayRight = numChannels > 1 ? ((1.0f - stereoSpread) * 0.5f * (delaySampleLeft + delaySampleRight) + stereoSpread * delaySampleRight) : mixedDelayLeft;
 
         buffer.setSample(0, i, inSampleLeft + mixedDelayLeft * wetLevel);
-        buffer.setSample(1, i, inSampleRight + mixedDelayRight * wetLevel);
+        if (numChannels > 1) {
+            buffer.setSample(1, i, inSampleRight + mixedDelayRight * wetLevel);
+        }
 
         delayLineLeft.pushSample(0, inSampleLeft + delaySampleLeft * feedback);
-        delayLineRight.pushSample(0, inSampleRight + delaySampleRight * feedback);
+        if (numChannels > 1) {
+            delayLineRight.pushSample(0, inSampleRight + delaySampleRight * feedback);
+        } else {
+            // For mono processing, feedback the mixed delay back into the left delay line
+            delayLineLeft.pushSample(0, mixedDelayLeft * feedback);
+        }
     }
 }
 

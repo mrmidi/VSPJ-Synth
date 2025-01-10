@@ -82,7 +82,10 @@
         "shared_mutex": "cpp",
         "stack": "cpp",
         "filesystem": "cpp",
-        "charconv": "cpp"
+        "charconv": "cpp",
+        "execution": "cpp",
+        "forward_list": "cpp",
+        "print": "cpp"
     },
     "cmake.configureOnOpen": false
 }

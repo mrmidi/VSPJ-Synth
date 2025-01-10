@@ -30,9 +30,13 @@ MyOscillator::MyOscillator()
     updatePhaseIncrement();  // Ensure this function is implemented
 }
 
+void MyOscillator::setVelocity(float newVelocity)
+{
+    velocity = newVelocity;
+}
+
 void MyOscillator::setSampleRate(float newSampleRate)
 {
-    filter.prepareToPlay(newSampleRate);  
     sampleRate = newSampleRate;
     updatePhaseIncrement();  
 }
@@ -75,7 +79,6 @@ void MyOscillator::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int s
     for (int sample = 0; sample < numSamples; ++sample)
     {
         float value = 0;
-        float amplitude = 0.5f;
         if (waveForm == SINE)
         {
             value = getSineTick() * amplitude; // amplitude * sin(phase)
@@ -106,9 +109,7 @@ void MyOscillator::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int s
             value = getPulseTick();
         }
         CUSTOMDBG("Square value: " << value);
-        // float value = getSineTick();
-        // filter value
-        value = filter.processSample(value);
+        
         for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
         {
             outputBuffer.addSample(channel, startSample + sample, value);
@@ -117,7 +118,6 @@ void MyOscillator::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int s
 }
 
 // private methods
-
 float MyOscillator::getSineTick()
 {
     float value = sin(phase);

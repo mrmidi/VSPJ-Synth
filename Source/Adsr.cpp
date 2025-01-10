@@ -18,3 +18,9 @@ void Adsr::updateParams (const float attack, const float decay, const float sust
     adsrParams.release = release;
     setParameters(adsrParams);
 }
+
+bool Adsr::isFilterEnabled()
+{
+    // the logic is if the sustain level is 0, then the filter is disabled
+    return adsrParams.sustain > 0.0f;
+}
